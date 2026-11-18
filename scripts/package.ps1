@@ -84,7 +84,8 @@ $process = Start-Process -FilePath $compiler -ArgumentList $arguments -WindowSty
 if (-not $process.WaitForExit(300000)) { $process.Kill(); throw 'Installer compilation exceeded five minutes.' }
 if ($process.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $installerPath)) { throw 'Installer compilation failed.' }
 $installerInfo = [Diagnostics.FileVersionInfo]::GetVersionInfo($installerPath)
-if ($installerInfo.FileVersion -ne $metadata.AssemblyVersion -or $installerInfo.ProductVersion -ne $metadata.Version) { throw 'Compiled installer version does not match Crest.csproj.' }
+# Inno Setup reserves padded version-resource strings for later updates/signing.
+if ($installerInfo.FileVersion.Trim() -ne $metadata.AssemblyVersion -or $installerInfo.ProductVersion.Trim() -ne $metadata.Version) { throw 'Compiled installer version does not match Crest.csproj.' }
 $checksum = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash.ToLowerInvariant()
 Write-CrestUtf8 (Join-Path $outputDir "Crest-Setup-$($metadata.Version)-x64.sha256") ($checksum + '  ' + [IO.Path]::GetFileName($installerPath) + "`n")
 Write-Host "Installer: $installerPath"
