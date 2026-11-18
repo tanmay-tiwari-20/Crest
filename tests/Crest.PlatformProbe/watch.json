@@ -1,0 +1,4069 @@
+{
+  "StartedUtc": "2026-11-18T18:53:35.6398452+00:00",
+  "DurationSeconds": 20.146,
+  "StrictDesktop": true,
+  "DpiScale": 1.25,
+  "Samples": [
+    {
+      "TimestampUtc": "2026-11-18T18:53:35.7949082+00:00",
+      "ElapsedSeconds": 0.155,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:36.3797792+00:00",
+      "ElapsedSeconds": 0.74,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:36.9539347+00:00",
+      "ElapsedSeconds": 1.314,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:37.5315115+00:00",
+      "ElapsedSeconds": 1.892,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:38.1122821+00:00",
+      "ElapsedSeconds": 2.472,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:38.6755379+00:00",
+      "ElapsedSeconds": 3.036,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:39.2514136+00:00",
+      "ElapsedSeconds": 3.612,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:39.8281768+00:00",
+      "ElapsedSeconds": 4.188,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:40.4119623+00:00",
+      "ElapsedSeconds": 4.772,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:40.9753169+00:00",
+      "ElapsedSeconds": 5.335,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:41.5519614+00:00",
+      "ElapsedSeconds": 5.912,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:42.1260891+00:00",
+      "ElapsedSeconds": 6.486,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:42.6971364+00:00",
+      "ElapsedSeconds": 7.057,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:43.2667558+00:00",
+      "ElapsedSeconds": 7.627,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:43.8512285+00:00",
+      "ElapsedSeconds": 8.211,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:44.433533+00:00",
+      "ElapsedSeconds": 8.794,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:45.012878+00:00",
+      "ElapsedSeconds": 9.373,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:45.5805624+00:00",
+      "ElapsedSeconds": 9.941,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:46.153825+00:00",
+      "ElapsedSeconds": 10.514,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:46.7274005+00:00",
+      "ElapsedSeconds": 11.088,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:47.2938756+00:00",
+      "ElapsedSeconds": 11.654,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:47.861354+00:00",
+      "ElapsedSeconds": 12.222,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:48.4378602+00:00",
+      "ElapsedSeconds": 12.798,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:49.0100583+00:00",
+      "ElapsedSeconds": 13.37,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:49.5856209+00:00",
+      "ElapsedSeconds": 13.946,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:50.1618019+00:00",
+      "ElapsedSeconds": 14.522,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:50.7295118+00:00",
+      "ElapsedSeconds": 15.09,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:51.3060497+00:00",
+      "ElapsedSeconds": 15.666,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:51.8741717+00:00",
+      "ElapsedSeconds": 16.234,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:52.4258876+00:00",
+      "ElapsedSeconds": 16.786,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:52.9935398+00:00",
+      "ElapsedSeconds": 17.354,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:53.5708674+00:00",
+      "ElapsedSeconds": 17.931,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:54.1407305+00:00",
+      "ElapsedSeconds": 18.501,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:54.7002745+00:00",
+      "ElapsedSeconds": 19.06,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    },
+    {
+      "TimestampUtc": "2026-11-18T18:53:55.2768347+00:00",
+      "ElapsedSeconds": 19.637,
+      "Eligible": false,
+      "Reason": "foreground-is-not-actual-desktop",
+      "Foreground": {
+        "Handle": "0x403C0",
+        "Class": "Chrome_WidgetWin_1",
+        "OwnerPid": 15404,
+        "OwnerProcess": "ChatGPT",
+        "CrestTitle": "",
+        "Visible": true,
+        "Minimized": false,
+        "Rect": {
+          "X": 0,
+          "Y": 0,
+          "Width": 1920,
+          "Height": 1080
+        },
+        "CloakedResult": 0,
+        "Cloaked": 0,
+        "ExtendedStyle": "0x240100",
+        "CurrentVirtualDesktop": true,
+        "VirtualDesktopResult": 0,
+        "IntersectsDisplay": true,
+        "CoverageReason": "visible-window-intersects-selected-display",
+        "WouldBlockStrict": true
+      },
+      "DesktopRoots": [
+        "0x1021C"
+      ],
+      "VirtualDesktopManagerAvailable": true,
+      "Pointer": {
+        "X": 136,
+        "Y": 829,
+        "InsideTrigger": false
+      },
+      "Trigger": {
+        "X": 810,
+        "Y": 0,
+        "Width": 300,
+        "Height": 4
+      },
+      "Blockers": [
+        {
+          "Handle": "0x403C0",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 15404,
+          "OwnerProcess": "ChatGPT",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x240100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40560",
+          "Class": "WinUIDesktopWin32WindowClass",
+          "OwnerPid": 16420,
+          "OwnerProcess": "WhatsApp.Root",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": -9,
+            "Y": -9,
+            "Width": 1938,
+            "Height": 1098
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x100",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        },
+        {
+          "Handle": "0x40528",
+          "Class": "Chrome_WidgetWin_1",
+          "OwnerPid": 19076,
+          "OwnerProcess": "msedgewebview2",
+          "CrestTitle": "",
+          "Visible": true,
+          "Minimized": false,
+          "Rect": {
+            "X": 0,
+            "Y": 0,
+            "Width": 1920,
+            "Height": 1080
+          },
+          "CloakedResult": 0,
+          "Cloaked": 0,
+          "ExtendedStyle": "0x8280080",
+          "CurrentVirtualDesktop": true,
+          "VirtualDesktopResult": 0,
+          "IntersectsDisplay": true,
+          "CoverageReason": "visible-window-intersects-selected-display",
+          "WouldBlockStrict": true
+        }
+      ],
+      "VisibleCrestWindows": []
+    }
+  ],
+  "Limitations": "Passive20-second native observations. No screenshots, input actions, window activation/minimization or product policy changes. This reads a separate diagnostic policy; it does not read the running product\u0027s controller fields."
+}

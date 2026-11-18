@@ -1,0 +1,24 @@
+{
+  "TimestampUtc": "2026-11-18T16:38:46.7185213+00:00",
+  "ForegroundClass": "Chrome_WidgetWin_1",
+  "ShellClass": "Progman",
+  "StrictMode": true,
+  "CurrentForegroundEligible": false,
+  "PausedPolicyHidden": true,
+  "ResumedForegroundEligible": false,
+  "Screen": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1920,
+    "Height": 1080,
+    "DpiScale": 1.25
+  },
+  "SynchronousRecheck100Calls": {
+    "P95Milliseconds": 0.0983,
+    "P99Milliseconds": 0.1509,
+    "MaximumMilliseconds": 0.1619
+  },
+  "SelectedCrestProcessId": 0,
+  "CrestTopLevelWindows": [],
+  "Limitations": "Read-only snapshot. Recheck durations exclude OS WinEvent delivery and WPF dispatcher queue delay; they do not establish foreground-suppression percentiles or frame presentation. No user windows are moved, minimized, activated or closed."
+}

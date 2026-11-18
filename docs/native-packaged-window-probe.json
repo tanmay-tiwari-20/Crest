@@ -1,0 +1,89 @@
+{
+  "TimestampUtc": "2026-11-18T16:44:33.7262489+00:00",
+  "ForegroundClass": "HwndWrapper[Crest;;5003ad2f-7f8a-45fc-adb0-7df82e309587]",
+  "ShellClass": "Progman",
+  "StrictMode": true,
+  "CurrentForegroundEligible": false,
+  "PausedPolicyHidden": true,
+  "ResumedForegroundEligible": false,
+  "Screen": {
+    "X": 0,
+    "Y": 0,
+    "Width": 1920,
+    "Height": 1080,
+    "DpiScale": 1.25
+  },
+  "SynchronousRecheck100Calls": {
+    "P95Milliseconds": 0.0486,
+    "P99Milliseconds": 0.0743,
+    "MaximumMilliseconds": 0.1049
+  },
+  "SelectedCrestProcessId": 28984,
+  "CrestTopLevelWindows": [
+    {
+      "Class": "HwndWrapper[Crest;;3dc22c60-7956-4101-ac3e-fafc2dda9aaf]",
+      "Visible": false
+    },
+    {
+      "Class": "HwndWrapper[Crest;;5003ad2f-7f8a-45fc-adb0-7df82e309587]",
+      "Visible": true
+    },
+    {
+      "Class": "GDI\u002B Hook Window Class",
+      "Visible": false
+    },
+    {
+      "Class": "WindowsForms10.Window.0.app.0.5c39d4_r3_ad1",
+      "Visible": false
+    },
+    {
+      "Class": "HwndWrapper[Crest;;81f320e0-29ca-4df1-8ade-1402b4dbbb59]",
+      "Visible": false
+    },
+    {
+      "Class": "HwndWrapper[Crest;;62d2e4d7-9be7-463c-987b-e29681290ea2]",
+      "Visible": false
+    },
+    {
+      "Class": "HwndWrapper[Crest;;3f9a555c-b94d-48af-96ca-8b4030179cde]",
+      "Visible": false
+    },
+    {
+      "Class": "HwndWrapper[Crest;;2df4ec13-cc21-4d1e-b2bf-7a46ac4863b3]",
+      "Visible": false
+    },
+    {
+      "Class": ".NET-BroadcastEventWindow.5c39d4.0",
+      "Visible": false
+    },
+    {
+      "Class": "HwndWrapper[Crest;;b5f02518-e226-4bb3-ac6a-583bb811f41f]",
+      "Visible": false
+    },
+    {
+      "Class": "CiceroUIWndFrame",
+      "Visible": false
+    },
+    {
+      "Class": "MSCTFIME UI",
+      "Visible": false
+    },
+    {
+      "Class": "IME",
+      "Visible": false
+    },
+    {
+      "Class": "CiceroUIWndFrame",
+      "Visible": false
+    },
+    {
+      "Class": "IME",
+      "Visible": false
+    },
+    {
+      "Class": "IME",
+      "Visible": false
+    }
+  ],
+  "Limitations": "Read-only snapshot. Recheck durations exclude OS WinEvent delivery and WPF dispatcher queue delay; they do not establish foreground-suppression percentiles or frame presentation. No user windows are moved, minimized, activated or closed."
+}

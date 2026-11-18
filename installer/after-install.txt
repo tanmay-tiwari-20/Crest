@@ -1,0 +1,16 @@
+Crest is ready.
+
+It stays hidden until you hover at the top center of a clear desktop.
+
+1. Start Crest from the final setup screen or the Start menu.
+2. Press Windows+D to minimize your applications.
+3. Move the pointer away from the top, then hover at the top center.
+4. Select Music, Controls, Timer, Launch, or Shelf from the island.
+
+When you open an application, Crest immediately hides. Background music and timers continue without opening the island.
+
+Right-click Crest in the system tray for Settings, Pause, Resume, or Quit. Settings is a normal application window and hides the island while open.
+
+Starting with Windows is off. You can enable it in Settings. No account, internet connection, SDK, or administrator access is required to use Crest.
+
+To uninstall, use Windows Settings > Apps > Installed apps > Crest. You can keep or delete saved Crest data; the files referenced by the shelf are never deleted.

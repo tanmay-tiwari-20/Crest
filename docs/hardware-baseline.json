@@ -1,0 +1,23 @@
+{
+  "OS": "Microsoft Windows 11 Home Single Language",
+  "Build": "10.0.26300",
+  "Architecture": "64-bit",
+  "SystemType": "x64-based PC",
+  "RAMBytes": 7883554816,
+  "CPU": "AMD Ryzen 5 5600H with Radeon Graphics         ",
+  "GPU": [
+    {
+      "Name": "AMD Radeon(TM) RX 6500M",
+      "Width": null,
+      "Height": null,
+      "RefreshHz": null
+    },
+    {
+      "Name": "AMD Radeon(TM) Graphics",
+      "Width": 1920,
+      "Height": 1080,
+      "RefreshHz": 144
+    }
+  ],
+  "PowerScheme": "Power Scheme GUID: 381b4222-f694-41f0-9685-ff5bb260df2e  (Balanced)"
+}

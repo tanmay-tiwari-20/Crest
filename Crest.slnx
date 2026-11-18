@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/Crest/Crest.csproj" />
+  <Project Path="tests/Crest.Tests/Crest.Tests.csproj" />
+  <Project Path="tests/Crest.PlatformProbe/Crest.PlatformProbe.csproj" />
+</Solution>

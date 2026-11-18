@@ -1,0 +1,21 @@
+{
+  "Method": "WCAG sRGB relative-luminance calculation, opaque normal-state tokens; OS high-contrast palettes and disabled controls not certified by this calculation.",
+  "Results": [
+    {
+      "Theme": "Dark",
+      "NormalTextOnSurface": 16.13,
+      "MutedTextOnSurface": 7.74,
+      "MutedTextOnRaised": 6.64,
+      "BoundaryOnSurface": 3.87,
+      "BoundaryOnRaised": 3.32
+    },
+    {
+      "Theme": "Light",
+      "NormalTextOnSurface": 15.48,
+      "MutedTextOnSurface": 6.06,
+      "MutedTextOnRaised": 5.54,
+      "BoundaryOnSurface": 3.48,
+      "BoundaryOnRaised": 3.18
+    }
+  ]
+}

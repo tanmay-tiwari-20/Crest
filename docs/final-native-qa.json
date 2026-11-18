@@ -1,0 +1,18 @@
+{
+  "Build": "Crest 0.1.0 reference redesign with final control and motion polish",
+  "InstalledProcessId": 24684,
+  "InstalledDllSHA256": "1AFF2216760F5526EAEC3CC71E169EDC165AA937813184D929C5F217EB3DA012",
+  "ReleaseBuild": "Zero warnings and errors",
+  "OutcomeTestsPassed": 24,
+  "FinalInstalledDarkAndLightPreviews": "Successfully rendered compact, overview and five module panels",
+  "NormalSettingsRestore": {
+    "Minimize": "Native Settings minimize button; Computer Use confirmed the window was minimized",
+    "Restore": "Crest.exe --settings invoked the existing single-instance Settings signal",
+    "Result": "Same Settings window restored visibly to its prior Normal layout",
+    "ExternalWindowActivationUsedForRestore": false,
+    "Snapshot": "C:\\Users\\hp\\crest\\artifacts\\previews\\native-settings-restored.png",
+    "HardwareStates": "Audio ready; Brightness ready"
+  },
+  "StaticDesktopComposition": "C:\\Users\\hp\\crest\\artifacts\\previews\\desktop-design-preview.png",
+  "Limitations": "Static composition is not a native desktop capture. Maximized restore, mixed/200-percent DPI, desktop OLE dragging, complete shell transitions, active media, screen-reader navigation, cold-start budget, ten-minute hidden idle and presented-frame gates remain unverified."
+}

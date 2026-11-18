@@ -1,0 +1,41 @@
+{
+  "Date": "2026-11-18",
+  "Audio": {
+    "Available": true,
+    "VolumeBefore": 62,
+    "VolumeAfter": 62,
+    "Muted": true,
+    "Output": "FxSound Speakers (FxSound Audio Enhancer)",
+    "Status": "System volume"
+  },
+  "Battery": {
+    "Available": true,
+    "Percent": 100,
+    "Charging": false,
+    "RemainingMinutes": null,
+    "Status": "Plugged in"
+  },
+  "Brightness": {
+    "Available": true,
+    "Before": 20,
+    "After": 20,
+    "Status": "Built-in display"
+  },
+  "Media": {
+    "SessionCount": 0,
+    "HasSession": false,
+    "Status": "No compatible media session. Your player must publish Windows media controls."
+  },
+  "DispatcherEvents": 14,
+  "Tests": [
+    "Native Core Audio query",
+    "Set volume to existing value",
+    "Native battery query",
+    "WMI brightness query",
+    "Set brightness to existing value",
+    "Empty media session commands",
+    "Missing preferred player fallback",
+    "Visible refresh then suspension",
+    "Dispose and clean process exit"
+  ]
+}
