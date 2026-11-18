@@ -1,33 +1,111 @@
 # Crest
 
-Crest is a native Windows 11 desktop utility built from Crest PRD v1.1 (18 November 2026). It stays hidden until a fresh hover at the top-center of an eligible desktop. The default strict policy suppresses it whenever an application is active or an ordinary visible app intersects the selected display.
+<img src="assets/focus-orb.png" alt="Original Crest focus character" width="88" />
 
-## Use the application
+[![Windows build](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml/badge.svg)](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Run `artifacts/Crest-Setup-0.1.0-x64.exe` to install the self-contained x64 build. No SDK, account, or developer tools are needed. A portable build is in `artifacts/portable/Crest`; keep its files together and run `Crest.exe`.
+Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, a focus timer, system controls, shortcuts, and a temporary file shelf. It stays hidden while an application is active.
 
-Open **Crest Settings** from Start, or double-click the tray icon. Close Settings, press **Win+D**, move the pointer away from the top edge, then enter the top-center edge and wait briefly. Nothing remains visible when hidden. Right-click the tray icon for Settings, Pause / Resume, and Quit.
+**Crest 0.1.0 is a release candidate.** The core implementation and 24 automated outcome tests are complete; the remaining native acceptance checks are listed in the [test report](docs/TEST_REPORT.md).
 
-The top island was redesigned using the owner's two images and video: a compact black pill, horizontal activity cards, embedded3D focus artwork, and an icon dock. See `docs/REFERENCE_DESIGN.md` for source observations.
+## Download and install
 
-## Included
+Download a packaged application from [GitHub Releases](https://github.com/tanmay-tiwari-20/Crest/releases). Open the release's **Assets** list and choose one of these:
 
-- Verified Explorer desktop identity, strict coverage and virtual-desktop checks, fresh-entry dwell, immediate app suppression, pointer grace, interrupted close reversal, and an opt-in keyboard shortcut.
-- Native Windows media sessions; system volume and mute; OS-reported battery; supported built-in brightness.
-- One persistent timer with monotonic countdown, paused recovery, and a retained completion.
-- Explicit app, file, folder, website, and shortcut entries.
-- Session-only desktop file shelf holding up to 20 references without modifying originals.
-- Dark, light, and system themes; motion, trigger, monitor, module, sound, startup, and accessibility settings.
-- A per-user installer, graceful upgrade/quit IPC, and uninstall data-retention choice.
+| Package | Use it when | Installation |
+|---|---|---|
+| `Crest-Setup-0.1.0-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
+| `Crest-Portable-0.1.0-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
 
-## Status
+Both packages target **Windows 11 x64** and include the .NET runtime. You do not need an SDK, a separate runtime installation, administrator access, or a Crest account. The source-code archives on a GitHub release are for building the application; download an application package to run it.
 
-Version **0.1.0 is a release candidate**, with P0/P1 implementation complete. All 24 automated outcome tests and selected native checks pass. The PRD requires additional real desktop-drag, shell-transition, accessibility, frame-pacing, and clean-account acceptance before a first usable release can be certified. The selected concurrent-activity overview is included; other P2/P3 catalogue entries remain future work, as the PRD's staged roadmap specifies; they are not represented as working integrations.
+The installer is currently unsigned. Startup with Windows is off by default and can be enabled in Settings. Portable use still stores preferences in your Windows user profile.
 
-Read [the user guide](docs/USER_GUIDE.md), [requirements analysis](docs/PRD_ANALYSIS.md), [test report](docs/TEST_REPORT.md), [release notes](docs/RELEASE_NOTES.md), and [build instructions](docs/BUILD.md).
+## First use
 
-## Maintain the source
+Crest starts quietly in the system tray. Open **Crest Settings** from Start, double-click the tray icon, or right-click it and choose **Settings**.
 
-The application uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Run `scripts/build.ps1 -Package` with a .NET 10 SDK to restore, compile, run outcome tests, publish the self-contained app, and build the installer. The local SDK under `.tools` is used automatically when present. End users only need the packaged application.
+1. Close Settings, press **Win+D**, and minimize or close any remaining visible apps on the selected display.
+2. Move the pointer away from the top edge.
+3. Enter the top-center edge and pause briefly. The default trigger is 240 × 3 device-independent pixels, with a 120 ms hover delay.
+4. Click the chevron to expand the focus, music, and battery cards. Use the icon dock below them to open a detail panel.
 
-The application has no analytics, process injection, required administrator service, or background network requests. Files are referenced only; clipboard capture and account integrations are absent.
+A stationary pointer does not reveal Crest after Win+D, unlock, resume, or tray Resume. Move away and enter the trigger again. Opening an app dismisses Crest; media and timer activity never reveal it automatically.
+
+The default **strict desktop mode** requires the actual wallpaper desktop to be foreground and ordinary visible apps on the selected display to be minimized. File Explorer, Start, Search, Task View, and foreground apps on another monitor also suppress Crest. The optional desktop-active mode allows visible app windows when the actual desktop is foreground.
+
+## Features
+
+| Feature | Included behavior |
+|---|---|
+| Music | Windows media-session metadata and artwork, supported playback and seek controls, and a preferred-player selector when several sessions are available. |
+| System controls | Default output volume and mute, Windows-reported battery state, and supported built-in display brightness. |
+| Focus timer | One timer with presets or custom minutes, pause/resume, cancellation, completion acknowledgement, and saved state across restarts. |
+| Launch shortcuts | Explicit app, file, folder, HTTP/HTTPS website, and Windows shortcut entries. The side rail shows the first two; the detail panel shows the full list. |
+| File shelf | Up to 20 session-only references from the wallpaper desktop, with open, drag-out, removal, and missing-source states. Original files are not copied, moved, or deleted by Crest. |
+| Personalization | System/light/dark theme, motion preferences, size, trigger, display, module, startup, and optional keyboard-reveal settings. |
+| Tray controls | Settings, Pause / Resume, and Quit, with a single-instance application and graceful installer upgrades. |
+
+The [user guide](docs/USER_GUIDE.md) explains each module, keyboard access, upgrades, and removal.
+
+## Privacy and local data
+
+Crest has no analytics, required account, clipboard collection, notification access, or online account integrations. Preferences, explicit shortcuts, and timer state live in `%LOCALAPPDATA%\Crest`; the file shelf exists only in memory and clears when Crest quits. Website shortcuts open through Windows when you select them.
+
+**Settings → About → Reset Crest data** asks before clearing Crest's data and disabling startup. Your original files are untouched. Installed uninstall offers a choice to retain or delete local settings.
+
+## Compatibility and release status
+
+This candidate is distributed for Windows 11 x64. ARM64 and Windows 10 packages are not available. Media actions depend on the player exposing a compatible Windows session; brightness and battery details depend on hardware support and the values Windows supplies.
+
+The current automated suite has 24 passing outcome tests. Full real desktop dragging, shell and app transitions, active/multiple media sessions, keyboard and screen-reader operation, high contrast, physical frame pacing, and clean-account installation still require acceptance. The proposed cold-start budget and high-refresh animation performance have not been established. See the [test report](docs/TEST_REPORT.md) for the evidence and open gates.
+
+The concurrent activity overview selected from the owner's reference is included. Clipboard history, multiple timers, weather, accounts, and AI integrations remain future roadmap work.
+
+## Troubleshooting
+
+**Crest does not appear:** Check the tray icon and Pause state, close Settings, show the desktop, and enter the trigger afresh. Verify the display selected in Behavior. A visible helper window can block strict mode even when the desktop looks empty. In a confirmed case, closing a WhatsApp WebView window restored hover. Close or minimize the relevant app normally and try again.
+
+**Music is empty or controls are disabled:** Start playback in a player that exposes a Windows media session. Crest only enables actions that the player reports as supported.
+
+**Brightness or battery information is unavailable:** These controls use Windows capabilities. An unsupported external display or a missing OS estimate is shown as unavailable.
+
+See the [full troubleshooting guide](docs/USER_GUIDE.md#troubleshooting). Report reproducible problems through [GitHub Issues](https://github.com/tanmay-tiwari-20/Crest/issues), including your Windows version, display/scaling setup, app version, and steps to reproduce.
+
+## Build from source
+
+Maintainers need Windows, Git, and **.NET SDK 10.0.404**, pinned by [global.json](global.json). End users only need a release package.
+
+```powershell
+git clone https://github.com/tanmay-tiwari-20/Crest.git
+cd Crest
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.1.0
+```
+
+The release script restores locked dependencies, builds, runs outcome tests, publishes a self-contained x64 app, and uses the verified Inno Setup compiler to create an installer and portable ZIP. It uses `.tools/dotnet` when available, otherwise the pinned system SDK. Upload-ready files and checksums go under `artifacts/release/`. Use `scripts/build.ps1` for a build without packaging.
+
+For a development run, quit any other Crest instance first:
+
+```powershell
+dotnet run --project src/Crest/Crest.csproj -- --settings
+```
+
+Crest uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Read the [build instructions](docs/BUILD.md) for packaging details. Contributions should describe the user-visible change and include relevant validation; changes to reveal or suppression behavior must preserve the desktop eligibility rules.
+
+## Documentation
+
+- [User guide](docs/USER_GUIDE.md)
+- [PRD analysis and implementation scope](docs/PRD_ANALYSIS.md)
+- [Reference design observations](docs/REFERENCE_DESIGN.md)
+- [Compatibility and test report](docs/TEST_REPORT.md)
+- [Release notes](docs/RELEASE_NOTES.md)
+- [Build and packaging instructions](docs/BUILD.md)
+- [Release publishing steps](docs/RELEASING.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security reporting](SECURITY.md)
+
+## License
+
+Original project code, documentation, icon, and current focus artwork use the [MIT license](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). Editable character artwork is in `assets/focus-orb.svg`; the earlier reference crop was replaced for public distribution.

@@ -4,12 +4,18 @@
 #ifndef OutputDir
   #define OutputDir "..\artifacts"
 #endif
+#ifndef AppVersion
+  #error "AppVersion must be supplied by scripts/package.ps1"
+#endif
+#ifndef AppFileVersion
+  #error "AppFileVersion must be supplied by scripts/package.ps1"
+#endif
 
 [Setup]
 AppId=Crest.PersonalUtility
 AppName=Crest
-AppVersion=0.1.0
-AppVerName=Crest 0.1.0
+AppVersion={#AppVersion}
+AppVerName=Crest {#AppVersion}
 AppPublisher=Crest
 DefaultDirName={localappdata}\Programs\Crest
 DefaultGroupName=Crest
@@ -22,16 +28,18 @@ WizardStyle=modern
 SetupIconFile=..\assets\crest.ico
 UninstallDisplayIcon={app}\Crest.exe
 OutputDir={#OutputDir}
-OutputBaseFilename=Crest-Setup-0.1.0-x64
+OutputBaseFilename=Crest-Setup-{#AppVersion}-x64
 Compression=lzma2/max
 SolidCompression=yes
+TimeStampsInUTC=yes
 CloseApplications=no
 RestartApplications=no
 SetupMutex=Local\Crest.Installer
 InfoAfterFile=after-install.txt
 VersionInfoDescription=Crest desktop utility setup
 VersionInfoProductName=Crest
-VersionInfoProductVersion=0.1.0
+VersionInfoVersion={#AppFileVersion}
+VersionInfoProductVersion={#AppVersion}
 UninstallDisplayName=Crest
 
 [Tasks]

@@ -1,0 +1,18 @@
+name: Feature request
+description: Propose a useful change to Crest.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe when this would help you.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed behavior
+      description: Include any Windows APIs, permissions, offline behavior, or data retention involved.
+    validations:
+      required: true

@@ -1,0 +1,36 @@
+name: Bug report
+description: Report unexpected Crest behavior.
+title: "[Bug] "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Crest version and installation type
+      placeholder: "0.1.0, installer or portable"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version and display scaling
+      placeholder: "Windows 11 build ..., 125%, one or multiple displays"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: For hover problems, include whether all apps were minimized, Settings was closed, and the pointer first moved away from the top edge.
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Relevant evidence
+      description: Optional screenshots or diagnostic excerpts. Remove personal paths, file contents, credentials, and unrelated app information before posting.

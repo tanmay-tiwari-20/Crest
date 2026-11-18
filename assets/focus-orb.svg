@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Crest focus cloud</title>
+  <desc>Original blue cloud character created for Crest. Licensed under the project's MIT license.</desc>
+  <defs>
+    <path id="cloud" d="M70 80C68 49 94 29 121 35C147 22 180 40 187 70C216 74 235 101 224 130C235 158 218 189 190 194C175 221 139 229 114 210C86 218 55 204 48 177C21 165 19 130 39 111C38 92 52 80 70 80Z"/>
+    <radialGradient id="volume" cx="32%" cy="24%" r="84%">
+      <stop offset="0" stop-color="#d2fbff"/>
+      <stop offset=".27" stop-color="#78ddff"/>
+      <stop offset=".52" stop-color="#3bc2fa"/>
+      <stop offset=".78" stop-color="#209de5"/>
+      <stop offset="1" stop-color="#0a68be"/>
+    </radialGradient>
+    <radialGradient id="shine">
+      <stop offset="0" stop-color="white" stop-opacity=".65"/>
+      <stop offset="1" stop-color="white" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="shade">
+      <stop offset="0" stop-color="#105da9" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#105da9" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="eyes" x2="0" y2="1">
+      <stop stop-color="#0c2147"/>
+      <stop offset="1" stop-color="#172644"/>
+    </linearGradient>
+    <clipPath id="shape"><use href="#cloud"/></clipPath>
+    <filter id="soft"><feGaussianBlur stdDeviation="5"/></filter>
+    <filter id="ground"><feGaussianBlur stdDeviation="7"/></filter>
+  </defs>
+  <ellipse cx="134" cy="226" rx="59" ry="8" fill="#29a6ed" opacity=".17" filter="url(#ground)"/>
+  <use href="#cloud" fill="url(#volume)"/>
+  <g clip-path="url(#shape)">
+    <ellipse cx="97" cy="72" rx="68" ry="36" transform="rotate(-30 97 72)" fill="url(#shine)" filter="url(#soft)"/>
+    <ellipse cx="192" cy="169" rx="83" ry="68" fill="url(#shade)" filter="url(#soft)"/>
+    <ellipse cx="50" cy="134" rx="24" ry="36" fill="url(#shine)" opacity=".6"/>
+    <ellipse cx="144" cy="203" rx="39" ry="17" fill="url(#shine)" opacity=".3"/>
+  </g>
+  <ellipse cx="104" cy="132" rx="8" ry="12" fill="url(#eyes)"/>
+  <ellipse cx="148" cy="132" rx="8" ry="12" fill="url(#eyes)"/>
+  <ellipse cx="101" cy="128" rx="2.2" ry="2.8" fill="#badfff" opacity=".8"/>
+  <ellipse cx="145" cy="128" rx="2.2" ry="2.8" fill="#badfff" opacity=".8"/>
+  <path d="M118 157Q127 163 136 157" fill="none" stroke="#154268" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+</svg>

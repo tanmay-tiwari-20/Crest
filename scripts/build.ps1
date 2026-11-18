@@ -1,29 +1,42 @@
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Release',
     [switch]$SkipTests,
-    [switch]$Package
+    [switch]$Package,
+    [switch]$UpdateLockFiles
 )
-$ErrorActionPreference = 'Stop'
-$projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$localSdk = Join-Path $projectRoot '.tools\dotnet\dotnet.exe'
-$dotnetExe = if (Test-Path -LiteralPath $localSdk) { $localSdk } else { (Get-Command dotnet -ErrorAction Stop).Source }
+. (Join-Path $PSScriptRoot 'release-common.ps1')
+if ($env:OS -ne 'Windows_NT') { throw 'Crest must be built on Windows.' }
+if ($Package -and ($Configuration -ne 'Release' -or $SkipTests)) { throw 'Packages require Release configuration and passing tests.' }
+$metadata = Get-CrestBuildMetadata
+$dotnetExe = Get-CrestDotnet
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
+$env:DOTNET_NOLOGO = '1'
 $sdkVersion = & $dotnetExe --version
-if ($LASTEXITCODE -ne 0 -or [version]($sdkVersion.Split('-')[0]) -lt [version]'10.0.0') {
-    throw 'Building Crest requires the .NET 10 SDK. The packaged application includes its runtime and needs no SDK.'
+if ($LASTEXITCODE -ne 0 -or $sdkVersion.Trim() -ne $metadata.Sdk) { throw "Building Crest requires pinned .NET SDK $($metadata.Sdk)." }
+$appProject = Join-Path $script:CrestRoot 'src\Crest\Crest.csproj'
+$testProject = Join-Path $script:CrestRoot 'tests\Crest.Tests\Crest.Tests.csproj'
+$commonProperties = @('-p:Deterministic=true', '-p:ContinuousIntegrationBuild=true', '-p:TreatWarningsAsErrors=true', '-p:DebugType=None', '-p:DebugSymbols=false', "-p:PathMap=$($script:CrestRoot)=/_/crest", '-nr:false', '-maxcpucount:2')
+$restoreMode = if ($UpdateLockFiles) { '--force-evaluate' } else { '--locked-mode' }
+foreach ($project in @($appProject, $testProject)) {
+    if (-not $UpdateLockFiles -and -not (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $project) 'packages.lock.json'))) {
+        throw 'Committed NuGet lockfiles are required. Use -UpdateLockFiles explicitly when reviewing dependency updates.'
+    }
+    $restoreArguments = @('restore', $project, '--use-lock-file', $restoreMode, '--source', 'https://api.nuget.org/v3/index.json', '--nologo', '-p:NuGetAudit=true')
+    if ($project -eq $appProject) { $restoreArguments += @('--runtime', $metadata.Rid, '-p:SelfContained=true', '-p:PublishReadyToRun=true') }
+    & $dotnetExe @restoreArguments
+    if ($LASTEXITCODE -ne 0) { throw "Locked dependency restore failed: $project" }
 }
-$appProject = Join-Path $projectRoot 'src\Crest\Crest.csproj'
-$testProject = Join-Path $projectRoot 'tests\Crest.Tests\Crest.Tests.csproj'
-$portableDir = Join-Path $projectRoot 'artifacts\portable\Crest'
-& $dotnetExe restore $appProject --runtime win-x64 --nologo
-if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed.' }
-& $dotnetExe build $appProject --configuration $Configuration --no-restore --nologo
+& $dotnetExe build $appProject --configuration $Configuration --runtime $metadata.Rid --self-contained true --no-restore --nologo @commonProperties -p:PublishReadyToRun=true
 if ($LASTEXITCODE -ne 0) { throw 'Crest did not compile.' }
 if (-not $SkipTests) {
-    & $dotnetExe run --project $testProject --configuration $Configuration --no-launch-profile
+    & $dotnetExe build $testProject --configuration $Configuration --no-restore --nologo @commonProperties
+    if ($LASTEXITCODE -ne 0) { throw 'Crest verification did not compile.' }
+    & $dotnetExe run --project $testProject --configuration $Configuration --no-build --no-restore --no-launch-profile
     if ($LASTEXITCODE -ne 0) { throw 'Crest verification failed. No package was produced.' }
 }
-& $dotnetExe publish $appProject --configuration $Configuration --runtime win-x64 --self-contained true --output $portableDir --nologo -p:PublishSingleFile=false -p:PublishReadyToRun=true
+$portableDir = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\portable\Crest')
+& $dotnetExe publish $appProject --configuration $Configuration --runtime $metadata.Rid --self-contained true --no-build --no-restore --output $portableDir --nologo @commonProperties -p:PublishSingleFile=false -p:PublishReadyToRun=true
 if ($LASTEXITCODE -ne 0) { throw 'Self-contained publication failed.' }
-Write-Output "Self-contained Windows x64 application: $portableDir"
-if ($Package) { & (Join-Path $PSScriptRoot 'package.ps1') -SourceDir $portableDir }
+Assert-CrestDistribution $portableDir $metadata
+Write-Host "Validated self-contained Windows x64 application: $portableDir"
+if ($Package) { & (Join-Path $PSScriptRoot 'package.ps1') -SourceDir $portableDir | Out-Host }

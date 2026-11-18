@@ -1,0 +1,75 @@
+name: Draft Windows prerelease
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to build (must match Crest.csproj)
+        required: true
+        default: v0.1.0
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crest-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  prerelease:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      CREST_RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the existing release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
+          persist-credentials: false
+      - name: Install pinned .NET SDK
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+      - name: Check version, build, test, and package
+        run: '& ./scripts/release.ps1 -Tag $env:CREST_RELEASE_TAG | Out-Host'
+      - name: Retain the exact draft release assets
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: crest-${{ env.CREST_RELEASE_TAG }}-windows-x64
+          path: |
+            artifacts/release/Crest-Setup-*-x64.exe
+            artifacts/release/Crest-Portable-*-x64.zip
+            artifacts/release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+      - name: Create or refresh an unpublished prerelease draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          . ./scripts/release-common.ps1
+          $metadata = Get-CrestBuildMetadata
+          Assert-CrestTag $env:CREST_RELEASE_TAG $metadata
+          $tag = $env:CREST_RELEASE_TAG
+          $assets = @("artifacts/release/Crest-Setup-$($metadata.Version)-x64.exe", "artifacts/release/Crest-Portable-$($metadata.Version)-x64.zip", 'artifacts/release/SHA256SUMS.txt')
+          $existing = & gh release view $tag --json isDraft 2> "$env:RUNNER_TEMP/crest-release-check.txt"
+          if ($LASTEXITCODE -eq 0) {
+            if (-not ($existing | ConvertFrom-Json).isDraft) { throw 'Refusing to change an already published release.' }
+            & gh release upload $tag @assets --clobber
+            if ($LASTEXITCODE -ne 0) { throw 'Draft asset upload failed.' }
+            & gh release edit $tag --draft --prerelease --latest=false --title "Crest $($metadata.Version) release candidate" --notes-file artifacts/release/release-notes.md
+          } else {
+            & gh release create $tag @assets --draft --prerelease --verify-tag --latest=false --title "Crest $($metadata.Version) release candidate" --notes-file artifacts/release/release-notes.md
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub prerelease draft creation or update failed.' }

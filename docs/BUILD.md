@@ -1,19 +1,72 @@
-# Building and packaging Crest
+# Build and package Crest
 
-The finished Windows x64 distribution includes the .NET runtime. Only maintainers need the SDK and packaging compiler.
+End users should download an application from [GitHub Releases](https://github.com/tanmay-tiwari-20/Crest/releases). These instructions are for maintainers.
 
-Run `powershell -ExecutionPolicy Bypass -File scripts/build.ps1 -Package` from the source project. The script uses `.tools/dotnet/dotnet.exe` when present, otherwise the system .NET 10 SDK. It restores dependencies, compiles the WPF application, runs the console verification suite, publishes a self-contained x64 application, and compiles its installer.
+## Requirements
 
-Outputs are `artifacts/portable/Crest/` and `artifacts/Crest-Setup-0.1.0-x64.exe`, with a SHA-256 checksum beside the installer. `scripts/package.ps1` packages an already-published folder. Builds default to Release. `-SkipTests` is intended only for maintenance diagnostics, not release qualification.
+Use Windows 11 x64, Git, PowerShell, and .NET SDK **10.0.404**, pinned by [global.json](../global.json). The build uses `.tools/dotnet/dotnet.exe` when available, otherwise the system `dotnet`. SDK roll-forward is disabled. The first restore and compiler bootstrap require network access.
 
-The build targets `net10.0-windows10.0.19041.0`. Its direct NuGet dependency is `System.Management` 10.0.0; Windows SDK and runtime references are resolved through the framework target. The project SDK used for this build is .NET 10.0.404. Publication uses `win-x64`, self-contained runtime files, and ReadyToRun compilation.
+Crest targets `net10.0-windows10.0.19041.0`, uses WPF and Windows APIs, and is distributed for Windows 11. Its direct NuGet dependency is `System.Management` 10.0.0. The self-contained `win-x64` publish includes the .NET and Windows Desktop 10.0.15 runtimes.
 
-Packaging includes the local .NET license and third-party notices when available, plus a dependency record extracted from the restored package graph without machine-specific paths.
+## Build and test
 
-The packaging compiler is official Inno Setup 6.7.4. If missing, the package script downloads it from the official `jrsoftware/issrc` GitHub release, verifies its Authenticode publisher, and extracts it in official portable mode under `.tools/innosetup/`. Portable mode does not register the compiler, associate `.iss` files, create shortcuts, or add an uninstaller. The compiler license remains in that tools folder.
+```powershell
+git clone https://github.com/tanmay-tiwari-20/Crest.git
+cd Crest
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
+```
 
-The Crest installer runs per user without elevation and requires Windows 11 x64. It installs in the user's local Programs folder, adds Start-menu shortcuts, and offers an unchecked desktop shortcut. It creates no startup entry; the user can enable startup in Crest Settings. Upgrades reuse the install directory and preserve local configuration. Setup and uninstall signal the app's named quit event and wait for its single-instance mutex to disappear; a process that cannot quit is reported without being force-killed.
+The script restores committed app/test lockfiles in locked mode, compiles with deterministic settings and warnings treated as errors, runs the outcome tests, and publishes `artifacts/portable/Crest`. It does not install or launch Crest. The current suite has 24 outcome tests; see the [test report](TEST_REPORT.md) for their scope.
 
-Uninstall removes executable components and the optional startup entry. Interactive uninstall offers deletion of local Crest data with retention as the default. Silent uninstall retains data. Shelf originals are references outside that local data folder and are never removed by uninstall.
+For a focused test run or development launch:
 
-The installer is not code-signed by this project. Production signing requires the owner's publisher certificate and should be added to the release pipeline when available.
+```powershell
+dotnet run --project tests/Crest.Tests/Crest.Tests.csproj --configuration Release
+dotnet run --project src/Crest/Crest.csproj -- --settings
+```
+
+Quit another Crest instance before launching a development copy.
+
+## Create release assets
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.1.0
+```
+
+This runs the Release build/tests and creates a clean distribution containing the executable, runtime, public user/build/release documentation, MIT license, and dependency notices. Local screenshots, diagnostic output, PDBs, and machine-specific test reports are excluded.
+
+| File under `artifacts/release` | Purpose |
+| --- | --- |
+| `Crest-Setup-0.1.0-x64.exe` | Per-user Windows installer |
+| `Crest-Portable-0.1.0-x64.zip` | Complete application in a `Crest` folder |
+| `SHA256SUMS.txt` | SHA-256 hashes of both application packages |
+| `release-notes.md` | Release-description text |
+
+`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, and runtime files. `scripts/release.ps1 -SkipBuild -Tag v0.1.0` is for a publish already built/tested from the intended commit; it does not rerun tests. Release assets must come from the tagged source.
+
+The portable ZIP uses sorted entries, normalized paths, and fixed timestamps; every entry is checked against the clean distribution. Fixed inputs improve repeatability. Byte-for-byte installer reproducibility across machines is not claimed without comparing actual outputs.
+
+## Installer tooling and behavior
+
+Packaging downloads official Inno Setup **6.7.4** when needed, verifies the pinned release-asset SHA-256 and Authenticode publisher, and extracts it in portable mode under `.tools/innosetup`. Cached compiler provenance is checked before reuse. The build tool is not registered or included in Crest packages.
+
+The installer runs per user without elevation, installs in `%LOCALAPPDATA%\Programs\Crest`, creates Start-menu entries, and offers an unchecked desktop shortcut. It creates no startup entry. Upgrades preserve preferences and request graceful app shutdown; an unresponsive app is reported rather than force-killed. Uninstall offers retention of `%LOCALAPPDATA%\Crest` by default and does not remove shelf originals.
+
+Crest's installer is unsigned. Publisher signing requires a maintainer-owned certificate and signing before final checksums are generated. Build-tool signature verification does not sign Crest.
+
+## Dependency changes
+
+App/test NuGet lockfiles are committed. Deliberately refresh them with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1 -UpdateLockFiles
+git diff -- src/Crest/packages.lock.json tests/Crest.Tests/packages.lock.json
+```
+
+Review dependency changes and notices before committing. Normal CI/release builds use locked restore. SDK/runtime upgrades also require updating `global.json` and reviewed metadata in `scripts/release-common.ps1`, then appropriate Windows acceptance.
+
+## GitHub automation
+
+[CI](../.github/workflows/ci.yml) builds/tests/packages on Windows and retains temporary downloadable Actions artifacts. [The release workflow](../.github/workflows/release.yml) runs for a matching tag or manual dispatch and creates an unpublished prerelease draft.
+
+See [publishing steps](RELEASING.md). CI does not certify physical desktop dragging, devices, accessibility, or frame delivery.

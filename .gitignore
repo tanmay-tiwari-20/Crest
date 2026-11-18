@@ -4,3 +4,5 @@ tmp/
 **/obj/
 artifacts/
 *.user
+tests/Crest.PlatformProbe/latest.json
+tests/Crest.PlatformProbe/watch.json

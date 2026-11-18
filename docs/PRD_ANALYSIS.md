@@ -21,7 +21,7 @@ The document defines a Windows 11 utility and a staged roadmap. Its central cons
 | Data | Versioned local JSON; no analytics or account; shelf memory-only |
 | Optional catalogue | P2/P3 deferred; no implied permissions or fake data |
 
-The owner supplied two images and a62.2-second recording during implementation. Those references supersede the initial visual geometry: a near-black horizontal deck, focus/music/battery cards, small round controls, and a separate dock. The3D focus character is a transparent crop from the supplied image. Expansion clips stable content instead of resizing it every frame. Deck, dock, and lower detail card share one HWND and precise rounded hit regions; transparent gaps do not retain input. Presented-frame pacing remains to be measured.
+The owner supplied two images and a 62.2-second recording during implementation. Those references supersede the initial visual geometry: a near-black horizontal deck, focus/music/battery cards, small round controls, and a separate dock. The current focus character is original Crest artwork, authored in `assets/focus-orb.svg` and exported as a transparent PNG; it replaces the earlier reference crop for public distribution. Expansion clips stable content instead of resizing it every frame. Deck, dock, and lower detail card share one HWND and precise rounded hit regions; transparent gaps do not retain input. Presented-frame pacing remains to be measured.
 
 ## Implementation traceability
 

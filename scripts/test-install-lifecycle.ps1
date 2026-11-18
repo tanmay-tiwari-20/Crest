@@ -56,7 +56,7 @@ function Invoke-Installer([string]$Destination, [string]$LogName) {
     if ($setupProcess.ExitCode -ne 0) { throw "Installer returned $($setupProcess.ExitCode). See $LogName." }
 }
 function Confirm-Installed([string]$Directory) {
-    foreach ($component in @('Crest.exe', 'Crest.dll', 'coreclr.dll', 'Crest.runtimeconfig.json', 'unins000.exe', 'docs\USER_GUIDE.md', 'docs\TEST_REPORT.md')) {
+    foreach ($component in @('Crest.exe', 'Crest.dll', 'coreclr.dll', 'Crest.runtimeconfig.json', 'unins000.exe', 'docs\USER_GUIDE.md', 'docs\RELEASE_NOTES.md', 'docs\BUILD.md', 'LICENSE', 'README.md', 'THIRD_PARTY_NOTICES.md')) {
         if (-not (Test-Path -LiteralPath (Join-Path $Directory $component))) { throw "Installed component missing: $component" }
     }
     if (-not (Test-Path -LiteralPath $uninstallSubkey)) { throw 'Windows uninstall registration is missing.' }

@@ -7,7 +7,7 @@ The latest user direction makes the supplied visual references the basis for the
 The supplied video was inspected on 18 November 2026:
 
 ```text
-C:\Users\hp\Videos\Screen Recordings\Screen Recording 2026-11-18 223405.mp4
+Screen Recording 2026-11-18 223405.mp4
 ```
 
 The recording became available after the initial source check. It is 62.2 seconds long, 1756 by 790 pixels, at a declared 30 frames per second. OpenCV extracted the actual supplied recording; unrelated recordings were not used.
@@ -68,7 +68,7 @@ The implemented island uses the supplied still's wide composition: a two-shortcu
 
 The deck, dock, and module panel are children of one native island window and one visibility controller. Separate rectangles are used for visible regions, with rounded-corner membership checks; the gaps and unused portions of the native window do not count as the island's pointer region. Display placement uses the selected display's DPI and fits the complete layout above the Windows working-area bottom. Actual mixed-DPI and display-disconnect behavior remains part of native acceptance testing.
 
-The focus character in `assets/focus-orb.png` is a faithful crop from the user-supplied 1352 by 762 still image. Its original 3D lighting and dark eyes are preserved. Only background removal, silhouette alpha refinement, and edge antialiasing were applied, followed by a two-times resize to a 152 by 154 RGBA asset. It was visually checked on black, dark gray, and light backgrounds. The rendered deck confirms the packaged resource loads instead of its vector fallback.
+The initial prototype used a crop from the user-supplied 1352 by 762 still image. For public repository distribution, the owner requested original artwork instead. The current `assets/focus-orb.png` is a transparent export of the original project illustration in `assets/focus-orb.svg`, using a blue cloud silhouette, soft gradient volume, two eyes, and a small smile. It contains no reference crop and is covered by the project MIT license. See `THIRD_PARTY_NOTICES.md` for provenance. Historical preview reviews below refer to the earlier prototype unless explicitly identified as the repository release build.
 
 The final static preview review checked dark and light overview surfaces and the expanded Controls layout. Labels, artwork, buttons, and the lower dock fit without clipping in those previews. Static previews establish layout and asset loading; they do not establish native foreground behavior, physical frame delivery, screen-reader operation, desktop drag acceptance, or the PRD's measured performance budgets.
 

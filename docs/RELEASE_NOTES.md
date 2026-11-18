@@ -1,15 +1,41 @@
-# Crest 0.1.0 — release candidate
+# Crest 0.1.0 - release candidate
 
-18 November 2026. Target: Windows 11 x64. Built against .NET 10; packaged runtime included.
+Crest brings music, a focus timer, laptop controls, shortcuts, and a temporary file shelf to a top-center Windows island. It opens after a fresh hover on an eligible desktop and hides when an unrelated app becomes active.
 
-Owner-reference redesign adds a260×44 DIP compact pill,820×150 DIP focus/music/battery deck, circular dock, embedded3D focus image, and lower detail cards. It retains desktop-only eligibility and precisely tests the visible rounded regions.
+This is a **prerelease candidate** for Windows 11 x64. It is ready for testing and feedback; the complete Windows acceptance matrix remains in progress.
 
-Initial P0/P1 implementation includes desktop-only reveal and suppression, a single interaction controller, the five UI panels covering seven local modules, appearance/behavior settings, tray pause/resume/quit, optional startup, protected local scope, and installer/uninstaller support.
+## Downloads
 
-Validated by 24 automated outcome tests, warning-free compilation, actual laptop audio/battery/brightness probes, hidden-window/native desktop checks, and dark/light WPF visual review. Additional test evidence is recorded in TEST_REPORT.md and the companion JSON reports.
+- **Crest-Setup-0.1.0-x64.exe:** per-user installer with Start-menu entries and Windows uninstall support.
+- **Crest-Portable-0.1.0-x64.zip:** extract the archive, keep the `Crest` folder intact, and run `Crest.exe`.
+- **SHA256SUMS.txt:** checksums for both application packages.
 
-Volume, brightness, and seek edits now retain the requested value through hardware refresh, debounce, and asynchronous completion. Stale completions preserve newer edits, and a lagging media timeline gets bounded time to acknowledge a seek. Settings restores its previous Normal or Maximized state from the tray and fits its dimensions and minimums to the display working area across DPI changes. The final installed app passed Normal-state minimized restoration through its Settings entry point; Maximized restoration and 200% sizing still need acceptance testing.
+Both packages include the .NET runtime. No SDK, separate runtime, administrator access, or Crest account is needed. The installer is unsigned. GitHub's source-code archives are development source, not ready-to-run application packages.
 
-Remaining acceptance includes real desktop file dragging, active/multiple media sessions, the complete app/shell switching matrix, lock/sleep/Explorer/display recovery, keyboard/screen-reader/high-contrast testing, measured presented-frame performance, and clean-account install/upgrade/uninstall. P2/P3 features are future phases.
+## Included
 
-Upgrades require a deliberate installation action and preserve preferences. No automatic updater, account, analytics, clipboard capture, or online module is included.
+- Compact island, expanded focus/music/battery cards, circular dock, and coordinated animations.
+- Original blue focus character and project source under MIT, with dependency notices included.
+- Windows media metadata/artwork, supported playback/seek controls, and preferred-player selection.
+- Default audio volume/mute, OS-reported battery state, and supported built-in brightness.
+- One persistent timer with presets, custom duration, pause/resume, and retained completion.
+- Explicit app, file, folder, website, and shortcut entries.
+- Up to 20 session-only shelf references; original files remain unchanged.
+- Theme, motion, size, trigger, display, module, sound, startup, and accessibility preferences.
+- Tray Settings, Pause/Resume, and Quit; graceful upgrades and an uninstall data-retention choice.
+
+Pending control adjustments survive debounce and hardware refresh, stale writes preserve newer requests, and a lagging media timeline has bounded seek acknowledgement. Repeated module selection keeps its controls steady. Settings restores its prior window state and fits the display working area.
+
+## First use and upgrades
+
+Close Settings, press **Win+D**, move away from the top edge, then enter the top-center edge and pause briefly. Click the chevron to expand. Crest stays hidden while an app or Windows panel is active. Some background WebView windows can also block strict desktop mode; closing a WhatsApp WebView window restored hover in user testing.
+
+Run the installer to upgrade an installed copy. Setup requests graceful quit and preserves preferences. For a portable upgrade, quit Crest and extract the new complete folder. Startup with Windows is off by default. Silent uninstall retains settings; interactive uninstall offers a retention choice.
+
+## Validation and limitations
+
+The 24 automated outcome tests pass. Selected native hardware, installation, Settings restoration, and user hover checks are recorded. The full shell/app/display transition matrix, desktop OLE dragging, active/multiple media sessions, hardware/lifecycle edges, screen-reader and keyboard-only operation, frame delivery, cold-start budget, and ten-minute hidden-idle measurement remain acceptance work.
+
+ARM64/Windows 10 packages, clipboard history, weather, accounts, AI commands, and later PRD integrations are not included. There is no automatic updater, analytics, or background account service.
+
+Read the [user guide](https://github.com/tanmay-tiwari-20/Crest/blob/v0.1.0/docs/USER_GUIDE.md), [test report](https://github.com/tanmay-tiwari-20/Crest/blob/v0.1.0/docs/TEST_REPORT.md), [third-party notices](https://github.com/tanmay-tiwari-20/Crest/blob/v0.1.0/THIRD_PARTY_NOTICES.md), and [build instructions](https://github.com/tanmay-tiwari-20/Crest/blob/v0.1.0/docs/BUILD.md). Report reproducible problems through [GitHub Issues](https://github.com/tanmay-tiwari-20/Crest/issues).
