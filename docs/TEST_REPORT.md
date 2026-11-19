@@ -6,13 +6,23 @@ The previous priority DLL was `3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22
 
 ## 20 November Windows acceptance update
 
+Final release source is commit `950b8df7f63f3f17c4a45709ab36300ca9d16211`. The exact downloaded 0.2.1 DLL is `C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195`, with source fingerprint `FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B`. Both GitHub workflows passed, all three downloaded asset digests matched, and all 492 distribution files plus the manifest were verified. [Final evidence](p2-windows-verification-0.2.1.json) and the [complete acceptance table](WINDOWS_ACCEPTANCE_2026-11-20.md) bind observations to that binary.
+
+The canonical Release build passed **97 domain outcomes, 111 UI outcomes, 11 release-provenance checks, 16 evidence-validation checks, 10 diagnostic geometry checks and three observer checks**, with zero warnings/errors. The **exact downloaded ReadyToRun DLL** separately passed all 111 UI outcomes, including both completed-timer coexistence regressions and detached clipboard restoration.
+
+Fresh native checks passed nine hardware/provider outcomes, eight actual Windows SMTC outcomes using two owned muted media hosts, six actual Settings keyboard observations, and quiet/single-instance startup/quit checks. Real running-deadline restart retained a paused timer at exactly 90 seconds; a 49.970-second, 50-sample healthy observer caught no reveals as the running timer, focus phase and reminder became completed/due. External audible players, physical transitions and the full island interaction matrix remain open.
+
+The final candidate completed **600.136 seconds entirely hidden**, 121 samples, zero window-show events and no observer/enumeration failures. Average total-device CPU was **0.0456%** and peak warm working set was **157,081,600 bytes (149.80 MiB)**. PER-idle and PER-memory pass. The 2,948.890 ms portable dispatcher-readiness observation has uncontrolled cache conditions and does not qualify installed cold startup. Overall status is **two passed, 14 partial and 15 pending gates**; the release remains a prerelease.
+
+The normal installed preview process stayed alive, retaining its in-memory shelf. Its settings hash and Windows startup entry match the backups, and the owner resumed capture to its original unpaused state. An initial legacy fixture failed to restore the clipboard; the owner re-copied the desired original item, and the corrected fixture and final exact-DLL suite verified restoration without printing private content. Raw profiles, backups and recordings remain ignored locally.
+
 The exact published 0.2.0 DLL was downloaded and hash-verified. Its fresh ten-minute hidden run qualifies PER-idle/PER-memory: 600.027 seconds, 121 samples, 0.0360% total-device CPU and 170,774,528 bytes peak resident memory. Nine native provider outcomes, including actual output switching and independent restoration of all Windows default roles/endpoint volume/mute, passed. A 7,303.449 ms warm portable readiness observation does not qualify cold installed startup. Full details and remaining cases are in [the dated acceptance record](WINDOWS_ACCEPTANCE_2026-11-20.md).
 
 A completed timer alongside a due reminder reproducibly opened the wrong controls in the published DLL (six regression outcomes passed, two failed). The patch corrects both action and details. The gate validator also accepted mismatched historical evidence; it now checks document identities and explicit outcomes. Native trigger diagnostics now respect saved display overrides and the 80–800 DIP range.
 
 The existing full UI fixture failed its Unicode clipboard-restoration check. The user re-copied their original item, and the corrected detached-snapshot fixture passed all 13 outcomes against the published DLL, verifying exact original Unicode/user formats and unchanged normal history. Unsupported formats abort before any clipboard write. The earlier failed run remains recorded; no 107-outcome fresh pass is claimed for that run.
 
-The owner confirmed their completed manual checks used the currently installed 0.1.0 P2 preview (DLL 649244A9…). Those observations remain historical for 0.2.0 and 0.2.1. The normal process remains alive so unpinned shelf references are retained. Fresh 0.2.1 build/native qualification is still in progress; previous evidence is not transferred.
+The owner confirmed their completed manual checks used the currently installed 0.1.0 P2 preview (DLL 649244A9…). Those observations remain historical for 0.2.0 and 0.2.1; they are not transferred to the final candidate.
 ## Historical 0.2.0 local automated verification
 
 The required Release workflow passed with zero warnings/errors: **97 domain outcomes, 107 WPF/native UI outcomes, eight release-provenance checks, and three observer-lifecycle checks**. The self-contained x64 application is in `artifacts/portable/Crest`; versioned installer/ZIP/checksum assets are in `artifacts/release`. Its manifest binds the distribution to the tested source; [P2 verification](p2-local-verification.json) records the final identities and counts.
@@ -146,15 +156,15 @@ Warm installed readiness was observed near 2 seconds, but the initial cold launc
 
 | Gate | Remaining evidence |
 |---|---|
-| AC01–12 default visibility | Historical preview clear-desktop/app/shell and 100-cycle cases passed; independently distinguished interruption phases, full registered control/popup operation, active media background behavior and second-display cases remain open |
-| AC13 media | Active playback/seek, multiple sessions, preferred player, session removal |
+| AC01–12 default visibility | Current startup/background subsets pass; physical hover, 100 native cycles, reversal, app-switch phases, shell/fullscreen, registered popups and stationary recovery remain open |
+| AC13 media | Two actual muted synthetic SMTC sessions passed playback/seek/selection/removal; external audible players and product media UI remain open |
 | AC14–15 hardware | Hardware-key changes, endpoint disconnects, charging transitions, unavailable hardware |
-| AC16 lifecycle | Historical preview sleep/lock and paused restart passed; native clock adjustment and future running UTC-deadline restart remain open |
-| AC17 desktop shelf | Historical preview owner-operated drag/drop/out, missing source, removal, original/copy hashes and occupied shelf restart passed; changed binaries require requalification |
+| AC16 lifecycle | Current real running-deadline and paused restart passed; lock/sleep, clock changes, repeated snooze and interactive phase progression remain open |
+| AC17 desktop shelf | Current native OLE/reference fixtures pass; physical desktop drag/drop/out and recovery remain open |
 | AC20 display | Physical 100/150/200% scaling, mixed DPI, disconnect/fallback, reachable geometry |
-| AC21 accessibility | Keyboard-only navigation, screen reader, high contrast, Windows reduced motion |
-| AC22 performance | Actual presented-frame tracing, feedback/suppression p95/p99, installed cold readiness, hidden rendering trace and repeatable battery impact; published 0.2.0 hidden CPU/memory results are candidate-bound; changed 0.2.1 requires fresh measurement |
-| AC23 recovery | Historical preview Explorer restart, lock/unlock, tray Pause/Resume and graceful Quit passed; physical display changes remain AC20 work |
+| AC21 accessibility | Current Settings keyboard subset passes; island keyboard, Escape, Narrator, high contrast and live Windows reduced motion remain open |
+| AC22 performance | Current 0.2.1 hidden CPU/memory gates pass; actual frame/latency traces, installed cold readiness, hidden rendering and repeatable battery impact remain open |
+| AC23 recovery | Current isolated quiet/single-instance/restart/Quit subset passes; Explorer, lock/unlock, Pause/Resume and display transitions remain open |
 | AC24 distribution | Clean-account install/upgrade/uninstall and both data-retention choices |
 | Optional app access | Actual hover/shortcut and interaction over representative apps, fullscreen behavior, secure/lifecycle transitions, return to desktop-only mode |
 

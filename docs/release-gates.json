@@ -2,227 +2,275 @@
   "SchemaVersion": 1,
   "ApplicationVersion": "0.2.1",
   "ReviewedDate": "2026-11-20",
-  "CandidateDllSHA256": "",
-  "SourceFingerprint": "",
+  "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+  "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
   "VisibleOverAppIncidents": [],
-  "Scope": "Crest 0.2.1 patch prerelease. Current native results require fresh candidate identity. Historical passes are retained in the v0.2.0 tag and dated acceptance summary; they do not qualify this binary.",
+  "Scope": "Crest 0.2.1 exact GitHub candidate. Two resource gates qualify; 14 cases have partial fresh coverage and 15 remain unexecuted/pending. Historical owner checks qualify only the installed preview. Raw private evidence remains ignored locally.",
   "Gates": [
     {
       "Id": "AC01",
       "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Hidden startup and real restart observed; stationary Win+D/unlock/resume recovery pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC02",
       "Requirement": "One clear-desktop reveal after dwell without placeholder",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. One clear-desktop reveal after dwell without placeholder",
-      "Evidence": []
+      "Notes": "Current physical clear-desktop hover/reveal/dismissal remains unexecuted",
+      "Evidence": null
     },
     {
       "Id": "AC03",
       "Requirement": "Leaving trigger before dwell causes no flash or interception",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Leaving trigger before dwell causes no flash or interception",
-      "Evidence": []
+      "Notes": "Current physical early dwell cancellation and input interception remains unexecuted",
+      "Evidence": null
     },
     {
       "Id": "AC04",
       "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Chrome and Explorer foreground suppress reveal without blocking input",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Chrome foreground rejection and hidden windows observed; full Chrome/Explorer pointer/input matrix pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC05",
       "Requirement": "Strict mode rejects visible apps and permits minimized apps",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Strict mode rejects visible apps and permits minimized apps",
-      "Evidence": []
+      "Notes": "Physical strict visible/minimized/off-screen/virtual-desktop coverage matrix pending",
+      "Evidence": null
     },
     {
       "Id": "AC06",
       "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. App opened during dwell, reveal or expansion cancels and hides",
-      "Evidence": []
+      "Notes": "Independently timed app switches during dwell/reveal/expansion pending",
+      "Evidence": null
     },
     {
       "Id": "AC07",
       "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Start, Search, Task View, Quick Settings and Widgets suppress",
-      "Evidence": []
+      "Notes": "Current Windows-panel and fullscreen suppression matrix pending",
+      "Evidence": null
     },
     {
       "Id": "AC08",
       "Requirement": "Audio/media controls and registered popups remain usable",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Audio/media controls and registered popups remain usable",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Exact DLL control/native OLE/audio/compact fixtures pass; full registered popups and physical product interaction pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC09",
       "Requirement": "Settings and launcher targets hide island as focus changes",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Settings and launcher targets hide island as focus changes",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Actual Settings focus/keyboard and hidden island observed; external launcher target matrix pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC10",
       "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Pointer closing reversal preserves current motion without duplicate windows",
-      "Evidence": []
+      "Notes": "Physical closing reversal and complete 100-cycle native sequence pending",
+      "Evidence": null
     },
     {
       "Id": "AC11",
       "Requirement": "Background timer completion/track change never reveals",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Background timer completion/track change never reveals",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Real countdown/focus/reminder deadlines remained hidden under Chrome in healthy 50-sample observation; background track-change matrix pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC12",
       "Requirement": "Foreground app on second display suppresses selected island",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Foreground app on second display suppresses selected island",
-      "Evidence": []
+      "Notes": "Second physical display unavailable",
+      "Evidence": null
     },
     {
       "Id": "AC13",
       "Requirement": "Active/multiple media sessions, preferred player and removal recover",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Active/multiple media sessions, preferred player and removal recover",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Eight actual Windows SMTC outcomes with two owned muted sessions pass; external audible players/product UI pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC14",
       "Requirement": "Hardware volume keys and output disconnect refresh/recover",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Hardware volume keys and output disconnect refresh/recover",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Real API volume/mute/alternate-output switching and independent all-role restoration pass; hardware keys/disconnect/reconnect pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC15",
       "Requirement": "Charging and unavailable battery/brightness show actual capability",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Charging and unavailable battery/brightness show actual capability",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Actual battery/brightness providers and Settings ready states observed; physical transitions/unavailable hardware pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC16",
       "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Running deadline retained through real restart, paused 90 seconds exact, completed timer/focus/due reminder/elapsed stopwatch retained; lock/sleep/clock changes pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC17",
       "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Exact DLL native OLE and persistent-reference fixtures pass; physical desktop drag/drop-out and full relink/missing-folder matrix pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC20",
       "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. 100/125/150/200% DPI, display disconnect and reachable geometry",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Actual single 1920x1080 display at 125 percent and static layout fixtures; physical 100/150/200 percent/mixed-DPI/fallback pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC21",
       "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Keyboard, screen reader, high contrast and reduced motion essential operation",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Six actual Settings keyboard/focus observations and named control fixtures pass; island keyboard/Escape/Narrator/high contrast/live reduced motion pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC22",
       "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Repeated animation and hidden idle meet Section 11 budgets",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Current ten-minute CPU and warm memory gates pass; other measured budgets pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC23",
       "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Explorer restart, pause/resume and quit recover safely with no surviving trigger",
-      "Evidence": []
+      "Status": "partial",
+      "Notes": "Quiet same-profile single instance, real graceful quit/restart pass; Explorer restart/Pause-Resume/invisible input regions pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "AC24",
       "Requirement": "Clean-account install/upgrade/uninstall, migration and both retention choices",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Clean-account install/upgrade/uninstall, migration and both retention choices",
-      "Evidence": []
+      "Notes": "Clean-account installation/migration/shortcuts/startup opt-in and both uninstall data choices unexecuted",
+      "Evidence": null
     },
     {
       "Id": "PER-readiness",
       "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Installed baseline interactive readiness within 3000 ms while hidden",
-      "Evidence": []
+      "Notes": "2948.890 ms warm portable dispatcher-ready observation; independently cold installed procedure unexecuted",
+      "Evidence": null
     },
     {
       "Id": "PER-hover",
       "Requirement": "Normal eligible hover reveals in about 360 ms including dwell",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Normal eligible hover reveals in about 360 ms including dwell",
-      "Evidence": []
+      "Notes": "Actual eligible hover timing at default settings pending",
+      "Evidence": null
     },
     {
       "Id": "PER-feedback",
       "Requirement": "Visible control feedback within 100 ms",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Visible control feedback within 100 ms",
-      "Evidence": []
+      "Notes": "Actual visible control feedback latency pending",
+      "Evidence": null
     },
     {
       "Id": "PER-suppression",
       "Requirement": "Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
-      "Evidence": []
+      "Notes": "Native foreground-to-hide/input-disable percentiles and continuous incident observation pending",
+      "Evidence": null
     },
     {
       "Id": "PER-frames",
       "Requirement": "30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. 30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
-      "Evidence": []
+      "Notes": "Actual displayed-frame attribution and intervals pending",
+      "Evidence": null
     },
     {
       "Id": "PER-idle",
       "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Ten-minute all-hidden average Crest CPU <1% of total device CPU",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "600.136 seconds entirely hidden;121 samples;0.0456 percent total-device CPU",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "PER-memory",
       "Requirement": "Warm core resident working set <=200 MB with no AI model",
-      "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Warm core resident working set <=200 MB with no AI model",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Maximum 157081600 bytes;149.80 MiB;below decimal 200 MB",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+      }
     },
     {
       "Id": "PER-hidden-rendering",
       "Requirement": "No continuous animation or rendering loop while armed/ineligible",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. No continuous animation or rendering loop while armed/ineligible",
-      "Evidence": []
+      "Notes": "Provider sampling stops, but actual graphics/render trace remains unexecuted",
+      "Evidence": null
     },
     {
       "Id": "PER-battery",
       "Requirement": "Repeatable idle battery-impact comparison without unsupported high-refresh claim",
       "Status": "pending",
-      "Notes": "Fresh 0.2.1 native qualification remains open. Repeatable idle battery-impact comparison without unsupported high-refresh claim",
-      "Evidence": []
+      "Notes": "Repeated matched battery-power comparison unexecuted",
+      "Evidence": null
     }
   ]
 }

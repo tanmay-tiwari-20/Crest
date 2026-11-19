@@ -7,7 +7,7 @@
 
 Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, productivity tools, system controls, shortcuts, and a file shelf. It stays hidden while an application is active by default; an optional setting lets you open it over other apps.
 
-**Crest 0.2.1 is a prerelease candidate.** It adds audio-output selection, focus sessions and reminders, opt-in clipboard history, system activity and connectivity, capture references, workspaces, pinned shelf references, and more personalization. Native release acceptance remains open; the [test report](docs/TEST_REPORT.md) separates automated verification from the remaining Windows checks.
+**Crest 0.2.1 is a prerelease candidate.** It fixes completed-timer navigation and strengthens Windows acceptance verification while retaining all P2 local tools. Native release acceptance remains open; the [test report](docs/TEST_REPORT.md) separates verified results from the remaining Windows checks.
 
 ## Download and install
 

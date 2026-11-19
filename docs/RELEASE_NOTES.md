@@ -16,7 +16,7 @@ The .NET runtime is included. Startup is off for fresh profiles. Upgrades preser
 
 ## Verification
 
-The [test report](TEST_REPORT.md) and [dated Windows acceptance record](WINDOWS_ACCEPTANCE_2026-11-20.md) identify each tested binary and its results. Earlier owner-operated manual checks describe the installed 0.1.0 P2 preview. They do not qualify 0.2.0 or this changed binary.
+The canonical build passed 97 domain, 111 UI, 11 provenance, 16 evidence-validation, 10 geometry and three observer checks. The exact downloaded DLL separately passed all 111 UI checks, 17 native hardware/media checks and six Settings keyboard checks. Its ten-minute hidden run averaged 0.0456% total-device CPU with a 157,081,600-byte peak working set. Two of 31 P1 gates qualify; 14 are partial and 15 remain pending. The [current test report](https://github.com/tanmay-tiwari-20/Crest/blob/main/docs/TEST_REPORT.md) and [complete acceptance table](https://github.com/tanmay-tiwari-20/Crest/blob/main/docs/WINDOWS_ACCEPTANCE_2026-11-20.md) identify each tested binary and remaining work. Earlier owner-operated manual checks describe the installed 0.1.0 P2 preview. They do not qualify 0.2.0 or this changed binary.
 
 The release remains a **prerelease** while native interaction, physical displays/accessibility, hardware transitions, clean-account installation/removal, cold startup, actual presented frames/latency, hidden rendering and battery comparisons remain open. Successful compilation, static renders and refresh rate do not qualify those measurements. See the [acceptance runbook](P1_ACCEPTANCE_RUNBOOK.md).
 

@@ -177,8 +177,8 @@
     },
     {
       "Id": "AC11",
-      "Status": "unexecuted",
-      "Notes": "Real background productivity completions and media changes"
+      "Status": "partial",
+      "Notes": "Real timer/focus/reminder deadlines with Chrome foreground, healthy 45.726-second passive observation and no reveal; media track changes outstanding"
     },
     {
       "Id": "AC12",
@@ -202,8 +202,8 @@
     },
     {
       "Id": "AC16",
-      "Status": "unexecuted",
-      "Notes": "Published-binary lock/sleep/deadline/paused/clock-change recovery"
+      "Status": "partial",
+      "Notes": "Real restart before deadline and saved completed timer, exact paused 90 seconds, focus round 1/2, due reminder and elapsed stopwatch; lock/sleep/clock changes unexecuted"
     },
     {
       "Id": "AC17",
@@ -227,8 +227,8 @@
     },
     {
       "Id": "AC23",
-      "Status": "unexecuted",
-      "Notes": "Published-binary Explorer restart/Pause-Resume/Quit and invisible input-region removal"
+      "Status": "partial",
+      "Notes": "Real isolated graceful quit and restart passed; Explorer restart, tray Pause/Resume and invisible input regions unexecuted"
     },
     {
       "Id": "AC24",
@@ -394,10 +394,10 @@
   },
   "FullUiSuite": {
     "FreshCompleteRunPassed": false,
-    "Result": "Aborted at clipboard Unicode-restoration assertion",
+    "Result": "First full published UI attempt aborted at clipboard Unicode-restoration assertion; corrected standalone clipboard subset later passed 13 outcomes",
     "HistoricalUiCount": 107,
     "HistoricalCountTransferredToFreshRun": false,
-    "FixtureRepairAndRerun": "Separate work; not claimed complete in this published-binary snapshot"
+    "FixtureRepairAndRerun": "Corrected detached snapshot and isolated clipboard fixture passed 13 outcomes with exit 0; no complete 107-outcome fresh published UI pass claimed"
   },
   "Preservation": {
     "RegularInstalledDllSHA256": "649244A9F08AF5C437C7423FA179A75B9187B9973E0E7312B6BB8A4D40779937",
@@ -446,6 +446,71 @@
       "Path": "tmp/acceptance-2026-11-20/hardware-published-valid.json",
       "SHA256": "AD8CC2EC766B0EC2C28AEF6E036313AE7F77E7DAAB13681633E3C72F003C78C0",
       "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/clipboard-published-results/outcomes.json",
+      "SHA256": "F06C5AE5026BEA22B1D7C5641D0A4504313D7DA09911379B2A72A4937821C428",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/published-background-02.json",
+      "SHA256": "D1E22B8D104CA5CAD5D34010E038E786B856469B69A2432A508980AD7AC898D5",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/published-background-states.json",
+      "SHA256": "DF488316C7D1D9CE838AB1AAF081E260CCE74BCCA3B73A09F20A3665EFDD21E0",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/published-productivity-run.json",
+      "SHA256": "7C7C0A2A0E95FAAE7A18C9AFCF6D72EA63354418F1CAC5ADD8F68EF0240E5C7B",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/published-productivity-restarted.json",
+      "SHA256": "534EF3EBF18113424C82D4397064F59AC3B5C6738B46F2B30CF8386F4DD74702",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-background-02/acceptance-seed.json",
+      "SHA256": "85A2933236EA0EDFF0A3F74E39C5543992CF91BB50944988AF9B1CFA8F00EB1E",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-background-02/acceptance-ready.json",
+      "SHA256": "DD8C02A95682B6AAEC6BBEE8550F93F026C25676B9EE574472BECFB30AFB69BD",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-productivity-01/acceptance-seed.json",
+      "SHA256": "F03AC2E0314E706A40516103B9AE9AD57058F75964092F4BCC372AB7600A2EF7",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-productivity-01/acceptance-ready.json",
+      "SHA256": "85AD17310291246C36899C765A19DCFC11772029E65FE093F8996749FC9A3420",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-productivity-01/timer.json",
+      "SHA256": "13984747E0ED504F590B24A97D334450311C096A0C231DB2166201F7ECF26739",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-productivity-01/focus.json",
+      "SHA256": "4FCC3A337BAF6F57DECCBD9E18D884647FE203FF8C079BE65F1B16D3565D2438",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-productivity-01/reminders.json",
+      "SHA256": "163CE2C0D39D6C511480DB02F3FC6A16FF5CB1CCDC8EC5B81E076492FD33FEB5",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/profiles/published-productivity-01/stopwatch.json",
+      "SHA256": "9052C464635D219E0B19909E91A876E3EBC45411F92D89587E01889FCCDDC3A3",
+      "Availability": "Ignored local record; not distributed"
     }
   ],
   "Limitations": [
@@ -455,5 +520,102 @@
     "Physical 100/150/200 percent and mixed displays, Narrator/high contrast/reduced motion, clean-account retain/delete and broader native interaction/lifecycle matrices remain open.",
     "Optional app-access mode is unexecuted for this published DLL; strict desktop was used for these resource observations.",
     "Raw private diagnostics and synthetic fixtures remain ignored; only sanitized descriptions and relevant candidate/evidence digests are distributed."
-  ]
+  ],
+  "ClipboardPublishedDllRegression": {
+    "RecordedAtUtc": "2026-11-20T01:43:54.1655832+05:30",
+    "CandidateDllSHA256": "5DB16954608DFBA410DDA40476405FDFA2AD62B5B0C8CAB87A7BBE6181E7B5A3",
+    "FixtureKind": "Corrected detached snapshot and isolated native clipboard/UI subset; broad published UI suite not rerun",
+    "Passed": 13,
+    "ExitCode": 0,
+    "Checks": [
+      "Clipboard backup detaches lazy OLE values, arrays, bitmap pixels and complete streams before owner invalidation or disposal",
+      "Clipboard backup rejects unsupported formats before any native clipboard write",
+      "Native clipboard listener remains unregistered and stores no text before opt-in",
+      "Enabling clipboard history does not import existing Windows clipboard content",
+      "Native clipboard-update events capture Unicode text and expose searchable local history",
+      "Pause unregisters clipboard capture and resume excludes text copied during pause",
+      "Clearing clipboard history does not reimport the current clipboard value",
+      "Native capture honors the Windows exclusion marker for protected clipboard content",
+      "Clipboard panel search and pin controls operate on saved text with accessible names",
+      "Explicit clipboard history Copy restores the selected text through Windows",
+      "Clipboard panel clear removes pinned history as well as ordinary entries",
+      "Turning clipboard history off unregisters native capture and erases its saved text",
+      "Native clipboard regression restores detached user formats and exact Unicode text after disposing capture"
+    ],
+    "OriginalFormats": [
+      "UnicodeText",
+      "Text",
+      "OEMText"
+    ],
+    "AllDetachedOriginalFormatsRestored": true,
+    "ExactOriginalUnicodeRestored": true,
+    "ClipboardContentsRecorded": false,
+    "RegularHistoryPausedBefore": true,
+    "RegularHistoryPausedAfter": true,
+    "RegularHistoryFileUnchanged": true,
+    "Limitations": "Synthetic profile and corrected fixture against published DLL. Durable retention/capacity/restart and broad end-to-end product acceptance remain open. Original clipboard text and history hashes are excluded."
+  },
+  "NativePublishedProductivity": {
+    "CandidateDllSHA256": "5DB16954608DFBA410DDA40476405FDFA2AD62B5B0C8CAB87A7BBE6181E7B5A3",
+    "SourceFingerprint": "9028DB144AA8A6A8BC75959155AE046D6155B86F8777A1E8AE3308D0977E7DF0",
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "FixtureKind": "Real published executable in seeded scratch acceptance profiles with separate IPC",
+    "RestartSubset": {
+      "FirstGracefulQuitExitCode": 0,
+      "RestartUtc": "2026-11-20T01:42:19.7377491+05:30",
+      "RestartOccurredBeforeRunningDeadline": true,
+      "CompletedCountdownRemainingSeconds": 0,
+      "PausedCountdownRemainingSeconds": 90,
+      "FocusCompletedWorkRounds": 1,
+      "FocusTargetRounds": 2,
+      "FocusAwaitingManualContinuation": true,
+      "ReminderDue": true,
+      "StopwatchRunning": true,
+      "StopwatchSavedElapsedSeconds": 663.2474235999999,
+      "ContinuousVisibilityQualified": false,
+      "Limitation": "First-run readiness and saved state snapshots establish restart/state subsets; they do not continuously observe visibility across the full first run."
+    },
+    "BackgroundSubset": {
+      "ObserverStartedUtc": "2026-11-20T01:53:00.6264599+05:30",
+      "ObserverBeganBeforeTimerAndReminderDeadlines": true,
+      "RequestedDurationSeconds": 45,
+      "ActualDurationSeconds": 45.726,
+      "SampleCount": 46,
+      "EverySampleForegroundWasChrome": true,
+      "AllWindowsHidden": true,
+      "VisibleSamples": 0,
+      "WindowShowEvents": 0,
+      "WindowShowObservationHealthy": true,
+      "WindowEnumerationFailures": 0,
+      "CandidateDllUnchanged": true,
+      "ProcessExitedEarlyDuringCapture": false,
+      "FinalGracefulQuitExitCode": 0,
+      "CompletedCountdownRemainingSeconds": 0,
+      "PausedCountdownRemainingSeconds": 90,
+      "FocusCompletedWorkRounds": 1,
+      "FocusTargetRounds": 2,
+      "FocusAwaitingManualContinuation": true,
+      "ReminderDue": true,
+      "StopwatchRunning": true,
+      "StopwatchSavedElapsedSeconds": 52.622284900000004,
+      "TenMinuteCpuQualifiedByThisShortRun": false
+    },
+    "Limitations": "Partial AC11/AC16/AC23 only. Active media changes, repeat snooze, work/break/final-round interaction, physical lock/sleep, supervised clock changes, stationary recovery and invisible input regions remain open. No gate qualification is added by these subset observations."
+  },
+  "FollowupPatchSource": {
+    "ApplicationVersion": "0.2.1",
+    "Commit": "a55778793ae5c8d127adfe8d68021371d0880de7",
+    "CommitUrl": "https://github.com/tanmay-tiwari-20/Crest/commit/a55778793ae5c8d127adfe8d68021371d0880de7",
+    "ValidationKind": "Separate local Release source checks; no native patch qualification in this published 0.2.0 summary",
+    "DomainOutcomesPassed": 97,
+    "UiOutcomesPassed": 111,
+    "ProvenanceChecksPassed": 11,
+    "GateEvidenceChecksPassed": 16,
+    "GeometryChecksPassed": 10,
+    "ObserverChecksPassed": 3,
+    "CompilationWarnings": 0,
+    "CompilationErrors": 0,
+    "NativePatchResultsIncluded": false
+  }
 }

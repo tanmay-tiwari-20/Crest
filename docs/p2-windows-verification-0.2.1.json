@@ -1,0 +1,750 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedLocalDate": "2026-11-20",
+  "Timezone": "Asia/Calcutta",
+  "ApplicationVersion": "0.2.1",
+  "TestedCommit": "950b8df7f63f3f17c4a45709ab36300ca9d16211",
+  "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+  "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+  "ReleaseUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.1",
+  "Prerelease": true,
+  "P1Qualified": false,
+  "PackageOrigin": "Exact downloaded GitHub prerelease-draft assets verified before publication; published 0.2.0 assets unchanged",
+  "DraftAtAssetVerification": true,
+  "Assets": [
+    {
+      "Name": "Crest-Portable-0.2.1-x64.zip",
+      "SizeBytes": 93542275,
+      "SHA256": "8E2F5AF6FD23E29D2F7997560D7F5AC0322969326A64511335B5AD606EA9A80F",
+      "GitHubDigestMatched": true,
+      "ApiUrlAtVerification": "https://api.github.com/repos/tanmay-tiwari-20/Crest/releases/assets/769168676",
+      "ReleaseDownloadUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/download/v0.2.1/Crest-Portable-0.2.1-x64.zip"
+    },
+    {
+      "Name": "Crest-Setup-0.2.1-x64.exe",
+      "SizeBytes": 63513621,
+      "SHA256": "8C48DD2410ED1080923CFB7D3ACFA8BFF6690434E5547642C5FD64BDFBB804A2",
+      "GitHubDigestMatched": true,
+      "ApiUrlAtVerification": "https://api.github.com/repos/tanmay-tiwari-20/Crest/releases/assets/769168674",
+      "ReleaseDownloadUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/download/v0.2.1/Crest-Setup-0.2.1-x64.exe"
+    },
+    {
+      "Name": "SHA256SUMS.txt",
+      "SizeBytes": 187,
+      "SHA256": "E66CA5685BD91105EB1C935B27DFF358DF1679101990C481802C7049C28D29E8",
+      "GitHubDigestMatched": true,
+      "ApiUrlAtVerification": "https://api.github.com/repos/tanmay-tiwari-20/Crest/releases/assets/769168678",
+      "ReleaseDownloadUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/download/v0.2.1/SHA256SUMS.txt"
+    }
+  ],
+  "Provenance": {
+    "BuildManifestIncludedInDownloadedZip": true,
+    "ManifestSchemaVersion": 1,
+    "VerifiedDistributionFiles": 492,
+    "VerificationFileAlsoPresent": true,
+    "AllManifestFileHashesMatched": true,
+    "CanonicalLocalAndDownloadedCandidateBytesMatched": true,
+    "CanonicalLocalNativeProviderMediaEvidence": "Same C5B5 DLL / FECD source, recorded before GitHub correspondence was available; downloaded byte correspondence subsequently verified",
+    "ResourceOrigin": "Report binds exact DLL/source and isolated IPC; package correspondence verified independently",
+    "ExactDownloadedUiRun": true,
+    "ExactDownloadedKeyboardBackgroundAndSingleInstanceRuns": true
+  },
+  "Ci": {
+    "Commit": "950b8df7f63f3f17c4a45709ab36300ca9d16211",
+    "VerifiedConclusion": "success",
+    "Runs": [
+      {
+        "RunId": 44609376617,
+        "Url": "https://github.com/tanmay-tiwari-20/Crest/actions/runs/44609376617"
+      },
+      {
+        "RunId": 44609182129,
+        "Url": "https://github.com/tanmay-tiwari-20/Crest/actions/runs/44609182129"
+      }
+    ]
+  },
+  "Baseline": {
+    "Windows": "Windows 11 x64 build 26300",
+    "Cpu": "AMD Ryzen 5 5600H",
+    "LogicalProcessors": 12,
+    "PhysicalMemoryBytes": 7883554816,
+    "PhysicalDisplayCount": 1,
+    "ResolutionPixels": [
+      1920,
+      1080
+    ],
+    "ScalingPercent": 125,
+    "OsReportedRefreshHz": 144,
+    "PowerScheme": "Balanced",
+    "RefreshIsPresentedFrameEvidence": false
+  },
+  "Conditions": {
+    "IsolatedAcceptanceProfiles": true,
+    "SeparateIpcIdentities": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "Theme": "System",
+    "Motion": "System",
+    "MotionSpeed": 1,
+    "SizeScale": 1,
+    "DwellMs": 120,
+    "GraceMs": 250,
+    "CoreModulesEnabled": [
+      "Music",
+      "Controls",
+      "Timer",
+      "Launch",
+      "Shelf"
+    ],
+    "StartupOffInFreshProfiles": true,
+    "ClipboardCaptureOffInFreshProfiles": true,
+    "TimerSoundOffInResourceProfiles": true
+  },
+  "AutomatedReleaseValidation": {
+    "Origin": "Canonical local Release source/build at tested commit; exact downloaded R2RDLL UI run separately verified",
+    "DomainOutcomesPassed": 97,
+    "UiOutcomesPassed": 111,
+    "ReleaseProvenanceChecksPassed": 11,
+    "GateEvidenceChecksPassed": 16,
+    "DiagnosticGeometryChecksPassed": 10,
+    "ObserverLifecycleChecksPassed": 3,
+    "CompilationWarnings": 0,
+    "CompilationErrors": 0
+  },
+  "ExactDownloadedUi": {
+    "RecordedAt": "2026-11-20T02:24:24.4129155+05:30",
+    "CandidateDllSHA256": "c5b5ab77a4fc6cfa7134024be44cb4455d1ea5068acf3fe5e87b1b13ed902195",
+    "Passed": 111,
+    "Checks": [
+      "Adding presets preserves independent timers",
+      "Row actions address the intended timer",
+      "Acknowledgement removes only the completed timer",
+      "Invalid custom duration leaves active timers intact",
+      "Stopwatch controls record a lap and hold paused elapsed time",
+      "Stopwatch resumes without including paused time",
+      "Visible productivity buttons expose accessible names and roles",
+      "Reset clears elapsed time and saved laps",
+      "Reduced-motion reveal and close fade without translation or a surviving hit surface",
+      "Reduced-motion detail expansion and collapse apply geometry immediately without translation",
+      "Detail footer displays localized date and time with an accessible name and unclipped layout",
+      "Enabling reduced motion cancels in-flight movement without stale clocks restoring it",
+      "Aborted and Controls-disabled reveals retain an unshown battery warning",
+      "A visible completed reveal consumes its warning and distinguishes historical low battery from current charging",
+      "A critical update during reveal survives older acknowledgement and waits for the next reveal",
+      "An interrupted Controls detail fade retains its warning until a later completed compact reveal",
+      "Disabled modules contribute no compact metadata, artwork, completion notice, or action",
+      "A disabled Timer module cannot replace enabled music or redirect its details action",
+      "The displayed running timer has matching details, accessible status, and a timer action",
+      "Compact pause and resume address the displayed timer without changing another timer",
+      "A compact completion opens acknowledgements instead of pausing a different selected timer",
+      "Both battery-notice actions open Controls and expose the retained percentage to accessibility",
+      "Disabling the displayed notice modules immediately restores enabled music and its actions",
+      "Compact focus metadata and accessible action identify the displayed session",
+      "Compact focus pause and resume leave the independent countdown running",
+      "Compact completed focus opens the focus continuation controls without changing another timer",
+      "Compact due reminder action opens snooze and dismissal controls",
+      "Compact reminder details select the same reminder controls as its action",
+      "Compact completed-timer action opens acknowledgement when a due reminder, completed focus and running timer coexist",
+      "Compact completed-timer details select the displayed countdown instead of a concurrent reminder or focus session",
+      "Disabled Timer module hides focus and reminder metadata and actions while retaining local state",
+      "Settings page changes preserve the activated navigation button and keyboard focus",
+      "Settings navigation retains forward and reverse tab order across page changes",
+      "File drops publish Link and handled state synchronously without moving or modifying the original",
+      "Copy-only sources retain a shelf reference with a permitted Copy effect and an unchanged original",
+      "Move-only, disabled, ineligible, hidden, and transparent-gap drags are handled without accepting data or changing modules",
+      "A second drop is rejected while a shelf import is still in flight",
+      "A late shelf import preserves the active Controls slider and its source file",
+      "A background shelf import error remains available on the next Shelf view without rebuilding Controls",
+      "Detail hit testing follows its current translation instead of retaining invisible edges",
+      "Transparent and input-disabled detail cards expose no registered hit region",
+      "Reentrant data providers cannot import or switch views after resetting the shelf or suppressing the island",
+      "Native CF_HDROP negotiates Link synchronously and imports a reference without modifying the original",
+      "Native CF_HDROP negotiates Copy synchronously and imports a reference without modifying the original",
+      "Native CF_HDROP rejects Move-only source effects without importing or modifying the original",
+      "Native CF_HDROP rejects disabled and ineligible targets while preserving originals and foreground focus",
+      "Disabled and no-longer-current timer completions never leave deferred audio behind",
+      "Pending completion audio is discarded when sound is disabled or its timer is acknowledged",
+      "Acknowledged pending completions release queue capacity for a fresh timer alert after preview",
+      "Eight independent timer completions coalesce during an active chime and repeated ticks produce no replay",
+      "Cancelling completion alerts stops active completion audio while preserving an explicit preview",
+      "Audio shutdown stops playback and rejects later work without opening an overlay",
+      "The real Settings sound preview coalesces requests without enabling sound and its bundled WAV is valid and bounded",
+      "Clipboard backup detaches lazy OLE values, arrays, bitmap pixels and complete streams before owner invalidation or disposal",
+      "Clipboard backup rejects unsupported formats before any native clipboard write",
+      "Native clipboard listener remains unregistered and stores no text before opt-in",
+      "Enabling clipboard history does not import existing Windows clipboard content",
+      "Native clipboard-update events capture Unicode text and expose searchable local history",
+      "Pause unregisters clipboard capture and resume excludes text copied during pause",
+      "Clearing clipboard history does not reimport the current clipboard value",
+      "Native capture honors the Windows exclusion marker for protected clipboard content",
+      "Clipboard panel search and pin controls operate on saved text with accessible names",
+      "Explicit clipboard history Copy restores the selected text through Windows",
+      "Clipboard panel clear removes pinned history as well as ordinary entries",
+      "Turning clipboard history off unregisters native capture and erases its saved text",
+      "Native clipboard regression restores detached user formats and exact Unicode text after disposing capture",
+      "Audio selection rejects an absent endpoint without changing the connected outputs",
+      "Audio and connectivity panels route the intended Windows settings links",
+      "Audio selection renders connected endpoints and disables switching when none are available",
+      "Visible system statistics read real Windows physical memory and bounded CPU counters",
+      "System-statistics sampling stops when Crest is hidden",
+      "Focus tab starts the configured independent work and break session",
+      "Focus pause controls exclude elapsed hidden time",
+      "Completed work remains pending until its continuation control is selected",
+      "Final work completion retains a completed session and prevents an extra break",
+      "Focus dismissal clears the retained session",
+      "Reminder controls create a local scheduled reminder and expose its due state",
+      "Reminder snooze reschedules the existing due reminder",
+      "Reminder dismissal removes the due reminder and its durable state",
+      "Reminder chosen-time control accepts the user's local date and time format",
+      "Empty reminder text reports validation without creating an activity",
+      "Appearance settings expose all three additional local themes",
+      "A display-specific theme persists independently of the default theme",
+      "A display-specific size preset changes only the selected display",
+      "Editing defaults preserves an existing display appearance override",
+      "Display-specific trigger delay and coverage persist without changing defaults",
+      "Pointer gesture controls persist the selected double-click, middle-click, and wheel actions",
+      "Module ordering controls update the persisted order and the actual island dock",
+      "Workspace settings create and persist a named preset",
+      "Workspace website creation rejects unsupported URI protocols",
+      "Workspace settings retain a valid explicitly selected website target",
+      "Renaming a workspace preserves its targets",
+      "Workspace removal clears only the selected preset and its saved references",
+      "Privacy settings start with clipboard capture off",
+      "Privacy opt-in and retention controls apply to the real clipboard history service",
+      "Turning capture off from Privacy settings erases the retained clipboard state",
+      "Removing a display override restores the current default appearance and trigger preferences",
+      "A configured surface wheel gesture opens the next enabled module in saved order",
+      "A configured middle-click surface gesture collapses the visible island",
+      "Pointer gestures leave interactive controls available without collapsing their panel",
+      "Capture module exposes Windows screenshot launch and only explicitly selected recent references",
+      "Selected capture references survive isolated storage restart without importing other files",
+      "Capture module identifies a missing selected source without deleting its reference",
+      "Removing an obsolete capture reference preserves the selected replacement image bytes",
+      "Clear capture references clears durable paths and leaves source images intact",
+      "Shelf pin control updates the intended reference and exposes its unpin action",
+      "Pinned shelf paths persist while unpinned references remain limited to their session",
+      "Missing pinned shelf entries expose locate and nearest-existing-folder recovery controls",
+      "Explicit shelf relinking accepts an existing replacement file",
+      "Recovered shelf UI retains reference identity and pin and removes obsolete missing-source actions",
+      "Removing the last pinned shelf reference clears durable state and preserves every source file"
+    ],
+    "Limitations": "Rendered DPI samples and isolated presentation/drop/audio regressions do not qualify desktop visibility, physical desktop OLE dragging, audible hardware playback, physical mixed-DPI, frame timing, or screen-reader acceptance.",
+    "OriginalClipboardDetachedRestoreVerified": true,
+    "OriginalHistoryPreservedByCorrectedFixture": true
+  },
+  "NativeStartupChecks": {
+    "ExactCandidateDllLoaded": true,
+    "ActualCandidateInstalledFiveHooksAtReadiness": true,
+    "ActualCandidateHiddenAtReadiness": true,
+    "SeparateDiagnosticInstalledFiveHooks": true,
+    "NormalInputDesktop": true,
+    "DesktopShellIdentityRecovered": true,
+    "ActualCandidateWindowsHidden": true,
+    "CurrentForegroundRejectedByDesktopPolicy": true
+  },
+  "Measurements": {
+    "RecordedAtUtc": "2026-11-20T02:33:28.2937292+05:30",
+    "RequestedDurationSeconds": 600,
+    "ActualDurationSeconds": 600.136,
+    "CpuMeasurementDurationSeconds": 600.127,
+    "SampleCount": 121,
+    "AllWindowsHidden": true,
+    "VisibleSamples": 0,
+    "WindowShowEvents": 0,
+    "ObserverHealthy": true,
+    "WindowEnumerationFailures": 0,
+    "ProcessExitedEarly": false,
+    "CandidateDllUnchanged": true,
+    "MeanTotalDeviceCpuPercent": 0.0456,
+    "MaximumWorkingSetBytes": 157081600,
+    "MaximumWorkingSetMiB": 149.8,
+    "ExternalLaunchToDispatcherReadinessMilliseconds": 2948.89,
+    "InstalledColdReadinessQualified": false,
+    "ReadinessLimitations": "2948.890 ms observed in one warm/uncontrolled-cache portable launch; no cold installed baseline, and hardware initializes asynchronously"
+  },
+  "GateOutcomes": [
+    {
+      "Id": "PER-idle",
+      "Satisfied": true,
+      "Expected": "At least 600 seconds entirely hidden with healthy observer and mean total-device CPU below 1 percent",
+      "Observed": "600.136 seconds,121 samples,0.0456 percent,zero shows/failures, unchanged DLL"
+    },
+    {
+      "Id": "PER-memory",
+      "Satisfied": true,
+      "Expected": "Warm resident working set at most 200000000 bytes",
+      "Observed": "Maximum 157081600 bytes(149.80 MiB)"
+    }
+  ],
+  "GateCounts": {
+    "Pass": 2,
+    "Partial": 14,
+    "Pending": 15
+  },
+  "AcceptanceMatrix": [
+    {
+      "Id": "AC01",
+      "Status": "partial",
+      "Notes": "Hidden startup and real restart observed; stationary Win+D/unlock/resume recovery pending"
+    },
+    {
+      "Id": "AC02",
+      "Status": "pending",
+      "Notes": "Current physical clear-desktop hover/reveal/dismissal remains unexecuted"
+    },
+    {
+      "Id": "AC03",
+      "Status": "pending",
+      "Notes": "Current physical early dwell cancellation and input interception remains unexecuted"
+    },
+    {
+      "Id": "AC04",
+      "Status": "partial",
+      "Notes": "Chrome foreground rejection and hidden windows observed; full Chrome/Explorer pointer/input matrix pending"
+    },
+    {
+      "Id": "AC05",
+      "Status": "pending",
+      "Notes": "Physical strict visible/minimized/off-screen/virtual-desktop coverage matrix pending"
+    },
+    {
+      "Id": "AC06",
+      "Status": "pending",
+      "Notes": "Independently timed app switches during dwell/reveal/expansion pending"
+    },
+    {
+      "Id": "AC07",
+      "Status": "pending",
+      "Notes": "Current Windows-panel and fullscreen suppression matrix pending"
+    },
+    {
+      "Id": "AC08",
+      "Status": "partial",
+      "Notes": "Exact DLL control/native OLE/audio/compact fixtures pass; full registered popups and physical product interaction pending"
+    },
+    {
+      "Id": "AC09",
+      "Status": "partial",
+      "Notes": "Actual Settings focus/keyboard and hidden island observed; external launcher target matrix pending"
+    },
+    {
+      "Id": "AC10",
+      "Status": "pending",
+      "Notes": "Physical closing reversal and complete 100-cycle native sequence pending"
+    },
+    {
+      "Id": "AC11",
+      "Status": "partial",
+      "Notes": "Real countdown/focus/reminder deadlines remained hidden under Chrome in healthy 50-sample observation; background track-change matrix pending"
+    },
+    {
+      "Id": "AC12",
+      "Status": "pending",
+      "Notes": "Second physical display unavailable"
+    },
+    {
+      "Id": "AC13",
+      "Status": "partial",
+      "Notes": "Eight actual Windows SMTC outcomes with two owned muted sessions pass; external audible players/product UI pending"
+    },
+    {
+      "Id": "AC14",
+      "Status": "partial",
+      "Notes": "Real API volume/mute/alternate-output switching and independent all-role restoration pass; hardware keys/disconnect/reconnect pending"
+    },
+    {
+      "Id": "AC15",
+      "Status": "partial",
+      "Notes": "Actual battery/brightness providers and Settings ready states observed; physical transitions/unavailable hardware pending"
+    },
+    {
+      "Id": "AC16",
+      "Status": "partial",
+      "Notes": "Running deadline retained through real restart, paused 90 seconds exact, completed timer/focus/due reminder/elapsed stopwatch retained; lock/sleep/clock changes pending"
+    },
+    {
+      "Id": "AC17",
+      "Status": "partial",
+      "Notes": "Exact DLL native OLE and persistent-reference fixtures pass; physical desktop drag/drop-out and full relink/missing-folder matrix pending"
+    },
+    {
+      "Id": "AC20",
+      "Status": "partial",
+      "Notes": "Actual single 1920x1080 display at 125 percent and static layout fixtures; physical 100/150/200 percent/mixed-DPI/fallback pending"
+    },
+    {
+      "Id": "AC21",
+      "Status": "partial",
+      "Notes": "Six actual Settings keyboard/focus observations and named control fixtures pass; island keyboard/Escape/Narrator/high contrast/live reduced motion pending"
+    },
+    {
+      "Id": "AC22",
+      "Status": "partial",
+      "Notes": "Current ten-minute CPU and warm memory gates pass; other measured budgets pending"
+    },
+    {
+      "Id": "AC23",
+      "Status": "partial",
+      "Notes": "Quiet same-profile single instance, real graceful quit/restart pass; Explorer restart/Pause-Resume/invisible input regions pending"
+    },
+    {
+      "Id": "AC24",
+      "Status": "pending",
+      "Notes": "Clean-account installation/migration/shortcuts/startup opt-in and both uninstall data choices unexecuted"
+    },
+    {
+      "Id": "PER-readiness",
+      "Status": "pending",
+      "Notes": "2948.890 ms warm portable dispatcher-ready observation; independently cold installed procedure unexecuted"
+    },
+    {
+      "Id": "PER-hover",
+      "Status": "pending",
+      "Notes": "Actual eligible hover timing at default settings pending"
+    },
+    {
+      "Id": "PER-feedback",
+      "Status": "pending",
+      "Notes": "Actual visible control feedback latency pending"
+    },
+    {
+      "Id": "PER-suppression",
+      "Status": "pending",
+      "Notes": "Native foreground-to-hide/input-disable percentiles and continuous incident observation pending"
+    },
+    {
+      "Id": "PER-frames",
+      "Status": "pending",
+      "Notes": "Actual displayed-frame attribution and intervals pending"
+    },
+    {
+      "Id": "PER-idle",
+      "Status": "pass",
+      "Notes": "600.136 seconds entirely hidden;121 samples;0.0456 percent total-device CPU"
+    },
+    {
+      "Id": "PER-memory",
+      "Status": "pass",
+      "Notes": "Maximum 157081600 bytes;149.80 MiB;below decimal 200 MB"
+    },
+    {
+      "Id": "PER-hidden-rendering",
+      "Status": "pending",
+      "Notes": "Provider sampling stops, but actual graphics/render trace remains unexecuted"
+    },
+    {
+      "Id": "PER-battery",
+      "Status": "pending",
+      "Notes": "Repeated matched battery-power comparison unexecuted"
+    }
+  ],
+  "NativeProviderApi": {
+    "Origin": "canonical local Release build 0.2.1 at 950b8df7f63f3f17c4a45709ab36300ca9d16211; GitHub asset correspondence pending; standalone provider fixture",
+    "RecordedAtUtc": "2026-11-20T02:23:24.9673107+05:30",
+    "Passed": 9,
+    "Failed": 0,
+    "Checks": [
+      {
+        "Expected": "Candidate audio provider enumerates the same actual active Windows render endpoints as independent COM readback",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Absent output is rejected without changing any Windows default role",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Candidate volume control changes the actual Windows endpoint scalar",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Candidate mute control toggles actual Windows mute and returns to its original value",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Candidate output switch selects the alternate endpoint for all three actual Windows default roles",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Every original Windows default role and endpoint volume/mute value is restored by independent readback",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Candidate native provider returns bounded CPU and actual physical-memory totals",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Candidate network provider returns real nonnegative active-adapter rate samples",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Candidate system-statistics sampling stops while marked hidden",
+        "Status": "passed"
+      }
+    ],
+    "WindowsActiveOutputs": 2,
+    "CandidateOutputs": 2,
+    "DirectAlternateOutputSwitch": "passed",
+    "AllThreeWindowsDefaultRolesReadBack": true,
+    "AllOriginalRoleAndEndpointVolumeMuteStateRestored": true,
+    "StatisticsSamples": 7,
+    "Connectivity": {
+      "WifiStatus": "Wi-Fi connected",
+      "BluetoothStatus": "Bluetooth off"
+    },
+    "Brightness": {
+      "BrightnessAvailable": true,
+      "Brightness": 0,
+      "BrightnessStatus": "Built-in display",
+      "ValueChanged": false
+    },
+    "Battery": {
+      "Available": true,
+      "Percent": 100,
+      "Charging": false,
+      "RemainingMinutes": null,
+      "Status": "Plugged in",
+      "TransitionExercised": false
+    },
+    "Limitations": "Native candidate-provider fixture without product UI. No media titles, artist/artwork, endpoint names, SSID/IP, clipboard or personal file contents recorded. Hardware volume keys, audible playback/seek/session changes, disconnect/reconnect, radio transitions, brightness changes, charging transitions and sound-settings UI fallback remain unexecuted. SetVisible invokes the provider's sampling boundary; this does not prove island visibility behavior or continuous hidden rendering. Audio restoration is checked independently for all three default roles and every snapshotted endpoint. No observed results transfer to changed binaries."
+  },
+  "NativeMediaApi": {
+    "Origin": "canonical local 0.2.1; GitHub correspondence pending",
+    "RecordedAtUtc": "2026-11-20T02:27:40.0779671+05:30",
+    "Passed": 8,
+    "Checks": [
+      {
+        "Status": "passed",
+        "Expected": "Exact Crest selects the preferred actual synthetic media session"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Actual muted synthetic playback is active in Crest and Windows SMTC"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Exact Crest pauses the selected Windows SMTC session"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Exact Crest seeks the paused actual Windows SMTC timeline"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Exact Crest resumes selected actual synthetic playback"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Preferred-player selection moves to the second distinct Windows SMTC session"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Removed preferred synthetic session recovers to the remaining actual session"
+      },
+      {
+        "Status": "passed",
+        "Expected": "Removing all synthetic sessions restores the actual empty media state"
+      }
+    ],
+    "DistinctActualWindowsSessions": true,
+    "OwnedHostsOnly": true,
+    "HostsMuted": true,
+    "HostVolume": 0,
+    "OwnHostsStopped": true,
+    "ExternalPlayersChanged": false,
+    "Limitations": "Software-only API-based synthetic Windows SMTC fixture. No product UI or input, audible playback, external player commands, clipboard or normal profile access. Only owned hosts are changed/stopped. External session identifiers/titles/artists are omitted. Unexecuted cases do not qualify F01/AC13."
+  },
+  "NativeApiOutcomesPassed": 17,
+  "NativeKeyboard": {
+    "RecordedAtUtc": "2026-11-20T02:58:48.4549547+05:30",
+    "Passed": 6,
+    "ObservedActions": [
+      {
+        "Key": "Tab",
+        "Observed": "Overview focus",
+        "Expected": "Overview focus"
+      },
+      {
+        "Key": "Tab",
+        "Observed": "Appearance focus",
+        "Expected": "Appearance focus"
+      },
+      {
+        "Key": "Return",
+        "Observed": "Appearance page with retained Appearance focus",
+        "Expected": "Appearance page with retained Appearance focus"
+      },
+      {
+        "Key": "Tab",
+        "Observed": "Behavior focus",
+        "Expected": "Behavior focus"
+      },
+      {
+        "Key": "Return",
+        "Observed": "Behavior page with retained Behavior focus",
+        "Expected": "Behavior page with retained Behavior focus"
+      },
+      {
+        "Key": "Shift+Tab",
+        "Observed": "Appearance focus",
+        "Expected": "Appearance focus"
+      }
+    ],
+    "Method": "Native Computer Use key injection and immediate UI Automation focus observations in actual downloaded 0.2.1 Settings. App version 0.2.1 and Audio ready/Brightness ready read from that window.",
+    "Limitations": "Partial Settings keyboard evidence. Island keyboard, registered popups, Escape, Narrator, high contrast, physical DPI changes and latency remain unexecuted."
+  },
+  "NativeActivityRecovery": {
+    "Origin": "Actual downloaded executable; seeded scratch profile, real graceful restart and saved state",
+    "ObserverStartedUtc": "2026-11-20T02:25:42.1686831+05:30",
+    "ObserverBeforeTimerAndReminderDeadlines": true,
+    "ObservedDurationSeconds": 49.97,
+    "SampleCount": 50,
+    "AllSamplesChromeForeground": true,
+    "AllWindowsHidden": true,
+    "VisibleSamples": 0,
+    "WindowShowEvents": 0,
+    "ObserverHealthy": true,
+    "EnumerationFailures": 0,
+    "DllUnchanged": true,
+    "FirstQuitExitCode": 0,
+    "SecondQuitExitCode": 0,
+    "RunningTimerBeforeRestartSeconds": 30.021,
+    "RunningUtcDeadlineRetainedBeforeRestart": true,
+    "PausedTimerBeforeRestartSeconds": 90,
+    "RunningTimerCompleted": true,
+    "CompletedTimerRemainingSeconds": 0,
+    "PausedTimerFinalSeconds": 90,
+    "FocusCompletedRounds": 1,
+    "FocusTargetRounds": 2,
+    "FocusAwaitingManualContinuation": true,
+    "ReminderDue": true,
+    "StopwatchRunning": true,
+    "StopwatchSavedElapsedSeconds": 68.9049121,
+    "TenMinuteCpuQualifiedByThisShortRun": false,
+    "Limitations": "Partial background/restart outcomes. No physical lock/sleep, supervised clock adjustment, repeat snooze, interactive phase continuation/final-round completion or invisible-input-region certification"
+  },
+  "QuietSingleInstance": {
+    "Origin": "Actual downloaded candidate in a fresh isolated profile",
+    "QuietStartupHidden": true,
+    "SecondLaunchExitCode": 0,
+    "OriginalFirstProcessRetained": true,
+    "NativeHooks": 5,
+    "GracefulQuitExitCode": 0,
+    "StartupOff": true,
+    "ClipboardOff": true,
+    "Limitations": "Isolated profile smoke test using published-candidate executable. Startup registry, shortcuts and clean-account installer/uninstaller behavior remain unexecuted."
+  },
+  "Preservation": {
+    "NormalProcessRetainedThroughout": true,
+    "NormalProcessId": 28404,
+    "RegularInstalledBuild": "Historical 0.1.0 local P2 preview 649244A9; not replaced to simulate a clean account",
+    "NormalSettingsExactlyMatchInitialBackup": true,
+    "WindowsStartupUnchanged": true,
+    "FinalClipboardCapturePaused": false,
+    "UserResumedClipboardCapture": true,
+    "RevealShortcutRemainsOff": true,
+    "AllTestCrestProcessesClosed": true,
+    "OnlyNormalCrestProcessRemains": true,
+    "UnpinnedNormalShelfReferencesPreservedByProcessLifetime": true,
+    "NoNormalUninstallOrDataDeletionPerformed": true,
+    "RawBackupsIgnored": true,
+    "ClipboardIncident": "Initial published 0.2.0 fixture failed original Unicode restoration. Owner re-copied original clipboard; corrected 13-outcome subset and later 111-outcome exact-candidate fixture verified detached original formats/Unicode restoration and history preservation. Clipboard was not preserved continuously through the initial failure.",
+    "PrivateClipboardTextOrHistoryHashesPublished": false
+  },
+  "RawEvidenceDigests": [
+    {
+      "Path": "artifacts/final-build-0.2.1.log",
+      "SHA256": "69BC6090B74CD73D3138D48F21C976F019435D0CD6B7C50BCDFAD3B27F49AFBB",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/github-draft-0.2.1/assets.json",
+      "SHA256": "157C49DCE7E511D00FD92D3A2F2E4A1C12D6E2A1FAE5CD9392F7F6ABBF634773",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/github-draft-0.2.1/extracted/Crest/.crest-build-verification.json",
+      "SHA256": "360523144854303AAEB4536F62C1D4D38061BAEC07B5D5663B34B6011F4A11FA",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-ui-results/ui-outcomes.json",
+      "SHA256": "F2BF8BC447CC0E739EA385F1A2FE67F929C48D53A91352F0CCF2EBE7B78DF001",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-ui.log",
+      "SHA256": "5CB3BCD07332182A3C3CD8B6CE545ACED75915714590D0EEBBF0FD29CBE7E7AE",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-idle/readiness.json",
+      "SHA256": "1515BC84FE02FFDD62ECB0E08FF0E491A04FA7834EDDF29A1F0BE8E7F29A127C",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-idle/snapshot.json",
+      "SHA256": "95AA2149DA6A8F3CC0A06C3DEB91986BF14378A7706B16A8A9A214CCA9385E86",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-idle/hidden-idle.json",
+      "SHA256": "0E7851B8321B1640DC6C2DC7C319CE90159F857F8FF2AFEB04F2713651F2CDE6",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-idle/report.json",
+      "SHA256": "80F06CCC526534A9EC0FB69B8BB51B70A5F50EC8C7D49E9C11737435BDB426FD",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/hardware-local-0.2.1-FECD.json",
+      "SHA256": "1FE3E00CCCF146D5BB71F36B8E8894EE6EA6AACA0FCBC8B3B9F7D53084A979C8",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/SyntheticMedia021/run-d940289196314250a7f8c9bfef9a9721/evidence.json",
+      "SHA256": "EEC71345E5835E199D2A2BFF6AE762DA828EA03C1450DECB65AC452CF0475E45",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/keyboard-final.json",
+      "SHA256": "2F82BA052DF750F236C33019B5094DE0B15A550BB054E0E8D97AE5CC15A98983",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/final-0.2.1-background.json",
+      "SHA256": "639CD04A71713AAEC512B45931CEA8E96A54B2E36D9DE985F86299D41FA559A4",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/final-background-states.json",
+      "SHA256": "D81F4050599D3091D88EEA341D62283F454370E54E2B74098AF5963AC96E7058",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/final-single-instance.json",
+      "SHA256": "414CFD752CAE9D80E93DA7EAA67C7803EE35E636766D8FFB46F58DE488286E7B",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/final-single-instance-snapshot.json",
+      "SHA256": "4451B84DA3368EDC870836AF1F4888AFF610D4C18D10C368F1DBC1340F91D0E8",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/preservation-closeout.json",
+      "SHA256": "12E905759EADD84662B9F8C64AB1CBB82DD2271334CAAB6EB96976DAC6E52FD2",
+      "Availability": "Ignored local evidence; not distributed"
+    }
+  ],
+  "Limitations": [
+    "Only PER-idle and PER-memory are qualified; 2 pass, 14 partial, 15 pending. This remains a prerelease.",
+    "No 100-cycle physical interaction, complete shell/fullscreen/Pause-Resume/unlock/sleep/Explorer or hidden input-region matrix is claimed.",
+    "Actual frame/latency/hidden graphics/cold installed readiness/battery measurements remain open; callbacks/screenshots/refresh cannot substitute.",
+    "One physical 125 percent display; additional scales/mixed displays/disconnection and complete keyboard/Narrator/high contrast/reduced motion remain pending.",
+    "Clean-account install/upgrade/startup/shortcuts/retain/reinstall/delete was not executed; regular installation preserved.",
+    "Optional Allow Crest over other apps mode remains separate and unexecuted on this candidate.",
+    "Hardware/API media outcomes use owned synthetic sessions and actual endpoint writes/readback; audible external players, hardware keys/device/radio/charging transitions and settings fallback remain unexecuted.",
+    "Historical 0.2.0 and older installed preview observations retain original identities; neither qualify a changed candidate."
+  ]
+}
