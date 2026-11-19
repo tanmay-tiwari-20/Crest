@@ -1238,7 +1238,7 @@ public sealed partial class IslandWindow : Window
             var notice = _app.Preferences.EnabledModules.Contains("Controls") ? _shownBatteryNotice : null;
             bool activeTimer = timerEnabled && (timer.Phase is TimerPhase.Running or TimerPhase.Paused);
             _compactShowsCompletedTimers = completedTimers > 0;
-            _compactShowsDueReminders = dueReminders > 0;
+            _compactShowsDueReminders = dueReminders > 0 && completedTimers == 0;
             _compactShowsFocus = focusActive && dueReminders == 0 && completedTimers == 0;
             _compactModule = notice != null ? "Controls" : completedTimers > 0 || activeTimer || focusActive || dueReminders > 0 ? "Timer"
                 : musicEnabled && music.HasSession ? "Music" : "Overview";

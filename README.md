@@ -7,16 +7,16 @@
 
 Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, productivity tools, system controls, shortcuts, and a file shelf. It stays hidden while an application is active by default; an optional setting lets you open it over other apps.
 
-**Crest 0.2.0 is a prerelease candidate.** It adds audio-output selection, focus sessions and reminders, opt-in clipboard history, system activity and connectivity, capture references, workspaces, pinned shelf references, and more personalization. Native release acceptance remains open; the [test report](docs/TEST_REPORT.md) separates automated verification from the remaining Windows checks.
+**Crest 0.2.1 is a prerelease candidate.** It adds audio-output selection, focus sessions and reminders, opt-in clipboard history, system activity and connectivity, capture references, workspaces, pinned shelf references, and more personalization. Native release acceptance remains open; the [test report](docs/TEST_REPORT.md) separates automated verification from the remaining Windows checks.
 
 ## Download and install
 
-Download a packaged application from the [0.2.0 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.0). Open **Assets** and choose one of these:
+Download a packaged application from the [0.2.1 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.1). Open **Assets** and choose one of these:
 
 | Package | Use it when | Installation |
 |---|---|---|
-| `Crest-Setup-0.2.0-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
-| `Crest-Portable-0.2.0-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
+| `Crest-Setup-0.2.1-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
+| `Crest-Portable-0.2.1-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
 
 Both packages target **Windows 11 x64** and include the .NET runtime. You do not need an SDK, a separate runtime installation, administrator access, or a Crest account. The source-code archives on a GitHub release are for building the application; download an application package to run it.
 
@@ -80,7 +80,7 @@ Local verification passes **97 domain outcomes, 107 WPF/native UI outcomes, eigh
 
 Earlier hearing, desktop/shelf and resource observations remain historical for their recorded binaries. The preceding core candidate qualified 12 of 31 gates; those results do not qualify this changed release. Cold startup, frame delivery, hidden resource use, battery impact and remaining physical acceptance must be measured on the exact candidate.
 
-The concurrent activity overview and requested P2 local functionality are included in 0.2.0. Audio switching probes Windows PolicyConfig at runtime and reads back the selected default; this undocumented interface may be unavailable on a Windows build, so **Windows sound settings** is always offered. System statistics sample only while Crest is visible. Weather, calendars, account access, AI commands and other P3 integrations remain deferred.
+The concurrent activity overview and requested P2 local functionality are included in 0.2.1. Audio switching probes Windows PolicyConfig at runtime and reads back the selected default; this undocumented interface may be unavailable on a Windows build, so **Windows sound settings** is always offered. System statistics sample only while Crest is visible. Weather, calendars, account access, AI commands and other P3 integrations remain deferred.
 
 ## Troubleshooting
 
@@ -99,7 +99,7 @@ Maintainers need Windows, Git, and **.NET SDK 10.0.404**, pinned by [global.json
 ```powershell
 git clone https://github.com/tanmay-tiwari-20/Crest.git
 cd Crest
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.2.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.2.1
 ```
 
 The release script restores locked dependencies, builds, runs outcome tests, publishes a self-contained x64 app, and uses the verified Inno Setup compiler to create an installer and portable ZIP. It uses `.tools/dotnet` when available, otherwise the pinned system SDK. Upload-ready files and checksums go under `artifacts/release/`. Use `scripts/build.ps1` for a build without packaging.

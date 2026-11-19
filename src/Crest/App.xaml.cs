@@ -20,7 +20,7 @@ namespace Crest;
 
 public partial class App : Application
 {
-    public static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "0.2.0";
+    public static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "0.2.1";
     private static DiagnosticLog? Diagnostics;
     private string _instancePrefix = @"Local\Crest";
     private string? _acceptanceDirectory;

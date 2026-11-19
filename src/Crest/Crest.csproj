@@ -9,7 +9,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>../../assets/crest.ico</ApplicationIcon>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <AssemblyName>Crest</AssemblyName>
     <RootNamespace>Crest</RootNamespace>

@@ -1,6 +1,6 @@
-# Using Crest 0.2.0
+# Using Crest 0.2.1
 
-Crest opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. This guide covers the **0.2.0 release candidate** for Windows 11 x64. The [test report](TEST_REPORT.md) records verified behavior and the native acceptance checks still pending.
+Crest opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. This guide covers the **0.2.1 release candidate** for Windows 11 x64. The [test report](TEST_REPORT.md) records verified behavior and the native acceptance checks still pending.
 
 ## Install
 
@@ -10,7 +10,7 @@ Both packages include the .NET runtime. You do not need a separate runtime, an S
 
 ### Installer
 
-1. Download `Crest-Setup-0.2.0-x64.exe`.
+1. Download `Crest-Setup-0.2.1-x64.exe`.
 2. Run it and follow the setup steps. Crest installs for your current Windows user account.
 3. Choose an optional desktop shortcut if wanted. Setup adds Start-menu entries.
 4. Start Crest from the Start menu or the final setup step.
@@ -19,7 +19,7 @@ Startup with Windows is off by default. You can enable it later in **Settings â†
 
 ### Portable package
 
-1. Download `Crest-Portable-0.2.0-x64.zip`.
+1. Download `Crest-Portable-0.2.1-x64.zip`.
 2. Extract the entire archive into a folder you want to keep.
 3. Run `Crest.exe` from the extracted folder.
 
@@ -28,7 +28,7 @@ Keep the executable, runtime, and supporting files together. Portable Crest stil
 When a release supplies a SHA-256 checksum, compare it with your downloaded package:
 
 ```powershell
-Get-FileHash .\Crest-Setup-0.2.0-x64.exe -Algorithm SHA256
+Get-FileHash .\Crest-Setup-0.2.1-x64.exe -Algorithm SHA256
 ```
 
 Use the checksum for the same asset and release. The [build guide](BUILD.md) explains how the packages are produced.
@@ -110,7 +110,7 @@ Built-in brightness uses a supported Windows/WMI capability. An external monitor
 
 ## Timers, focus, and reminders (F09)
 
-The focus card starts a **25-minute** timer when none exists. It then controls the selected timer with Pause, Resume, or Done. Select the card's time to open the **Timer** module. Version 0.2.0 includes independent timers, stopwatch, focus sessions and reminders; the original 0.1.0 release had one timer.
+The focus card starts a **25-minute** timer when none exists. It then controls the selected timer with Pause, Resume, or Done. Select the card's time to open the **Timer** module. Version 0.2.1 includes independent timers, stopwatch, focus sessions and reminders; the original 0.1.0 release had one timer.
 
 The Timers tab offers **5, 15, and 25 minute** presets. Each adds a new timer. For a custom timer, enter an optional name and a duration in minutes, then select **Add**. The range is one second to seven days (10,080 minutes); fractional minutes are accepted using your Windows number format.
 

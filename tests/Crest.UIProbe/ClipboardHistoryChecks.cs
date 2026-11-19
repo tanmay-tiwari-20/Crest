@@ -13,16 +13,11 @@ internal static class ClipboardHistoryChecks
 {
     public static async Task Run(Action<bool, string> check)
     {
+        ClipboardSnapshotChecks.Run(check);
         string tempParent = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         string root = Path.GetFullPath(Path.Combine(tempParent, "CrestClipboardUI-" + Guid.NewGuid().ToString("N")));
         IDataObject? original = await RetryClipboard(Clipboard.GetDataObject, "read original clipboard");
-        // OLE advertises bookkeeping and conversion formats that are regenerated when ownership changes.
-        // Verify stable user formats; a comparison of every private format would reject a successful restore.
-        var stableFormats = new[] { DataFormats.UnicodeText, DataFormats.Html, DataFormats.Rtf, DataFormats.FileDrop,
-            DataFormats.Bitmap, DataFormats.Dib, DataFormats.CommaSeparatedValue, DataFormats.WaveAudio };
-        string[] originalFormats = await RetryClipboard(() => (original?.GetFormats(false) ?? Array.Empty<string>()).Where(stableFormats.Contains).ToArray(), "read original format names");
-        string? originalText = await RetryClipboard(() => original?.GetDataPresent(DataFormats.UnicodeText, false) == true
-            ? original.GetData(DataFormats.UnicodeText, false) as string : null, "read original Unicode text");
+        var snapshot = await RetryClipboard(() => ClipboardSnapshot.Capture(original), "detach and verify original clipboard values");
         var options = new ClipboardHistoryOptions();
         using var hub = new ClipboardHistoryHub(new SettingsStore(root), () => options, automaticRetention: false);
         using var listener = new ClipboardHistoryListener(hub);
@@ -98,14 +93,25 @@ internal static class ClipboardHistoryChecks
             hub.Reset();
             try
             {
-                await RetryClipboard(() => { if (original != null) Clipboard.SetDataObject(original, true); else Clipboard.Clear(); }, "restore original clipboard");
-                var restored = await RetryClipboard(Clipboard.GetDataObject, "read restored clipboard");
-                var absentFormats = await RetryClipboard(() => originalFormats.Where(format => restored?.GetDataPresent(format, true) != true).ToArray(), "verify restored formats");
-                bool textMatches = originalText == null || await RetryClipboard(() => Clipboard.GetText(TextDataFormat.UnicodeText), "verify restored Unicode text") == originalText;
-                check(absentFormats.Length == 0 && textMatches,
-                    "Native clipboard regression restores stable user formats and exact Unicode text after disposing capture"
-                    + (absentFormats.Length == 0 ? "" : " (missing formats: " + string.Join(", ", absentFormats) + ")")
-                    + (textMatches ? "" : " (Unicode text mismatch)"));
+                bool fullyRestored = false, unicodeFallbackRestored = false;
+                try
+                {
+                    await RetryClipboard(() => { if (snapshot.Empty) Clipboard.Clear(); else Clipboard.SetDataObject(snapshot.CreateDataObject(), true); }, "restore detached original clipboard");
+                    fullyRestored = await RetryClipboard(() => snapshot.Matches(Clipboard.GetDataObject()), "verify restored clipboard values");
+                }
+                catch (Exception) { /* Preserve captured Unicode even when a complete multi-format restore fails. */ }
+                if (!fullyRestored && snapshot.UnicodeText is string originalText)
+                {
+                    // Keep any successfully restored richer formats when Unicode is already exact.
+                    try { unicodeFallbackRestored = await RetryClipboard(() => Clipboard.GetText(TextDataFormat.UnicodeText) == originalText, "check original Unicode before fallback"); }
+                    catch (Exception) { /* Still attempt the independent captured-text write after a failed read. */ }
+                    if (!unicodeFallbackRestored)
+                        await RetryClipboard(() => Clipboard.SetText(originalText, TextDataFormat.UnicodeText), "restore captured original Unicode fallback");
+                    unicodeFallbackRestored = await RetryClipboard(() => Clipboard.GetText(TextDataFormat.UnicodeText) == originalText, "verify original Unicode fallback");
+                }
+                check(fullyRestored,
+                    "Native clipboard regression restores detached user formats and exact Unicode text after disposing capture"
+                    + (fullyRestored ? "" : unicodeFallbackRestored ? " (full-format restore failed; exact original Unicode fallback restored)" : " (restoration failed)"));
             }
             finally
             {

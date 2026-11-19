@@ -1,0 +1,459 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedLocalDate": "2026-11-20",
+  "Timezone": "Asia/Calcutta",
+  "RecordedAtUtc": "2026-11-20T01:11:17.446046+05:30",
+  "ApplicationVersion": "0.2.0",
+  "TestedCommit": "cdb256058ad219f4ca39648b5078bdc5d3639718",
+  "CandidateDllSHA256": "5DB16954608DFBA410DDA40476405FDFA2AD62B5B0C8CAB87A7BBE6181E7B5A3",
+  "SourceFingerprint": "9028DB144AA8A6A8BC75959155AE046D6155B86F8777A1E8AE3308D0977E7DF0",
+  "CandidateOrigin": "Exact GitHub-published portable v0.2.0 package; separate isolated acceptance profile",
+  "PublishedReleaseUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.0",
+  "Prerelease": true,
+  "P1Qualified": false,
+  "Assets": [
+    {
+      "Name": "Crest-Portable-0.2.0-x64.zip",
+      "SizeBytes": 90120397,
+      "SHA256": "FE0301C179729D4298B1F330ECF65B12CA829ECD323669EE7D5D9B11EEFEDDE5",
+      "GitHubDigestMatched": true,
+      "DownloadUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/download/v0.2.0/Crest-Portable-0.2.0-x64.zip"
+    },
+    {
+      "Name": "Crest-Setup-0.2.0-x64.exe",
+      "SizeBytes": 63437544,
+      "SHA256": "1CCAB230130214C858A50B8683989513E905E6A8C55105A49EBFF477A594F4CE",
+      "GitHubDigestMatched": true,
+      "DownloadUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/download/v0.2.0/Crest-Setup-0.2.0-x64.exe"
+    },
+    {
+      "Name": "SHA256SUMS.txt",
+      "SizeBytes": 187,
+      "SHA256": "AC91D391581E27D228B4D6CFEED78DE5222EC17C404D8AE4C17B0EBB5EB74BD8",
+      "GitHubDigestMatched": true,
+      "DownloadUrl": "https://github.com/tanmay-tiwari-20/Crest/releases/download/v0.2.0/SHA256SUMS.txt"
+    }
+  ],
+  "SourceProvenance": {
+    "RuntimeFilesMatchedOriginalLocalTestRecord": 476,
+    "OriginalLocalVerification": "docs/p2-local-verification.json; source fingerprint and DLL match shown above",
+    "PublishedZipBuildManifestPresent": false,
+    "AcceptanceSidecarOrigin": "Acceptance-only sidecar: published ZIP digest verified; every runtime file matched original local tested-build record; GitHub release/CI both passed at cdb256058ad219f4ca39648b5078bdc5d3639718. No sidecar ships in published ZIP.",
+    "AcceptanceSidecarDistributionEntries": 492,
+    "AcceptanceSidecarWasDownloaded": false,
+    "Limitation": "The constructed local sidecar binds the measured package after byte comparison; it is not a GitHub-supplied manifest or a new CI run."
+  },
+  "Baseline": {
+    "Windows": "Windows 11 x64 build 26300",
+    "Cpu": "AMD Ryzen 5 5600H",
+    "LogicalProcessors": 12,
+    "PhysicalMemoryBytes": 7883554816,
+    "PhysicalDisplayCount": 1,
+    "ResolutionPixels": [
+      1920,
+      1080
+    ],
+    "ScalingPercent": 125,
+    "OsReportedRefreshHz": 144,
+    "PowerScheme": "Balanced",
+    "RefreshRateIsPresentedFrameEvidence": false
+  },
+  "Conditions": {
+    "IsolatedProfile": true,
+    "SeparateIpcIdentity": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "Theme": "System",
+    "Motion": "System",
+    "MotionSpeed": 1,
+    "SizeScale": 1,
+    "DwellMs": 120,
+    "GraceMs": 250,
+    "CoreModulesEnabled": [
+      "Music",
+      "Controls",
+      "Timer",
+      "Launch",
+      "Shelf"
+    ],
+    "StartWithWindows": false,
+    "TimerSound": false,
+    "AccessibilityShortcut": false,
+    "ClipboardHistoryEnabled": false
+  },
+  "NativeChecks": {
+    "ExactCandidateDllLoaded": true,
+    "ActualCandidateInstalledFiveHooksAtReadiness": true,
+    "ActualCandidateHiddenAtReadiness": true,
+    "SeparateDiagnosticInstalledFiveHooks": true,
+    "NormalInputDesktop": true,
+    "DesktopShellIdentityRecovered": true,
+    "ActualCandidateWindowsHidden": true,
+    "CurrentForegroundRejectedByDesktopPolicy": true
+  },
+  "Measurements": {
+    "RequestedDurationSeconds": 600,
+    "ActualDurationSeconds": 600.027,
+    "CpuMeasurementDurationSeconds": 600.018,
+    "SampleCount": 121,
+    "AllWindowsHidden": true,
+    "VisibleSamples": 0,
+    "WindowShowEvents": 0,
+    "WindowShowObservationHealthy": true,
+    "WindowEnumerationFailures": 0,
+    "ProcessExitedEarly": false,
+    "CandidateDllUnchanged": true,
+    "MeanTotalDeviceCpuPercent": 0.036,
+    "MaximumWorkingSetBytes": 170774528,
+    "MaximumWorkingSetMiB": 162.86,
+    "ExternalLaunchToDispatcherReadinessMilliseconds": 7303.449,
+    "InstalledColdReadinessQualified": false,
+    "ReadinessLimitations": "One uncontrolled-cache portable launch; 7303.449 ms exceeds 3000 ms in this observation. Cold installed conditions and synchronous completion of all hardware refreshes were not established."
+  },
+  "GateOutcomes": [
+    {
+      "Id": "PER-idle",
+      "Satisfied": true,
+      "Expected": "At least 600 seconds continuously hidden; mean total-device CPU below 1 percent",
+      "Observed": "600.027 seconds; 121 samples; 0.0360 percent; healthy observer; unchanged DLL"
+    },
+    {
+      "Id": "PER-memory",
+      "Satisfied": true,
+      "Expected": "Warm resident working set at most 200000000 bytes",
+      "Observed": "Maximum 170774528 bytes"
+    }
+  ],
+  "AcceptanceCases": [
+    {
+      "Id": "AC01",
+      "Status": "partial",
+      "Notes": "Five-hook hidden startup; stationary Win+D/unlock/resume recovery unexecuted"
+    },
+    {
+      "Id": "AC02",
+      "Status": "unexecuted",
+      "Notes": "Physical clear-desktop hover/reveal/dismissal"
+    },
+    {
+      "Id": "AC03",
+      "Status": "unexecuted",
+      "Notes": "Early dwell cancellation and input interception"
+    },
+    {
+      "Id": "AC04",
+      "Status": "partial",
+      "Notes": "Foreground rejection and hidden snapshot; Chrome/Explorer physical input matrix outstanding"
+    },
+    {
+      "Id": "AC05",
+      "Status": "partial",
+      "Notes": "One foreground scene rejected; visible/minimized/off-screen/virtual-desktop matrix outstanding"
+    },
+    {
+      "Id": "AC06",
+      "Status": "unexecuted",
+      "Notes": "Independently timed app switches during dwell/reveal/expansion"
+    },
+    {
+      "Id": "AC07",
+      "Status": "unexecuted",
+      "Notes": "Windows panels and fullscreen applications"
+    },
+    {
+      "Id": "AC08",
+      "Status": "partial",
+      "Notes": "Six compact WPF outcomes passed; two countdown action/detail routes failed; actual controls/popups outstanding"
+    },
+    {
+      "Id": "AC09",
+      "Status": "unexecuted",
+      "Notes": "Settings and harmless valid/invalid launcher foreground changes"
+    },
+    {
+      "Id": "AC10",
+      "Status": "unexecuted",
+      "Notes": "Closing reversal and 100 native interaction cycles"
+    },
+    {
+      "Id": "AC11",
+      "Status": "unexecuted",
+      "Notes": "Real background productivity completions and media changes"
+    },
+    {
+      "Id": "AC12",
+      "Status": "unexecuted",
+      "Notes": "Second physical display unavailable"
+    },
+    {
+      "Id": "AC13",
+      "Status": "partial",
+      "Notes": "Native empty media-session state; active/multiple playback and removal unexecuted"
+    },
+    {
+      "Id": "AC14",
+      "Status": "partial",
+      "Notes": "Published API volume/mute/alternate output with all-role readback and restoration passed; hardware keys/reconnect unexecuted"
+    },
+    {
+      "Id": "AC15",
+      "Status": "partial",
+      "Notes": "Actual current battery/brightness state; transitions and unavailable hardware unexecuted"
+    },
+    {
+      "Id": "AC16",
+      "Status": "unexecuted",
+      "Notes": "Published-binary lock/sleep/deadline/paused/clock-change recovery"
+    },
+    {
+      "Id": "AC17",
+      "Status": "unexecuted",
+      "Notes": "Published-binary native shelf OLE/drop/drag-out/pins/relink/original preservation"
+    },
+    {
+      "Id": "AC20",
+      "Status": "partial",
+      "Notes": "125-percent native geometry; other physical DPI/mixed displays/fallback unexecuted"
+    },
+    {
+      "Id": "AC21",
+      "Status": "partial",
+      "Notes": "Selected compact accessible names/actions; product keyboard/Narrator/high contrast/live reduced motion outstanding"
+    },
+    {
+      "Id": "AC22",
+      "Status": "partial",
+      "Notes": "CPU and warm memory qualified; other measured budgets outstanding"
+    },
+    {
+      "Id": "AC23",
+      "Status": "unexecuted",
+      "Notes": "Published-binary Explorer restart/Pause-Resume/Quit and invisible input-region removal"
+    },
+    {
+      "Id": "AC24",
+      "Status": "unexecuted",
+      "Notes": "Disposable clean-account install/migration/retain-reinstall/delete choices"
+    },
+    {
+      "Id": "PER-readiness",
+      "Status": "partial",
+      "Notes": "7303.449 ms uncontrolled-cache portable observation; independently cold installed readiness unexecuted"
+    },
+    {
+      "Id": "PER-hover",
+      "Status": "unexecuted",
+      "Notes": "Actual eligible hover timing at default preferences"
+    },
+    {
+      "Id": "PER-feedback",
+      "Status": "unexecuted",
+      "Notes": "Actual visible feedback latency"
+    },
+    {
+      "Id": "PER-suppression",
+      "Status": "unexecuted",
+      "Notes": "Native foreground-to-hide/input-disable percentiles and continuous incident observation"
+    },
+    {
+      "Id": "PER-frames",
+      "Status": "unexecuted",
+      "Notes": "Actual presented-frame attribution and intervals"
+    },
+    {
+      "Id": "PER-idle",
+      "Status": "pass",
+      "Notes": "600.027 seconds all hidden; 121 samples; 0.0360 percent total-device CPU"
+    },
+    {
+      "Id": "PER-memory",
+      "Status": "pass",
+      "Notes": "Maximum 170774528 bytes; below decimal 200000000-byte budget"
+    },
+    {
+      "Id": "PER-hidden-rendering",
+      "Status": "partial",
+      "Notes": "Statistics provider sampling stops; graphics/render trace outstanding"
+    },
+    {
+      "Id": "PER-battery",
+      "Status": "unexecuted",
+      "Notes": "Repeat matched battery-power comparisons"
+    }
+  ],
+  "CompactPublishedDllRegression": {
+    "FixtureKind": "Isolated WPF controls; actual app startup/hooks/clipboard/hardware bypassed",
+    "Passed": 6,
+    "Failed": 2,
+    "Outcomes": [
+      {
+        "Passed": true,
+        "Expected": "Compact focus metadata and accessible action identify the displayed session"
+      },
+      {
+        "Passed": true,
+        "Expected": "Compact focus pause and resume leave the independent countdown running"
+      },
+      {
+        "Passed": true,
+        "Expected": "Compact completed focus opens the focus continuation controls without changing another timer"
+      },
+      {
+        "Passed": true,
+        "Expected": "Compact due reminder action opens snooze and dismissal controls"
+      },
+      {
+        "Passed": true,
+        "Expected": "Compact reminder details select the same reminder controls as its action"
+      },
+      {
+        "Passed": false,
+        "Expected": "Compact completed-timer action opens acknowledgement when a due reminder, completed focus and running timer coexist"
+      },
+      {
+        "Passed": false,
+        "Expected": "Compact completed-timer details select the displayed countdown instead of a concurrent reminder or focus session"
+      },
+      {
+        "Passed": true,
+        "Expected": "Disabled Timer module hides focus and reminder metadata and actions while retaining local state"
+      }
+    ],
+    "ConfirmedDefect": "Completed countdown compact action and details choose reminder/focus controls when those activities coexist; countdown acknowledgement route required"
+  },
+  "NativePublishedProviders": {
+    "RecordedAt": "2026-11-20T01:39:42.7766306+05:30",
+    "FixtureKind": "Standalone exact-published API/provider checks; product UI interaction not exercised",
+    "Passed": 9,
+    "Failed": 0,
+    "Checks": [
+      {
+        "Expected": "Published audio provider enumerates the same actual active Windows render endpoints as independent COM readback",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Absent output is rejected without changing any Windows default role",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Published volume control changes the actual Windows endpoint scalar",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Published mute control toggles actual Windows mute and returns to its original value",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Published output switch selects the alternate endpoint for all three actual Windows default roles",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Every original Windows default role and endpoint volume/mute value is restored by independent readback",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Published native provider returns bounded CPU and actual physical-memory totals",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Published network provider returns real nonnegative active-adapter rate samples",
+        "Status": "passed"
+      },
+      {
+        "Expected": "Published system-statistics sampling stops while marked hidden",
+        "Status": "passed"
+      }
+    ],
+    "ActiveWindowsOutputs": 2,
+    "PublishedOutputs": 2,
+    "ActualVolumeAndMuteWritesExercised": true,
+    "ActualAlternateOutputSwitch": "passed",
+    "AllThreeWindowsDefaultRolesReadBack": true,
+    "AllOriginalAudioStateRestored": true,
+    "StatisticsSampleCount": 7,
+    "WifiStatus": "Wi-Fi connected",
+    "BluetoothStatus": "Bluetooth off",
+    "Brightness": {
+      "BrightnessAvailable": true,
+      "Brightness": 0,
+      "BrightnessStatus": "Built-in display",
+      "ValueChanged": false
+    },
+    "Battery": {
+      "Available": true,
+      "Percent": 100,
+      "Charging": false,
+      "RemainingMinutes": null,
+      "Status": "Plugged in",
+      "TransitionExercised": false
+    },
+    "MediaSessionCount": 0,
+    "EarlierInvalidAudioFixturesQualified": false,
+    "EarlierAudioFixtureLimitation": "Duplicate COM activation definitions/cached RCW collision invalidated earlier attempts. Corrected nine-check run supersedes them; no product audio defect established.",
+    "Limitations": "Native published-provider fixture without product UI. No media titles, artist/artwork, endpoint names, SSID/IP, clipboard or personal file contents recorded. Hardware volume keys, audible playback/seek/session changes, disconnect/reconnect, radio transitions, brightness changes, charging transitions and sound-settings UI fallback remain unexecuted. SetVisible invokes the provider's sampling boundary; this does not prove island visibility behavior or continuous hidden rendering. Audio restoration is checked independently for all three default roles and every snapshotted endpoint. No observed results transfer to changed binaries."
+  },
+  "FullUiSuite": {
+    "FreshCompleteRunPassed": false,
+    "Result": "Aborted at clipboard Unicode-restoration assertion",
+    "HistoricalUiCount": 107,
+    "HistoricalCountTransferredToFreshRun": false,
+    "FixtureRepairAndRerun": "Separate work; not claimed complete in this published-binary snapshot"
+  },
+  "Preservation": {
+    "RegularInstalledDllSHA256": "649244A9F08AF5C437C7423FA179A75B9187B9973E0E7312B6BB8A4D40779937",
+    "RegularInstalledBuild": "Historical 0.1.0 local P2 preview",
+    "RegularProcessRetained": true,
+    "NormalInstallationUninstalledForTests": false,
+    "LocalDataBackup": "Ignored tmp/acceptance-2026-11-20/normal-data-before",
+    "OwnerManualChecksApplyToPublishedDll": false,
+    "ClipboardTextPublished": false,
+    "OriginalClipboardRecopiedByOwnerAfterFixtureFailure": true,
+    "ClipboardPauseRequiredBeforeFurtherMutatingTests": true,
+    "FinalRegularPauseStateRestoration": "Belongs to overall test-session closeout; not asserted by this dated published-binary snapshot"
+  },
+  "RawEvidenceDigests": [
+    {
+      "Path": "artifacts/native-acceptance/published-0.2.0-idle/readiness.json",
+      "SHA256": "1AF115CAC99D2B2B3C21A6A2BA25C39B63ACB77C26D57971AB78CF45E9EB7D3F",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/published-0.2.0-idle/snapshot.json",
+      "SHA256": "10115FA4CCE0C12A213A17CD45FACFA07A317A5CFAC5C6A9A33C89D855E14B26",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/published-0.2.0-idle/hidden-idle.json",
+      "SHA256": "A7C11E1D50AE2CAB5FA8B8D4FA061D7603F5129B5C1C7B062F5E9D9EF548D8C0",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/published-0.2.0-idle/report.json",
+      "SHA256": "01295823FC6BBF2F74475C7840D97109E942684680C6841ABAC709A7D01B1893",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "artifacts/native-acceptance/published-0.2.0/extracted/Crest/.crest-build-verification.json",
+      "SHA256": "EBD27DEE61320527FCA8118EF69A918E57E201A272A529C8EB208A78887FC398",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/compact-published-results/outcomes.json",
+      "SHA256": "03FD7171F419486A0604F882697FEC68D500E224820CAEBB2B65227DEC54A2CA",
+      "Availability": "Ignored local record; not distributed"
+    },
+    {
+      "Path": "tmp/acceptance-2026-11-20/hardware-published-valid.json",
+      "SHA256": "AD8CC2EC766B0EC2C28AEF6E036313AE7F77E7DAAB13681633E3C72F003C78C0",
+      "Availability": "Ignored local record; not distributed"
+    }
+  ],
+  "Limitations": [
+    "Only PER-idle and PER-memory are fully qualified by this summary for the recorded 5DB DLL / 9028 source.",
+    "No results automatically transfer to the changed 0.2.1 candidate; patch build/publication and fresh acceptance are recorded separately.",
+    "Displayed frames, feedback/suppression latency, hidden graphics work, cold installed readiness and battery impact remain unqualified.",
+    "Physical 100/150/200 percent and mixed displays, Narrator/high contrast/reduced motion, clean-account retain/delete and broader native interaction/lifecycle matrices remain open.",
+    "Optional app-access mode is unexecuted for this published DLL; strict desktop was used for these resource observations.",
+    "Raw private diagnostics and synthetic fixtures remain ignored; only sanitized descriptions and relevant candidate/evidence digests are distributed."
+  ]
+}

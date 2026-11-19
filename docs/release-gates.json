@@ -1,287 +1,227 @@
 {
   "SchemaVersion": 1,
-  "ApplicationVersion": "0.2.0",
-  "ReviewedDate": "2026-11-19",
-  "CandidateDllSHA256": "3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159",
-  "SourceFingerprint": "ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086",
+  "ApplicationVersion": "0.2.1",
+  "ReviewedDate": "2026-11-20",
+  "CandidateDllSHA256": "",
+  "SourceFingerprint": "",
   "VisibleOverAppIncidents": [],
-  "Scope": "Crest 0.2.0 P2 release candidate. Recorded pass rows and candidate hashes below belong to the historical 0.1.0 priority build and evaluate as stale for 0.2.0; no P1-qualified release is claimed. P2 automated verification is recorded in docs/p2-local-verification.json. Physical display, accessibility, performance and clean-account acceptance remain open; raw machine recordings stay local.",
+  "Scope": "Crest 0.2.1 patch prerelease. Current native results require fresh candidate identity. Historical passes are retained in the v0.2.0 tag and dated acceptance summary; they do not qualify this binary.",
   "Gates": [
     {
       "Id": "AC01",
       "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
-      "Status": "pass",
-      "Notes": "Current startup hidden-state evidence and owner-operated stationary Win+D, actual sleep/wake and lock/unlock checks pass; every recovery waited for fresh entry.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
+      "Evidence": []
     },
     {
       "Id": "AC02",
       "Requirement": "One clear-desktop reveal after dwell without placeholder",
-      "Status": "pass",
-      "Notes": "Owner confirmed clear desktop stays hidden before fresh hover, reveals once after dwell and closes normally. Initial cursor-tool interference was removed before the passing retry.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. One clear-desktop reveal after dwell without placeholder",
+      "Evidence": []
     },
     {
       "Id": "AC03",
       "Requirement": "Leaving trigger before dwell causes no flash or interception",
-      "Status": "pass",
-      "Notes": "Owner completed 25 quick trigger passes within the 100-cycle sequence with no flash, duplicate, jump or stuck state.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Leaving trigger before dwell causes no flash or interception",
+      "Evidence": []
     },
     {
       "Id": "AC04",
       "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
-      "Status": "pass",
-      "Notes": "Owner tested both maximized and ordinary Chrome and File Explorer: top-edge reveal suppressed and app controls remained clickable.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Chrome and Explorer foreground suppress reveal without blocking input",
+      "Evidence": []
     },
     {
       "Id": "AC05",
       "Requirement": "Strict mode rejects visible apps and permits minimized apps",
-      "Status": "pass",
-      "Notes": "Owner confirmed clicking wallpaper while small Chrome remained visible suppressed strict mode; clear desktop fresh hover was separately verified.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Strict mode rejects visible apps and permits minimized apps",
+      "Evidence": []
     },
     {
       "Id": "AC06",
       "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
-      "Status": "partial",
-      "Notes": "Owner completed 25 app-switch interruptions during opening/expansion without issues within 100 cycles; complete independently distinguished dwell/reveal/expansion and off-screen/virtual-desktop matrix remains open.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. App opened during dwell, reveal or expansion cancels and hides",
       "Evidence": []
     },
     {
       "Id": "AC07",
       "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
-      "Status": "pass",
-      "Notes": "Owner confirmed Start, Search, Task View, Quick Settings and Widgets hide Crest and suspend edge reveal. Tooltip also disappeared when Chrome activated.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Start, Search, Task View, Quick Settings and Widgets suppress",
+      "Evidence": []
     },
     {
       "Id": "AC08",
       "Requirement": "Audio/media controls and registered popups remain usable",
-      "Status": "partial",
-      "Notes": "Current tooltip registration and suppression observed; active media controls, volume and preferred-player popup interaction remain open.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Audio/media controls and registered popups remain usable",
       "Evidence": []
     },
     {
       "Id": "AC09",
       "Requirement": "Settings and launcher targets hide island as focus changes",
-      "Status": "pass",
-      "Notes": "Owner confirmed Settings hides Crest, valid test-folder launch opens Explorer and hides Crest, and absent target yields actionable in-island error.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Settings and launcher targets hide island as focus changes",
+      "Evidence": []
     },
     {
       "Id": "AC10",
       "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
-      "Status": "pass",
-      "Notes": "Owner completed 25 closing leave/return cycles in the 100-cycle sequence with no jump, duplicate island or stuck state.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Pointer closing reversal preserves current motion without duplicate windows",
+      "Evidence": []
     },
     {
       "Id": "AC11",
       "Requirement": "Background timer completion/track change never reveals",
-      "Status": "partial",
-      "Notes": "Current sleep/wake and pending completion were observed without automatic reveal; current active track-change/app-background media acceptance remains open.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Background timer completion/track change never reveals",
       "Evidence": []
     },
     {
       "Id": "AC12",
       "Requirement": "Foreground app on second display suppresses selected island",
       "Status": "pending",
-      "Notes": "Second physical display unavailable in recorded baseline.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Foreground app on second display suppresses selected island",
       "Evidence": []
     },
     {
       "Id": "AC13",
       "Requirement": "Active/multiple media sessions, preferred player and removal recover",
-      "Status": "partial",
-      "Notes": "Historical empty-session no-op verified; real active/multiple player acceptance pending.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Active/multiple media sessions, preferred player and removal recover",
       "Evidence": []
     },
     {
       "Id": "AC14",
       "Requirement": "Hardware volume keys and output disconnect refresh/recover",
-      "Status": "partial",
-      "Notes": "Historical Core Audio callbacks and same-value writes verified; disconnect/key matrix pending.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Hardware volume keys and output disconnect refresh/recover",
       "Evidence": []
     },
     {
       "Id": "AC15",
       "Requirement": "Charging and unavailable battery/brightness show actual capability",
-      "Status": "partial",
-      "Notes": "Nine OS warning-state and four UI presentation outcomes cover retained low/critical information. Real charging, unavailable hardware and brightness edge transitions remain pending.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Charging and unavailable battery/brightness show actual capability",
       "Evidence": []
     },
     {
       "Id": "AC16",
       "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
-      "Status": "partial",
-      "Notes": "Owner actual sleep/lock checks passed; root observed completed one-minute and paused five-minute timers and verified exact paused restart persistence (296.171 seconds). Native clock adjustment and future running UTC-deadline restart remain open.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
       "Evidence": []
     },
     {
       "Id": "AC17",
       "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
-      "Status": "pass",
-      "Notes": "Current candidate owner-operated desktop drag reveal/import, drag-out, missing source, safe open error, reference removal and occupied shelf clearing on restart passed. Root independently matched source/copy bytes and retained only synthetic fixtures.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
+      "Evidence": []
     },
     {
       "Id": "AC20",
       "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
-      "Status": "partial",
-      "Notes": "Prior shelf DLL snapshot: 1920 x 1080 at 125% effective DPI; 16 productivity plus four readable date/time static DPI renders. Physical 100/150/200%, mixed-display and disconnect acceptance remains pending.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. 100/125/150/200% DPI, display disconnect and reachable geometry",
       "Evidence": []
     },
     {
       "Id": "AC21",
       "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
-      "Status": "partial",
-      "Notes": "45 UI outcomes include compact accessible activity actions and two Settings focus/tab-order regressions. Native Settings Tab/Enter/Shift+Tab and maximized restoration observed on current candidate (docs/priority-settings-evidence.json). Full island keyboard, screen reader, high contrast and Windows preference acceptance remains open.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Keyboard, screen reader, high contrast and reduced motion essential operation",
       "Evidence": []
     },
     {
       "Id": "AC22",
       "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
-      "Status": "partial",
-      "Notes": "Current ten-minute hidden CPU and warm resident memory qualify their independent budgets. Actual presented frames, suppression/control latency, installed cold readiness, hidden rendering trace and battery impact remain open.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Repeated animation and hidden idle meet Section 11 budgets",
       "Evidence": []
     },
     {
       "Id": "AC23",
       "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
-      "Status": "pass",
-      "Notes": "Owner confirmed Explorer restart and tray Pause/Resume/fresh-entry recovery; root verified desktop shell PID changed 5988 to 23752 and both isolated test instances quit gracefully with no surviving candidate process.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-desktop-evidence.json",
-          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Explorer restart, pause/resume and quit recover safely with no surviving trigger",
+      "Evidence": []
     },
     {
       "Id": "AC24",
       "Requirement": "Clean-account install/upgrade/uninstall, migration and both retention choices",
-      "Status": "partial",
-      "Notes": "Existing-account historical install/upgrade/uninstall preserves saved preferences; clean account and delete choice pending.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Clean-account install/upgrade/uninstall, migration and both retention choices",
       "Evidence": []
     },
     {
       "Id": "PER-readiness",
       "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
       "Status": "pending",
-      "Notes": "Current isolated launch-to-readiness observation was 3365.598 ms with uncontrolled cache and concurrent UI-profile launch. It exceeds 3000 ms in this observation; independently cold installed readiness remains unqualified.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Installed baseline interactive readiness within 3000 ms while hidden",
       "Evidence": []
     },
     {
       "Id": "PER-hover",
       "Requirement": "Normal eligible hover reveals in about 360 ms including dwell",
       "Status": "pending",
-      "Notes": "Configured timing is not measured native timing.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Normal eligible hover reveals in about 360 ms including dwell",
       "Evidence": []
     },
     {
       "Id": "PER-feedback",
       "Requirement": "Visible control feedback within 100 ms",
       "Status": "pending",
-      "Notes": "Queued edit outcomes pass; native feedback latency pending.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Visible control feedback within 100 ms",
       "Evidence": []
     },
     {
       "Id": "PER-suppression",
       "Requirement": "Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
       "Status": "pending",
-      "Notes": "Synchronous policy timings exclude WinEvent delivery/dispatcher and cannot satisfy this gate.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
       "Evidence": []
     },
     {
       "Id": "PER-frames",
       "Requirement": "30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
       "Status": "pending",
-      "Notes": "Static WPF renders and animation callbacks do not establish presented frames.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. 30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
       "Evidence": []
     },
     {
       "Id": "PER-idle",
       "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
-      "Status": "pass",
-      "Notes": "Current candidate: 600.336-second all-hidden capture, 121 samples, 0.0301% mean total-device CPU, healthy observer, zero visible samples/show events/enumeration failures and unchanged DLL.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-resource-evidence.json",
-          "SHA256": "6C11E1D87331EE584708C2459DA2002BF2073359D151A5681008470292FF0EEA"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Ten-minute all-hidden average Crest CPU <1% of total device CPU",
+      "Evidence": []
     },
     {
       "Id": "PER-memory",
       "Requirement": "Warm core resident working set <=200 MB with no AI model",
-      "Status": "pass",
-      "Notes": "Current candidate: maximum warm resident working set 152748032 bytes (145.67 MiB), below decimal 200 MB, all five core modules enabled and no AI model.",
-      "Evidence": [
-        {
-          "Path": "docs/priority-resource-evidence.json",
-          "SHA256": "6C11E1D87331EE584708C2459DA2002BF2073359D151A5681008470292FF0EEA"
-        }
-      ]
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Warm core resident working set <=200 MB with no AI model",
+      "Evidence": []
     },
     {
       "Id": "PER-hidden-rendering",
       "Requirement": "No continuous animation or rendering loop while armed/ineligible",
-      "Status": "partial",
-      "Notes": "Rendering subscription stops in source; native candidate trace pending.",
+      "Status": "pending",
+      "Notes": "Fresh 0.2.1 native qualification remains open. No continuous animation or rendering loop while armed/ineligible",
       "Evidence": []
     },
     {
       "Id": "PER-battery",
       "Requirement": "Repeatable idle battery-impact comparison without unsupported high-refresh claim",
       "Status": "pending",
-      "Notes": "OS refresh rate alone does not certify frame pacing or battery impact.",
+      "Notes": "Fresh 0.2.1 native qualification remains open. Repeatable idle battery-impact comparison without unsupported high-refresh claim",
       "Evidence": []
     }
   ]

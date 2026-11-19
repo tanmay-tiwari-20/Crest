@@ -6,7 +6,7 @@ body:
     id: version
     attributes:
       label: Crest version and installation type
-      placeholder: "0.2.0, installer or portable"
+      placeholder: "0.2.1, installer or portable"
     validations:
       required: true
   - type: input

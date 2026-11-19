@@ -164,6 +164,19 @@ function Assert-CrestBuildVerification([string]$Directory, $Metadata) {
     return $record
 }
 
+function Write-CrestPackagedVerification([string]$Directory, $Metadata, $VerifiedBuild) {
+    if ($VerifiedBuild.Configuration -ne 'Release' -or $VerifiedBuild.TestsPassed -ne $true) {
+        throw 'Packaged provenance requires the verified Release build.'
+    }
+    Write-CrestBuildVerification $Directory $Metadata 'Release' $true $VerifiedBuild.SourceFingerprint
+    $path = Join-Path $Directory '.crest-build-verification.json'
+    $record = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
+    # Retain the build timestamp so repackaging identical inputs keeps identical metadata.
+    $record.VerifiedUtc = $VerifiedBuild.VerifiedUtc
+    Write-CrestUtf8 $path (($record | ConvertTo-Json -Depth 5) + "`n")
+    $null = Assert-CrestBuildVerification $Directory $Metadata
+}
+
 function Get-CrestGitHubRepository {
     $repository = $env:GITHUB_REPOSITORY
     if ([string]::IsNullOrWhiteSpace($repository)) {

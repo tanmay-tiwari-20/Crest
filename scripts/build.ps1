@@ -42,6 +42,12 @@ if (-not $SkipTests) {
     & $dotnetExe run --project $uiProbeProject --configuration $Configuration --no-build --no-restore --no-launch-profile -- (Join-Path $script:CrestRoot 'artifacts\productivity-qa')
     if ($LASTEXITCODE -ne 0) { throw 'Crest productivity UI verification failed. No package was produced.' }
     & (Join-Path $PSScriptRoot 'test-release-verification.ps1')
+    & (Join-Path $PSScriptRoot 'test-gate-verification.ps1')
+    $platformProbe = Join-Path $script:CrestRoot 'tests\Crest.PlatformProbe\Crest.PlatformProbe.csproj'
+    & $dotnetExe build $platformProbe --configuration $Configuration --no-restore --nologo @commonProperties -p:BuildProjectReferences=false
+    if ($LASTEXITCODE -ne 0) { throw 'Native diagnostic verification did not compile.' }
+    & $dotnetExe run --project $platformProbe --configuration $Configuration --no-build --no-restore --no-launch-profile -- --geometry-self-test
+    if ($LASTEXITCODE -ne 0) { throw 'Native diagnostic geometry verification failed.' }
     & (Join-Path $PSScriptRoot 'Measure-HiddenIdle.ps1') -ObserverSelfTest
 }
 $portableDir = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\portable\Crest')

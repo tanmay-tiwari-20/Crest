@@ -7,7 +7,7 @@ $documentationTag = "v$($metadata.Version)"
 if ([string]::IsNullOrWhiteSpace($SourceDir)) { $SourceDir = Join-Path $script:CrestRoot 'artifacts\portable\Crest' }
 $SourceDir = [IO.Path]::GetFullPath($SourceDir)
 Assert-CrestDistribution $SourceDir $metadata
-$null = Assert-CrestBuildVerification $SourceDir $metadata
+$verifiedBuild = Assert-CrestBuildVerification $SourceDir $metadata
 foreach ($item in Get-ChildItem -LiteralPath $SourceDir -Recurse -Force) {
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Publish input cannot contain reparse points.' }
 }
@@ -55,6 +55,7 @@ $packages = @($assets.libraries.PSObject.Properties | Where-Object { $_.Value.ty
 })
 $dependencyRecord = [ordered]@{ Application = 'Crest'; Version = $metadata.Version; Architecture = $metadata.Rid; Framework = $metadata.Framework; Sdk = $metadata.Sdk; Runtime = $metadata.Runtime; Distribution = 'Self-contained'; Packages = $packages; LicensedComponents = $licensedComponents }
 Write-CrestUtf8 (Join-Path $licenseDir 'dependency-record.json') (($dependencyRecord | ConvertTo-Json -Depth 6) + "`n")
+Write-CrestPackagedVerification $distributionDir $metadata $verifiedBuild
 foreach ($file in Get-ChildItem -LiteralPath $distributionDir -File -Recurse) { $file.LastWriteTimeUtc = [datetime]'2000-01-01T00:00:00Z' }
 Assert-CrestDistribution $distributionDir $metadata
 

@@ -30,6 +30,19 @@ Assert-Rejected 'A stale source/test fingerprint is rejected' { Assert-CrestBuil
 Write-CrestBuildVerification $directory $metadata 'Release' $true $fingerprint
 Write-CrestUtf8 (Join-Path $directory 'unexpected.dll') 'extra unverified file'
 Assert-Rejected 'Added unverified publish files are rejected' { Assert-CrestBuildVerification $directory $metadata }
+Remove-Item -LiteralPath (Join-Path $directory 'unexpected.dll')
+Write-CrestBuildVerification $directory $metadata 'Release' $true $fingerprint
+$verifiedBuild = Assert-CrestBuildVerification $directory $metadata
+$documentation = Join-Path $directory 'README.md'
+Write-CrestUtf8 $documentation 'reviewed public distribution documentation'
+Write-CrestPackagedVerification $directory $metadata $verifiedBuild
+$packaged = Assert-CrestBuildVerification $directory $metadata
+if ($packaged.Files.Count -ne 2 -or $packaged.VerifiedUtc -ne $verifiedBuild.VerifiedUtc) { throw 'Packaged provenance lost documentation hashes or the verified build timestamp.' }
+$outcomes.Add([ordered]@{ Test = 'Packaged provenance binds runtime and reviewed documents while retaining build identity'; Passed = $true })
+Write-CrestUtf8 $documentation 'tampered packaged documentation'
+Assert-Rejected 'Changed packaged documentation is rejected' { Assert-CrestBuildVerification $directory $metadata }
+$verifiedBuild.TestsPassed = $false
+Assert-Rejected 'Packaged provenance cannot promote a build with skipped tests' { Write-CrestPackagedVerification $directory $metadata $verifiedBuild }
 $fingerprintProbe = Join-Path (Split-Path -Parent $directory) 'source-fingerprint.ps1'
 Write-CrestUtf8 $fingerprintProbe ". (Join-Path `$PSScriptRoot '..\..\scripts\release-common.ps1')`nGet-CrestSourceFingerprint`n"
 $windowsPowerShell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'

@@ -1,10 +1,19 @@
 # Compatibility and test report
 
-Reviewed: 20 November 2026. Source candidate: Crest 0.2.0 with P0/P1 acceptance corrections and requested P2 local features F08–F14 and F16–F18. Strict desktop is the default; app access and clipboard history are opt-in. Account, notification-access, weather, calendar and AI integrations remain absent. Local reminder/focus tray notices never reveal the island.
+Reviewed: 20 November 2026. Source candidate: Crest 0.2.1 with P0/P1 acceptance corrections and requested P2 local features F08–F14 and F16–F18. Strict desktop is the default; app access and clipboard history are opt-in. Account, notification-access, weather, calendar and AI integrations remain absent. Local reminder/focus tray notices never reveal the island.
 
 The previous priority DLL was `3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159`, with source fingerprint `ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086`. This P2 change invalidates its binary-bound acceptance evidence. Earlier installed, audible-timer, shelf and resource observations retain their original candidate identities. The final local build identity and automated results are recorded below.
 
-## P2 local automated verification
+## 20 November Windows acceptance update
+
+The exact published 0.2.0 DLL was downloaded and hash-verified. Its fresh ten-minute hidden run qualifies PER-idle/PER-memory: 600.027 seconds, 121 samples, 0.0360% total-device CPU and 170,774,528 bytes peak resident memory. Nine native provider outcomes, including actual output switching and independent restoration of all Windows default roles/endpoint volume/mute, passed. A 7,303.449 ms warm portable readiness observation does not qualify cold installed startup. Full details and remaining cases are in [the dated acceptance record](WINDOWS_ACCEPTANCE_2026-11-20.md).
+
+A completed timer alongside a due reminder reproducibly opened the wrong controls in the published DLL (six regression outcomes passed, two failed). The patch corrects both action and details. The gate validator also accepted mismatched historical evidence; it now checks document identities and explicit outcomes. Native trigger diagnostics now respect saved display overrides and the 80–800 DIP range.
+
+The existing full UI fixture failed its Unicode clipboard-restoration check. The user re-copied their original item, and the corrected detached-snapshot fixture passed all 13 outcomes against the published DLL, verifying exact original Unicode/user formats and unchanged normal history. Unsupported formats abort before any clipboard write. The earlier failed run remains recorded; no 107-outcome fresh pass is claimed for that run.
+
+The owner confirmed their completed manual checks used the currently installed 0.1.0 P2 preview (DLL 649244A9…). Those observations remain historical for 0.2.0 and 0.2.1. The normal process remains alive so unpinned shelf references are retained. Fresh 0.2.1 build/native qualification is still in progress; previous evidence is not transferred.
+## Historical 0.2.0 local automated verification
 
 The required Release workflow passed with zero warnings/errors: **97 domain outcomes, 107 WPF/native UI outcomes, eight release-provenance checks, and three observer-lifecycle checks**. The self-contained x64 application is in `artifacts/portable/Crest`; versioned installer/ZIP/checksum assets are in `artifacts/release`. Its manifest binds the distribution to the tested source; [P2 verification](p2-local-verification.json) records the final identities and counts.
 
@@ -137,15 +146,15 @@ Warm installed readiness was observed near 2 seconds, but the initial cold launc
 
 | Gate | Remaining evidence |
 |---|---|
-| AC01–12 default visibility | Current clear-desktop/app/shell and 100-cycle cases pass; independently distinguished interruption phases, full registered control/popup operation, active media background behavior and second-display cases remain open |
+| AC01–12 default visibility | Historical preview clear-desktop/app/shell and 100-cycle cases passed; independently distinguished interruption phases, full registered control/popup operation, active media background behavior and second-display cases remain open |
 | AC13 media | Active playback/seek, multiple sessions, preferred player, session removal |
 | AC14–15 hardware | Hardware-key changes, endpoint disconnects, charging transitions, unavailable hardware |
-| AC16 lifecycle | Actual sleep/lock and paused restart pass; native clock adjustment and future running UTC-deadline restart remain open |
-| AC17 desktop shelf | Current owner-operated drag/drop/out, missing source, removal, original/copy hashes and occupied shelf restart pass |
+| AC16 lifecycle | Historical preview sleep/lock and paused restart passed; native clock adjustment and future running UTC-deadline restart remain open |
+| AC17 desktop shelf | Historical preview owner-operated drag/drop/out, missing source, removal, original/copy hashes and occupied shelf restart passed; changed binaries require requalification |
 | AC20 display | Physical 100/150/200% scaling, mixed DPI, disconnect/fallback, reachable geometry |
 | AC21 accessibility | Keyboard-only navigation, screen reader, high contrast, Windows reduced motion |
-| AC22 performance | Actual presented-frame tracing, feedback/suppression p95/p99, installed cold readiness, hidden rendering trace and repeatable battery impact; current hidden CPU/memory gates pass |
-| AC23 recovery | Current Explorer restart, lock/unlock, tray Pause/Resume and graceful Quit pass; physical display changes remain AC20 work |
+| AC22 performance | Actual presented-frame tracing, feedback/suppression p95/p99, installed cold readiness, hidden rendering trace and repeatable battery impact; published 0.2.0 hidden CPU/memory results are candidate-bound; changed 0.2.1 requires fresh measurement |
+| AC23 recovery | Historical preview Explorer restart, lock/unlock, tray Pause/Resume and graceful Quit passed; physical display changes remain AC20 work |
 | AC24 distribution | Clean-account install/upgrade/uninstall and both data-retention choices |
 | Optional app access | Actual hover/shortcut and interaction over representative apps, fullscreen behavior, secure/lifecycle transitions, return to desktop-only mode |
 

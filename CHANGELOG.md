@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.1 — Windows acceptance fixes — 20 November 2026
+
+- Fixed completed-timer action/details opening Reminders when a countdown, due reminder and focus session coexist.
+- Rejected historical or unrelated evidence being promoted to a current acceptance pass; summaries require exact candidate identities and satisfied gate outcomes.
+- Corrected native trigger diagnostics for accepted widths and per-display overrides.
+- Detached clipboard fixture backups before synthetic writes and verified restoration; unsupported payloads abort before changing the clipboard.
+- Included a source/file verification manifest in packaged distributions for exact downloaded-candidate measurements.
+- Added compact, clipboard snapshot, gate provenance and native geometry regressions. Physical acceptance remains candidate-bound and the release remains a prerelease.
+
 ## 0.2.0 — local tools prerelease candidate — 20 November 2026
 
 ### Added

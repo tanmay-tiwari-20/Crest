@@ -74,6 +74,7 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        if (args.Contains("--geometry-self-test")) { GeometrySelfTest(); return; }
         int appPid=args.Length>0&&int.TryParse(args[0],out int selected)?selected:0;
         var settings=new AppSettings();
         string settingsRead="safe-defaults";
@@ -89,18 +90,11 @@ public static class Program
                 throw new IOException("The explicit settings file is absent or exceeds the limit.");
             if(File.Exists(file)&&new FileInfo(file).Length<=1024*1024)
             {
-                using var document=JsonDocument.Parse(File.ReadAllText(file));var root=document.RootElement;
-                if(root.TryGetProperty("StrictDesktop",out var strict))settings.StrictDesktop=strict.GetBoolean();
-                if(root.TryGetProperty("AllowOverApps",out var overApps))settings.AllowOverApps=overApps.GetBoolean();
-                if(root.TryGetProperty("SelectedDisplay",out var display))settings.SelectedDisplay=display.GetString()??"";
-                if(root.TryGetProperty("TriggerWidth",out var width))settings.TriggerWidth=width.GetInt32();
-                if(root.TryGetProperty("TriggerDepth",out var depth))settings.TriggerDepth=depth.GetInt32();
-                if(root.TryGetProperty("FullWidthTrigger",out var full))settings.FullWidthTrigger=full.GetBoolean();
-                if(root.TryGetProperty("DwellMs",out var dwell))settings.DwellMs=dwell.GetInt32();
+                settings = ReadSettingsJson(File.ReadAllText(file));
                 settingsRead=settingsIndex>=0?"read-only-explicit-settings":"read-only-selected-settings";
             }
         }
-        catch when(settingsIndex<0) {settingsRead="settings-unreadable-safe-defaults";}
+        catch when(settingsIndex<0) { settings = new AppSettings(); settingsRead="settings-unreadable-safe-defaults"; }
         // Diagnostic overrides are in-memory only; never write the user's selected mode.
         if(args.Contains("--allow-over-apps"))settings.AllowOverApps=true;
         if(args.Contains("--desktop-only"))settings.AllowOverApps=false;
@@ -122,6 +116,7 @@ public static class Program
                 AppDllSHA256=appDllHash, SettingsRead=settingsRead,
                 ForegroundClass=ClassName(scene), ForegroundOwner=foregroundOwner,
                 StableForeground=stableScene, InputDesktop=InputDesktopName(), policy.DpiScale,
+                policy.DisplayDeviceName, EffectiveTriggerSettings = TriggerSettings(settings.ForDisplay(policy.DisplayDeviceName)),
                 NativeHookCount=(Field(policy,"_hooks") as System.Collections.ICollection)?.Count,
                 Results=accessResults,
                 Limitations="Read-only comparison of a separate native policy with in-memory preferences. The user's preferences and foreground windows are untouched. Pointer/hotkey input and fullscreen presentation are separate acceptance checks."
@@ -156,11 +151,12 @@ public static class Program
         string inputDesktop=InputDesktopName();
         string reason=currentEligible&&settings.AllowOverApps?"eligible-app-access":foreground==IntPtr.Zero?"foreground-unavailable":inputDesktop!="Default"?"input-desktop-not-default":policy.DisplayBounds.Width<=0?"display-or-DPI-unavailable":desktopRoots.Count==0?"verified-desktop-shell-not-found":!desktopRoots.Contains(foregroundRoot)?"foreground-is-not-actual-desktop":settings.StrictDesktop&&windows.Any(window=>window.WouldBlockStrict)?"strict-visible-window-coverage":virtualDesktop==null&&settings.StrictDesktop?"virtual-desktop-manager-unavailable":currentEligible?"eligible":"other-fail-closed-condition";
         GetCursorPos(out var pointer);
-        int triggerWidth=settings.FullWidthTrigger?policy.DisplayBounds.Width:Math.Min(policy.DisplayBounds.Width,(int)Math.Round(Math.Clamp(settings.TriggerWidth,100,1000)*policy.DpiScale));
-        var trigger=new Rectangle(policy.DisplayBounds.Left+(policy.DisplayBounds.Width-triggerWidth)/2,policy.DisplayBounds.Top,triggerWidth,Math.Max(1,(int)Math.Round(Math.Clamp(settings.TriggerDepth,1,12)*policy.DpiScale)));
+        var effectiveSettings = settings.ForDisplay(policy.DisplayDeviceName);
+        var trigger = GetTrigger(effectiveSettings, policy.DisplayBounds, policy.DpiScale);
         var recheckTimes=new List<double>();for(int i=0;i<100;i++){var clock=Stopwatch.StartNew();policy.Recheck();clock.Stop();recheckTimes.Add(clock.Elapsed.TotalMilliseconds);}recheckTimes.Sort();
         Console.WriteLine(JsonSerializer.Serialize(new {
-            TimestampUtc=DateTimeOffset.UtcNow,AppDllSHA256=appDllHash,SelectedCrestProcessId=appPid,SettingsRead=settingsRead,settings.AllowOverApps,settings.StrictDesktop,settings.SelectedDisplay,settings.DwellMs,
+            TimestampUtc=DateTimeOffset.UtcNow,AppDllSHA256=appDllHash,SelectedCrestProcessId=appPid,SettingsRead=settingsRead,settings.AllowOverApps,settings.StrictDesktop,settings.SelectedDisplay,effectiveSettings.DwellMs,
+            policy.DisplayDeviceName, EffectiveTriggerSettings = TriggerSettings(effectiveSettings),
             CurrentForegroundEligible=currentEligible,DiagnosticReason=reason,InputDesktop=inputDesktop,ForegroundHandle=Handle(foreground),ForegroundRoot=foregroundInfo,
             ShellHandle=Handle(GetShellWindow()),ShellPid=shellPid,VerifiedDesktopRoots=desktopRoots.Select(Handle),DesktopCandidates=candidates,VirtualDesktopManagerAvailable=virtualDesktop!=null,
             NativeHookCount=(Field(policy,"_hooks") as System.Collections.ICollection)?.Count,
@@ -196,8 +192,8 @@ public static class Program
             string inputDesktop = InputDesktopName();
             string reason = policy.IsEligible && settings.AllowOverApps ? "eligible-app-access" : foreground == IntPtr.Zero ? "foreground-unavailable" : inputDesktop != "Default" ? "input-desktop-not-default" : policy.DisplayBounds.Width <= 0 ? "display-or-DPI-unavailable" : roots.Count == 0 ? "verified-desktop-shell-not-found" : !roots.Contains(root) ? "foreground-is-not-actual-desktop" : settings.StrictDesktop && blockers.Count > 0 ? "strict-visible-window-coverage" : vd == null && settings.StrictDesktop ? "virtual-desktop-manager-unavailable" : policy.IsEligible ? "eligible" : "other-fail-closed-condition";
             GetCursorPos(out var pointer);
-            int width = settings.FullWidthTrigger ? policy.DisplayBounds.Width : Math.Min(policy.DisplayBounds.Width,(int)Math.Round(Math.Clamp(settings.TriggerWidth,100,1000)*policy.DpiScale));
-            var trigger = new Rectangle(policy.DisplayBounds.Left+(policy.DisplayBounds.Width-width)/2,policy.DisplayBounds.Top,width,Math.Max(1,(int)Math.Round(Math.Clamp(settings.TriggerDepth,1,12)*policy.DpiScale)));
+            var effectiveSettings = settings.ForDisplay(policy.DisplayDeviceName);
+            var trigger = GetTrigger(effectiveSettings, policy.DisplayBounds, policy.DpiScale);
             samples.Add(new {
                 TimestampUtc = DateTimeOffset.UtcNow,
                 ElapsedSeconds = Math.Round(clock.Elapsed.TotalSeconds,3),
@@ -206,6 +202,8 @@ public static class Program
                 Foreground = Describe(root,appPid,shellPid,roots,vd,policy.DisplayBounds),
                 DesktopRoots = roots.Select(Handle).ToArray(),
                 VirtualDesktopManagerAvailable = vd != null,
+                policy.DisplayDeviceName, policy.DpiScale,
+                EffectiveTriggerSettings = TriggerSettings(effectiveSettings),
                 Pointer = new {pointer.X,pointer.Y,InsideTrigger=trigger.Contains(pointer.X,pointer.Y)},
                 Trigger = Bounds(trigger),
                 Blockers = blockers,
@@ -224,6 +222,88 @@ public static class Program
             Samples = samples,
             Limitations = "Passive20-second native observations. No screenshots, input actions, window activation/minimization or product policy changes. This reads a separate diagnostic policy; it does not read the running product's controller fields."
         },new JsonSerializerOptions{WriteIndented=true}));
+    }
+
+    private static AppSettings ReadSettingsJson(string json)
+    {
+        var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? throw new JsonException("Settings are empty.");
+        if (settings.SchemaVersion != 1) throw new JsonException("Unsupported settings version.");
+        settings.SelectedDisplay ??= "";
+        NormalizeTriggerSettings(settings);
+        // Match the product's bounded display profiles without using SettingsStore.Load,
+        // which can rename corrupt files in the owner's profile.
+        settings.Displays = (settings.Displays ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.Key) && x.Key.Length <= 100 && x.Value != null)
+            .Take(16).ToDictionary(x => x.Key, x => x.Value);
+        foreach (var display in settings.Displays.Values)
+        {
+            display.TriggerWidth = Math.Clamp(display.TriggerWidth, 80, 800);
+            display.TriggerDepth = Math.Clamp(display.TriggerDepth, 1, 12);
+            display.DwellMs = Math.Clamp(display.DwellMs, 80, 500);
+            display.GraceMs = Math.Clamp(display.GraceMs, 100, 750);
+        }
+        return settings;
+    }
+
+    private static void NormalizeTriggerSettings(AppSettings settings)
+    {
+        settings.TriggerWidth = Math.Clamp(settings.TriggerWidth, 80, 800);
+        settings.TriggerDepth = Math.Clamp(settings.TriggerDepth, 1, 12);
+        settings.DwellMs = Math.Clamp(settings.DwellMs, 80, 500);
+        settings.GraceMs = Math.Clamp(settings.GraceMs, 100, 750);
+    }
+
+    private static object TriggerSettings(AppSettings settings) => new {
+        settings.FullWidthTrigger, settings.TriggerWidth, settings.TriggerDepth, settings.DwellMs, settings.GraceMs
+    };
+
+    private static Rectangle GetTrigger(AppSettings effectiveSettings, Rectangle display, double dpiScale)
+    {
+        // Use the same DIP bounds, DPI rounding and display fit as InteractionController.
+        int width = effectiveSettings.FullWidthTrigger ? display.Width : (int)Math.Round(Math.Clamp(effectiveSettings.TriggerWidth, 80, 800) * dpiScale);
+        width = Math.Min(width, display.Width);
+        int depth = Math.Max(1, (int)Math.Round(Math.Clamp(effectiveSettings.TriggerDepth, 1, 12) * dpiScale));
+        return new Rectangle(display.Left + (display.Width - width) / 2, display.Top, width, depth);
+    }
+
+    private static void GeometrySelfTest()
+    {
+        // This path creates no policy, native hooks, windows, clipboard access or user files.
+        var checks = new List<string>();
+        void Check(bool success, string label) { if (!success) throw new InvalidOperationException(label); checks.Add(label); }
+        var display = new Rectangle(0, 0, 1920, 1080);
+        var settings = new AppSettings { TriggerWidth = 80 };
+        Check(GetTrigger(settings, display, 1) == new Rectangle(920, 0, 80, 3), "Accepted 80-DIP trigger remains 80 pixels at 100% DPI");
+        settings.TriggerWidth = 0;
+        Check(GetTrigger(settings, display, 1).Width == 80, "Widths below 80 DIP clamp to the product minimum");
+        settings.TriggerWidth = 1000;
+        Check(GetTrigger(settings, display, 1).Width == 800, "Widths above 800 DIP clamp to the product maximum");
+        settings.TriggerDepth = 0;
+        Check(GetTrigger(settings, display, 1).Height == 1, "Trigger depth below one DIP remains a one-pixel region");
+        settings.TriggerDepth = 20;
+        Check(GetTrigger(settings, display, 1.25) == new Rectangle(460, 0, 1000, 15), "Maximum width and depth scale together at 125% DPI");
+        settings.FullWidthTrigger = true;
+        Check(GetTrigger(settings, new Rectangle(-1920, -120, 1920, 1080), 1.5) == new Rectangle(-1920, -120, 1920, 18), "Full-width triggers retain the physical display origin and width");
+        settings.FullWidthTrigger = false;
+        Check(GetTrigger(settings, new Rectangle(10, 20, 75, 80), 1).Width == 75, "Centered trigger fits a display narrower than the configured width");
+        var parsed = ReadSettingsJson("""
+            { "SelectedDisplay": "disconnected", "TriggerWidth": 80, "DwellMs": 120,
+              "Displays": { "active": { "TriggerWidth": 320, "TriggerDepth": 8, "DwellMs": 234, "GraceMs": 321 } } }
+            """);
+        var effective = parsed.ForDisplay("active");
+        Check(GetTrigger(effective, display, 1.5) == new Rectangle(720, 0, 480, 12)
+            && effective.DwellMs == 234 && effective.GraceMs == 321 && parsed.TriggerWidth == 80,
+            "Parsed profiles follow the actual active display and leave defaults independent");
+        Check(GetTrigger(parsed.ForDisplay("unconfigured"), display, 1) == new Rectangle(920, 0, 80, 3)
+            && parsed.ForDisplay("unconfigured").DwellMs == 120, "Unconfigured displays use default geometry and dwell");
+        parsed.Displays["active"].FullWidthTrigger = true;
+        Check(GetTrigger(parsed.ForDisplay("active"), display, 1.5).Width == display.Width
+            && GetTrigger(parsed.ForDisplay("unconfigured"), display, 1).Width == 80, "Full-width display override does not alter default coverage");
+        Console.WriteLine(JsonSerializer.Serialize(new {
+            RecordedAtUtc = DateTimeOffset.UtcNow,
+            AppDllSHA256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(AppSettings).Assembly.Location))),
+            Passed = checks.Count, Checks = checks,
+            Limitations = "Pure diagnostic parser and geometry regressions. No native product, display transition, pointer interaction or acceptance gate was exercised."
+        }, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
 [ComImport,Guid("A5CD92FF-29BE-454C-8D04-D82879FB3F1B"),InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
