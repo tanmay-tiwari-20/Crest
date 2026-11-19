@@ -39,6 +39,7 @@ jobs:
             artifacts/release/Crest-Setup-*-x64.exe
             artifacts/release/Crest-Portable-*-x64.zip
             artifacts/release/SHA256SUMS.txt
+            artifacts/release/release-gate-report.json
           if-no-files-found: error
           retention-days: 14
           compression-level: 0

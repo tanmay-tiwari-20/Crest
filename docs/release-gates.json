@@ -1,0 +1,228 @@
+{
+  "SchemaVersion": 1,
+  "ApplicationVersion": "0.1.0",
+  "ReviewedDate": "2026-11-19",
+  "CandidateDllSHA256": "",
+  "SourceFingerprint": "",
+  "VisibleOverAppIncidents": [],
+  "Scope": "Public P0/P1 desktop-only acceptance checklist (AllowOverApps=false). Automated outcomes and reviewed aggregate native observations are described in TEST_REPORT.md. Raw machine recordings stay local. Every native gate remains partial or pending until evidence is bound to the candidate under review; opt-in app access requires separate acceptance.",
+  "Gates": [
+    {
+      "Id": "AC01",
+      "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
+      "Status": "partial",
+      "Notes": "Fresh-entry state-machine outcomes pass; native lock/resume sequence pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC02",
+      "Requirement": "One clear-desktop reveal after dwell without placeholder",
+      "Status": "pending",
+      "Notes": "Native clear-desktop hover and hidden hit-region acceptance pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC03",
+      "Requirement": "Leaving trigger before dwell causes no flash or interception",
+      "Status": "partial",
+      "Notes": "Deterministic cancellation passes; actual pointer cycle capture pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC04",
+      "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
+      "Status": "partial",
+      "Notes": "Final exact-DLL native snapshot: Chrome-class foreground ineligible and all 12 actual candidate HWNDs hidden; five hooks installed in the diagnostic. Full Chrome/Explorer/input-interception matrix remains pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC05",
+      "Requirement": "Strict mode rejects visible apps and permits minimized apps",
+      "Status": "partial",
+      "Notes": "Policy source review and coverage diagnostic exist; native selected-display matrix pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC06",
+      "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
+      "Status": "partial",
+      "Notes": "100 interrupted state-machine sequences pass; real transitions pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC07",
+      "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
+      "Status": "pending",
+      "Notes": "Full shell-panel interaction matrix pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC08",
+      "Requirement": "Audio/media controls and registered popups remain usable",
+      "Status": "partial",
+      "Notes": "Hardware callbacks and control-edit outcomes exist; native popup/control focus pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC09",
+      "Requirement": "Settings and launcher targets hide island as focus changes",
+      "Status": "partial",
+      "Notes": "Historical Settings HWND probe; native launcher target matrix pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC10",
+      "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
+      "Status": "partial",
+      "Notes": "State-machine cancellation/reversal and static source review; native interrupted motion pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC11",
+      "Requirement": "Background timer completion/track change never reveals",
+      "Status": "partial",
+      "Notes": "Local completion has no reveal path; native background event check pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC12",
+      "Requirement": "Foreground app on second display suppresses selected island",
+      "Status": "pending",
+      "Notes": "Second physical display unavailable in recorded baseline.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC13",
+      "Requirement": "Active/multiple media sessions, preferred player and removal recover",
+      "Status": "partial",
+      "Notes": "Historical empty-session no-op verified; real active/multiple player acceptance pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC14",
+      "Requirement": "Hardware volume keys and output disconnect refresh/recover",
+      "Status": "partial",
+      "Notes": "Historical Core Audio callbacks and same-value writes verified; disconnect/key matrix pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC15",
+      "Requirement": "Charging and unavailable battery/brightness show actual capability",
+      "Status": "partial",
+      "Notes": "Historical actual plugged-in battery and built-in brightness verified; edge states pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC16",
+      "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
+      "Status": "partial",
+      "Notes": "Injected-clock/restart outcomes pass; real sleep and clock adjustment pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC17",
+      "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
+      "Status": "partial",
+      "Notes": "Reference cap/source-preservation outcomes pass; required real desktop drag gate pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC20",
+      "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
+      "Status": "partial",
+      "Notes": "Final manifest-aware native snapshot reads actual 1920 x 1080 at 125% effective DPI; 16 static WPF theme/DPI renders exist. Physical 100/150/200%, mixed-display and disconnect acceptance remains pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC21",
+      "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
+      "Status": "partial",
+      "Notes": "Historical UI Automation names inspected; complete native accessibility acceptance pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC22",
+      "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
+      "Status": "partial",
+      "Notes": "Final warm-core resident memory passes independently. Ten-minute all-hidden CPU, actual presented frames, suppression latency and repeatable battery impact remain open.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC23",
+      "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
+      "Status": "partial",
+      "Notes": "Historical graceful IPC lifecycle and pause probe; shell restart/native recovery matrix pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "AC24",
+      "Requirement": "Clean-account install/upgrade/uninstall, migration and both retention choices",
+      "Status": "partial",
+      "Notes": "Existing-account historical install/upgrade/uninstall preserves saved preferences; clean account and delete choice pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-readiness",
+      "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
+      "Status": "pending",
+      "Notes": "Historical warm launches near 2 seconds; initial cold exceeded 5 seconds. Changed candidate requires measurement.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-hover",
+      "Requirement": "Normal eligible hover reveals in about 360 ms including dwell",
+      "Status": "pending",
+      "Notes": "Configured timing is not measured native timing.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-feedback",
+      "Requirement": "Visible control feedback within 100 ms",
+      "Status": "pending",
+      "Notes": "Queued edit outcomes pass; native feedback latency pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-suppression",
+      "Requirement": "Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
+      "Status": "pending",
+      "Notes": "Synchronous policy timings exclude WinEvent delivery/dispatcher and cannot satisfy this gate.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-frames",
+      "Requirement": "30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
+      "Status": "pending",
+      "Notes": "Static WPF renders and animation callbacks do not establish presented frames.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-idle",
+      "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
+      "Status": "partial",
+      "Notes": "Final 30.169-second all-hidden capture is too short for the ten-minute CPU gate. Historical 600.212-second run on the previous DLL had three legitimate desktop-visible samples and was invalid for hidden CPU qualification despite 0.1786% measured average.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-memory",
+      "Requirement": "Warm core resident working set <=200 MB with no AI model",
+      "Status": "partial",
+      "Notes": "The preceding candidate reached 151,633,920 resident bytes in a short warm capture. This historical observation does not qualify the current app-access DLL; a current candidate measurement remains pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-hidden-rendering",
+      "Requirement": "No continuous animation or rendering loop while armed/ineligible",
+      "Status": "partial",
+      "Notes": "Rendering subscription stops in source; native candidate trace pending.",
+      "Evidence": []
+    },
+    {
+      "Id": "PER-battery",
+      "Requirement": "Repeatable idle battery-impact comparison without unsupported high-refresh claim",
+      "Status": "pending",
+      "Notes": "OS refresh rate alone does not certify frame pacing or battery impact.",
+      "Evidence": []
+    }
+  ]
+}

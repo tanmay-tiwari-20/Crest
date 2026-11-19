@@ -177,19 +177,23 @@ public sealed class SettingsWindow : Window
     {
         Heading("A little space.\nA lot within reach.", "Your music, laptop controls, and everyday tools.\nHere when you need them, hidden when you don't.");
         var steps = new StackPanel();
-        steps.Children.Add(Step("01", "Return to your desktop", "Press Win+D to minimize your apps."));
-        steps.Children.Add(Step("02", "Meet Crest at the top", "Move your pointer into the top-center edge and pause briefly."));
+        steps.Children.Add(_app.Preferences.AllowOverApps
+            ? Step("01", "Keep your app open", "Close Settings. Crest can open over the app you're using on your selected display.")
+            : Step("01", "Return to your desktop", "Close Settings, then press Win+D. In strict mode, minimize any remaining visible apps on Crest's display."));
+        steps.Children.Add(Step("02", "Meet Crest at the top", "Move your pointer away from the top edge, then enter the top-center edge and pause briefly."));
         steps.Children.Add(Step("03", "Make a little room", "Expand a module. Move away when you're finished."));
         Section("READY WHEN YOU ARE", "Crest starts quietly in your system tray.", steps);
         var status = new Grid();
         status.ColumnDefinitions.Add(new ColumnDefinition());
         status.ColumnDefinitions.Add(new ColumnDefinition());
-        status.Children.Add(Status("DESKTOP POLICY", _app.Preferences.StrictDesktop ? "Strict desktop" : "Desktop active"));
+        status.Children.Add(Status("VISIBILITY", _app.Preferences.AllowOverApps ? "Over other apps" : _app.Preferences.StrictDesktop ? "Strict desktop" : "Desktop active"));
         var hw = Status("LAPTOP CONTROLS", HardwareStatus(), t => _hardwareStatus = t);
         Grid.SetColumn(hw, 1);
         status.Children.Add(hw);
         _page.Children.Add(status);
-        var note = Design.Text("Crest stays hidden while an app or a Windows panel is active. Timer completions wait for your next hover.", 12, "Muted");
+        var note = Design.Text(_app.Preferences.AllowOverApps
+            ? "App access is enabled. Enter the top edge to open Crest while you work. Timer completions still wait for your next hover."
+            : "Crest stays hidden while an app or a Windows panel is active. Enable app access in Behavior to open it over other apps. Timer completions wait for your next hover.", 12, "Muted");
         note.Margin = new Thickness(0, 20, 0, 10);
         _page.Children.Add(note);
         if (_app.Store.RecoveredCorruptSettings)
@@ -234,7 +238,7 @@ public sealed class SettingsWindow : Window
     private void Save()
     {
         _app.SavePreferences();
-        _message.Text = _app.Store.LastError ?? "Saved. Applies to your next desktop hover.";
+        _message.Text = _app.Store.LastError ?? "Saved. Applies to your next hover.";
     }
     private string HardwareStatus() => (_app.Hardware.AudioAvailable ? "Audio ready" : "Audio unavailable") + " · " + (_app.Hardware.BrightnessAvailable ? "Brightness ready" : "Brightness unavailable");
     public void RefreshCapabilities()
@@ -265,8 +269,16 @@ public sealed class SettingsWindow : Window
     }
     private void Behavior()
     {
-        Heading("Only on your desktop.", "One clear rule, with timing you can tune.");
-        Section("Desktop visibility", "Strict mode requires the wallpaper desktop to be active and apps on your selected display to be minimized. Desktop-active mode permits visible app windows after you click the desktop.", Toggle("Use strict desktop mode (recommended)", _app.Preferences.StrictDesktop, v => _app.Preferences.StrictDesktop = v));
+        Heading("Choose where Crest opens.", "Desktop-only by default. Enable app access when you want Crest within reach while you work.");
+        var strictDesktop = Toggle("Use strict desktop mode (recommended)", _app.Preferences.StrictDesktop, v => _app.Preferences.StrictDesktop = v);
+        strictDesktop.IsEnabled = !_app.Preferences.AllowOverApps;
+        var appAccess = Toggle("Allow Crest over other apps", _app.Preferences.AllowOverApps, enabled =>
+        {
+            _app.Preferences.AllowOverApps = enabled;
+            strictDesktop.IsEnabled = !enabled;
+        });
+        Section("App access", "Open Crest from the top edge of your selected display even while another app is active. This is off by default. Settings, Pause, screen lock, and sleep still hide Crest.", appAccess);
+        Section("Desktop visibility", "When app access is off, strict mode requires the wallpaper desktop to be active and apps on your selected display to be minimized. Desktop-active mode permits visible apps after you click the desktop. Your choice is retained while app access is enabled.", strictDesktop);
         var displays = Forms.Screen.AllScreens;
         var displayChoice = new ComboBox { ItemsSource = displays, DisplayMemberPath = "DeviceName", SelectedItem = displays.FirstOrDefault(s => s.DeviceName == _app.Preferences.SelectedDisplay) ?? Forms.Screen.PrimaryScreen };
         AutomationProperties.SetName(displayChoice, "Selected display");
@@ -280,16 +292,16 @@ public sealed class SettingsWindow : Window
         var startup = new CheckBox { Content = "Start Crest with Windows", IsChecked = _app.Preferences.StartWithWindows };
         startup.Click += (_, _) => { try { _app.SetStartup(startup.IsChecked == true); _message.Text = "Startup preference saved."; } catch { startup.IsChecked = _app.Preferences.StartWithWindows; _message.Text = "Windows could not change this startup preference."; } };
         Section("Startup", "Start quietly in your system tray. This is off by default.", startup);
-        Section("Keyboard access", "Ctrl+Alt+Space can reveal Crest only when your desktop is eligible. Tab moves between controls; Escape dismisses.", Toggle("Enable the accessibility reveal shortcut", _app.Preferences.AccessibilityShortcut, v => _app.Preferences.AccessibilityShortcut = v));
+        Section("Keyboard access", "Enable Ctrl+Alt+Space to open Crest from the keyboard. It follows your visibility choice: desktop-only by default, or over another app when app access is enabled. Tab moves between controls; Escape dismisses.", Toggle("Enable the accessibility reveal shortcut", _app.Preferences.AccessibilityShortcut, v => _app.Preferences.AccessibilityShortcut = v));
     }
     private void Modules()
     {
         Heading("Your everyday essentials.", "Choose what appears in the island. Everything works locally.");
-        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "System volume, mute, OS battery status, and supported laptop brightness."), ("Timer", "One timer with pause, resume, and restart recovery."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 file references for this session. Original files are untouched.") };
+        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "System volume, mute, OS battery status, and supported laptop brightness."), ("Timer", "Multiple named timers and a stopwatch with pause, resume, and restart recovery."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 file references for this session. Original files are untouched.") };
         foreach (var (name, detail) in details)
             Section(name, detail, Toggle("Show " + name, _app.Preferences.EnabledModules.Contains(name), v => { if (v && !_app.Preferences.EnabledModules.Contains(name)) _app.Preferences.EnabledModules.Add(name); if (!v) _app.Preferences.EnabledModules.Remove(name); }));
         Section("Timer sound", "Completions wait for your next hover. An optional Windows sound can play when a timer finishes.", Toggle("Play a sound for timer completion", _app.Preferences.TimerSound, v => _app.Preferences.TimerSound = v));
-        Section("Future modules", "Clipboard capture, multiple timers, system statistics, and account integrations belong to later phases. They are not enabled or collecting data in this build.");
+        Section("Future modules", "Clipboard capture, system statistics, and account integrations belong to later phases. They are not enabled or collecting data in this build.");
     }
     private void Shortcuts()
     {
@@ -356,7 +368,7 @@ public sealed class SettingsWindow : Window
     {
         Heading("Small by design.", "Crest 0.1.0 · Windows 11 · x64\nA local first release candidate.");
         Section("Your data stays here", "No account, analytics, or required internet connection. Preferences and shortcuts live in your Windows user profile. The file shelf clears when you quit. Clipboard capture and online integrations are absent from this build.");
-        Section("Clear Crest data", "Reset preferences and shortcuts, cancel the timer, clear shelf references, and turn off Windows startup. Your original files are untouched.", Design.Button("Reset Crest data", () => { if (MessageBox.Show(this, "Reset all Crest preferences, shortcuts, the timer, and shelf references? Your original files will stay in place.", "Reset Crest data", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes) { try { _app.ResetData(); BuildPage(); _message.Text = "Crest data was reset."; } catch { _message.Text = "Some data could not be reset. Please try again."; } } }));
+        Section("Clear Crest data", "Reset preferences and shortcuts, cancel all timers, reset the stopwatch, clear shelf references, and turn off Windows startup. Your original files are untouched.", Design.Button("Reset Crest data", () => { if (MessageBox.Show(this, "Reset all Crest preferences, shortcuts, timers, stopwatch, and shelf references? Your original files will stay in place.", "Reset Crest data", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes) { try { _app.ResetData(); BuildPage(); _message.Text = "Crest data was reset."; } catch { _message.Text = "Some data could not be reset. Please try again."; } } }));
         Section("Capability status", $"Audio: {_app.Hardware.AudioStatus}\nBrightness: {_app.Hardware.BrightnessStatus}\nBattery: {_app.Hardware.Battery.Status}\nMusic: {_app.Hardware.Music.Status}");
         Section("Using the tray", "Double-click the Crest tray icon to open Settings. Right-click it for Settings, Pause / Resume, and Quit. Pause disables the hover trigger. Quit releases the island and native subscriptions.");
         Section("Release verification", "Automated checks cover desktop interaction transitions, timer recovery, settings recovery, and file reference limits. The source includes a compatibility report identifying hardware checks and remaining acceptance tests.");

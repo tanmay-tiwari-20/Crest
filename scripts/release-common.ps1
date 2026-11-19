@@ -102,6 +102,68 @@ function Write-CrestUtf8([string]$Path, [string]$Content) {
     [IO.File]::WriteAllText($Path, $Content, [Text.UTF8Encoding]::new($false))
 }
 
+function Get-CrestSourceFingerprint {
+    # Include all build inputs, but never generated binaries or local machine data.
+    $inputs = [Collections.Generic.List[string]]::new()
+    foreach ($directory in @('src', 'tests', 'assets', 'scripts')) {
+        foreach ($file in Get-ChildItem -LiteralPath (Join-Path $script:CrestRoot $directory) -File -Recurse) {
+            $relative = $file.FullName.Substring($script:CrestRoot.Length + 1).Replace('\', '/')
+            if ($relative -match '(^|/)(bin|obj)/' -or $relative -match '^tests/Crest.PlatformProbe/(latest|watch)\.json$') { continue }
+            if ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Build inputs cannot be reparse points.' }
+            $inputs.Add($relative + ':' + (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash)
+        }
+    }
+    foreach ($name in @('global.json', 'Crest.slnx')) {
+        $inputs.Add($name + ':' + (Get-FileHash -LiteralPath (Join-Path $script:CrestRoot $name) -Algorithm SHA256).Hash)
+    }
+    # Culture-sensitive sorting differs between Windows PowerShell (.NET/NLS)
+    # and PowerShell 7 (.NET/ICU). Ordinal ordering makes this hash portable.
+    [string[]]$orderedInputs = $inputs.ToArray()
+    [Array]::Sort($orderedInputs, [StringComparer]::Ordinal)
+    $bytes = [Text.Encoding]::UTF8.GetBytes(($orderedInputs -join "`n"))
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace('-', '') }
+    finally { $sha.Dispose() }
+}
+
+function Write-CrestBuildVerification([string]$Directory, $Metadata, [string]$Configuration, [bool]$TestsPassed, [string]$SourceFingerprint) {
+    if ((Get-CrestSourceFingerprint) -ne $SourceFingerprint) { throw 'Build inputs changed during verification. Rebuild before packaging.' }
+    $recordPath = Join-Path $Directory '.crest-build-verification.json'
+    $files = @(Get-ChildItem -LiteralPath $Directory -File -Recurse | Where-Object { $_.FullName -ne $recordPath } | Sort-Object FullName | ForEach-Object {
+        [ordered]@{
+            Path = $_.FullName.Substring($Directory.TrimEnd('\').Length + 1).Replace('\', '/')
+            SHA256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
+        }
+    })
+    $record = [ordered]@{
+        SchemaVersion = 1; ApplicationVersion = $Metadata.Version; Configuration = $Configuration
+        VerifiedUtc = [DateTimeOffset]::UtcNow.ToString('O'); TestsPassed = $TestsPassed
+        SourceFingerprint = $SourceFingerprint; Files = $files
+    }
+    Write-CrestUtf8 $recordPath (($record | ConvertTo-Json -Depth 5) + "`n")
+}
+
+function Assert-CrestBuildVerification([string]$Directory, $Metadata) {
+    $recordPath = Join-Path $Directory '.crest-build-verification.json'
+    if (-not (Test-Path -LiteralPath $recordPath -PathType Leaf)) { throw 'Publish has no build/test verification record. Run scripts/build.ps1 before packaging.' }
+    $record = Get-Content -LiteralPath $recordPath -Raw | ConvertFrom-Json
+    if ($record.SchemaVersion -ne 1 -or $record.ApplicationVersion -ne $Metadata.Version -or $record.Configuration -ne 'Release' -or $record.TestsPassed -ne $true) {
+        throw 'Packaging requires a verified Release publish with passing outcome tests.'
+    }
+    if ($record.SourceFingerprint -ne (Get-CrestSourceFingerprint)) { throw 'Publish does not match the current source and test inputs. Rebuild before packaging.' }
+    $actualFiles = @(Get-ChildItem -LiteralPath $Directory -File -Recurse | Where-Object { $_.FullName -ne $recordPath })
+    if ($actualFiles.Count -ne @($record.Files).Count) { throw 'Publish file set changed after build verification.' }
+    foreach ($file in $actualFiles) {
+        if ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Verified publish cannot contain reparse points.' }
+        $relative = $file.FullName.Substring($Directory.TrimEnd('\').Length + 1).Replace('\', '/')
+        $expected = @($record.Files | Where-Object { $_.Path -ceq $relative })
+        if ($expected.Count -ne 1 -or $expected[0].SHA256 -ne (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash) {
+            throw "Publish content changed after build verification: $relative"
+        }
+    }
+    return $record
+}
+
 function Get-CrestGitHubRepository {
     $repository = $env:GITHUB_REPOSITORY
     if ([string]::IsNullOrWhiteSpace($repository)) {

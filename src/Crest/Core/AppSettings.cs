@@ -7,6 +7,7 @@ public sealed class AppSettings
     public string Theme { get; set; } = "System";
     public string Motion { get; set; } = "System";
     public bool StrictDesktop { get; set; } = true;
+    public bool AllowOverApps { get; set; } = false;
     public string SelectedDisplay { get; set; } = "";
     public bool FullWidthTrigger
     {

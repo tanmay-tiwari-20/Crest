@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -48,6 +47,7 @@ public sealed class IslandWindow : Window
     private long _lastShelfCheck;
     private ComboBox? _playersCombo;
     private TextBlock? _artFallback;
+    private TimerToolsPanel? _timerTools;
     public bool HoldsInteraction => IsKeyboardFocusWithin || _playerPopupOpen;
     private static readonly string[] Modules = { "Music", "Controls", "Timer", "Launch", "Shelf" };
     [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr h, int index);
@@ -217,7 +217,7 @@ public sealed class IslandWindow : Window
         glyph.SetResourceReference(TextBlock.ForegroundProperty, "IslandAccent");
         cover.Children.Add(glyph);
         cover.Children.Add(_compactArt);
-        var coverButton = Design.Button("", () => Expand("Music"));
+        var coverButton = Design.Button("", () => Expand(_app.Local.Timers.Any(timer => timer.Phase == TimerPhase.Completed) ? "Timer" : "Music"));
         coverButton.Content = cover;
         coverButton.Background = Brushes.Transparent;
         coverButton.Padding = new Thickness(0);
@@ -273,7 +273,7 @@ public sealed class IslandWindow : Window
     private void BuildTabs()
     {
         _tabs.Children.Clear();
-        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timer"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf") };
+        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers and stopwatch"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf") };
         foreach (var (module, glyph, name) in items.Where(i => i.Item1 == "Overview" || _app.Preferences.EnabledModules.Contains(i.Item1)))
         {
             var b = Design.IconButton(glyph, name, () => Expand(module));
@@ -347,7 +347,7 @@ public sealed class IslandWindow : Window
         var footer = new Grid();
         footer.ColumnDefinitions.Add(new ColumnDefinition());
         footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var status = Label("footer", "LOCAL · DESKTOP ONLY", 9, "IslandMuted");
+        var status = Label("footer", _app.Preferences.AllowOverApps ? "LOCAL · OVER OTHER APPS" : "LOCAL · DESKTOP ONLY", 9, "IslandMuted");
         status.TextWrapping = TextWrapping.NoWrap;
         status.TextTrimming = TextTrimming.CharacterEllipsis;
         footer.Children.Add(status);
@@ -368,6 +368,7 @@ public sealed class IslandWindow : Window
         Design.Apply(_app.Preferences);
         if (!reversing)
         {
+            Set("footer", _app.Preferences.AllowOverApps ? "LOCAL · OVER OTHER APPS" : "LOCAL · DESKTOP ONLY");
             Collapse(false);
             Opacity = 0;
             _slide.Y = -9;
@@ -443,6 +444,7 @@ public sealed class IslandWindow : Window
                 "Controls" => "Laptop controls",
                 "Launch" => "Your shortcuts",
                 "Shelf" => "File shelf",
+                "Timer" => "Timers and stopwatch",
                 _ => module
             });
             BuildBody();
@@ -523,6 +525,7 @@ public sealed class IslandWindow : Window
         _artFallback = null;
         _playerSignature = "";
         _body.Children.Clear();
+        _timerTools = null;
         foreach (string k in _labels.Keys.Where(k => k.StartsWith("body")).ToArray())
             _labels.Remove(k);
         _buttons.Clear();
@@ -745,41 +748,8 @@ public sealed class IslandWindow : Window
     }
     private void BuildTimer()
     {
-        var timer = Label("bodyCountdown", "00:00", 48, "Text", true);
-        timer.HorizontalAlignment = HorizontalAlignment.Center;
-        timer.Margin = new Thickness(0, 1, 0, 0);
-        _body.Children.Add(timer);
-        var state = Label("bodyTimerState", "A little room to focus.", 11, "Muted");
-        state.HorizontalAlignment = HorizontalAlignment.Center;
-        _body.Children.Add(state);
-        var presets = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 12, 0, 10) };
-        foreach (int minutes in new[] { 5, 15, 25 })
-        {
-            var b = Design.Button(minutes + " min", () => _app.Local.StartTimer(TimeSpan.FromMinutes(minutes)));
-            b.Margin = new Thickness(4, 0, 4, 0);
-            presets.Children.Add(b);
-        }
-        _body.Children.Add(presets);
-        var custom = new Grid();
-        custom.ColumnDefinitions.Add(new ColumnDefinition());
-        custom.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
-        var input = new TextBox { Text = "10", MaxLength = 8 };
-        AutomationProperties.SetName(input, "Timer minutes");
-        custom.Children.Add(input);
-        var start = Design.Button("Start", () => { if (double.TryParse(input.Text, NumberStyles.Float, CultureInfo.CurrentCulture, out double mins) && double.IsFinite(mins) && mins >= 1d / 60 && mins <= 1440) _app.Local.StartTimer(TimeSpan.FromMinutes(mins)); else ShowMessage("Enter a duration between 1 second and 1,440 minutes."); }, true);
-        start.Margin = new Thickness(8, 0, 0, 0);
-        Grid.SetColumn(start, 1);
-        custom.Children.Add(start);
-        _body.Children.Add(custom);
-        var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Thickness(0, 10, 0, 0) };
-        var pause = Design.Button("Pause", () => { if (_app.Local.Timer.Phase == TimerPhase.Paused) _app.Local.ResumeTimer(); else if (_app.Local.Timer.Phase == TimerPhase.Completed) _app.Local.AcknowledgeTimer(); else _app.Local.PauseTimer(); });
-        var cancel = Design.Button("Cancel", _app.Local.CancelTimer);
-        cancel.Margin = new Thickness(8, 0, 0, 0);
-        _buttons["pause"] = pause;
-        _buttons["cancel"] = cancel;
-        actions.Children.Add(pause);
-        actions.Children.Add(cancel);
-        _body.Children.Add(actions);
+        _timerTools = new TimerToolsPanel(_app.Local, ShowMessage);
+        _body.Children.Add(_timerTools);
     }
     private void BuildLauncher()
     {
@@ -968,9 +938,10 @@ public sealed class IslandWindow : Window
         {
             var music = _app.Hardware.Music;
             var timer = _app.Local.Timer;
+            var completedTimers = _app.Local.Timers.Count(item => item.Phase == TimerPhase.Completed);
             var battery = _app.Hardware.Battery;
-            Set("compactTitle", timer.Phase == TimerPhase.Completed ? "Timer complete" : music.HasSession ? music.Title : "crest");
-            Set("compactDetail", timer.Phase == TimerPhase.Running ? "Focus · " + FormatTime(timer.RemainingSeconds) : music.HasSession ? music.Artist : "Your desktop, in reach");
+            Set("compactTitle", completedTimers > 0 ? completedTimers == 1 ? "Timer complete" : completedTimers + " timers complete" : music.HasSession ? music.Title : "crest");
+            Set("compactDetail", completedTimers > 0 ? "Open timers to acknowledge" : timer.Phase == TimerPhase.Running ? timer.Name + " · " + FormatTime(timer.RemainingSeconds) : music.HasSession ? music.Artist : "Your desktop, in reach");
             _compactArt.Source = music.Artwork;
             _compactArt.Visibility = music.Artwork == null ? Visibility.Collapsed : Visibility.Visible;
             _compactPlay.IsEnabled = _app.Preferences.EnabledModules.Contains("Music") && music.CanPlayPause;
@@ -1021,17 +992,7 @@ public sealed class IslandWindow : Window
             }
             if (_module == "Timer")
             {
-                Set("bodyCountdown", FormatTime(timer.RemainingSeconds));
-                Set("bodyTimerState", timer.Phase switch
-                {
-                    TimerPhase.Running => "Counting down, even when Crest is hidden.",
-                    TimerPhase.Paused => "Paused · take your time.",
-                    TimerPhase.Completed => "All done. Your time is yours again.",
-                    _ => "A little room to focus."
-                });
-                _buttons["pause"].Content = timer.Phase == TimerPhase.Completed ? "Done" : timer.Phase == TimerPhase.Paused ? "Resume" : "Pause";
-                _buttons["pause"].IsEnabled = timer.Phase != TimerPhase.Idle;
-                _buttons["cancel"].IsEnabled = timer.Phase != TimerPhase.Idle;
+                _timerTools?.Refresh();
             }
         }
         finally { _refreshing = false; }

@@ -13,7 +13,14 @@ public enum TimerPhase
 {
     Idle, Running, Paused, Completed
 }
-public sealed record TimerSnapshot(TimerPhase Phase, double RemainingSeconds, double TotalSeconds, DateTimeOffset? DeadlineUtc);
+public sealed record TimerSnapshot(TimerPhase Phase, double RemainingSeconds, double TotalSeconds, DateTimeOffset? DeadlineUtc, string Id = "", string Name = "Focus");
+public enum StopwatchPhase { Idle, Running, Paused }
+public sealed record StopwatchLap(int Number, double TotalSeconds, double SplitSeconds);
+public sealed record StopwatchSnapshot(StopwatchPhase Phase, double ElapsedSeconds, IReadOnlyList<StopwatchLap> Laps);
+public sealed class TimerCompletedEventArgs(TimerSnapshot timer) : EventArgs
+{
+    public TimerSnapshot Timer { get; } = timer;
+}
 public sealed record ShelfItem(string Id, string Name, string Path, bool Available, bool IsDirectory);
 
 public interface ITimerClock
@@ -34,23 +41,29 @@ public sealed class WindowsTimerClock : ITimerClock
     public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
 }
 
-/// <summary>One durable timer and a bounded, memory-only file reference shelf.</summary>
+/// <summary>Bounded durable timers, a stopwatch, and a memory-only file reference shelf.</summary>
 public sealed class LocalHub : IDisposable
 {
+    public const int MaxTimers = 8;
+    public const int MaxStopwatchLaps = 100;
+    // Bounds corrupt recovery state and keeps every elapsed value safe for TimeSpan and display conversion.
+    public const double MaxActivitySeconds = 3_155_760_000; // 100 years.
     private readonly object _gate = new();
     private readonly SettingsStore _store;
     private readonly ITimerClock _clock;
     private readonly bool _automaticTick;
     private readonly List<ShelfItem> _shelf = new();
     private System.Threading.Timer? _ticker;
-    private TimerPhase _phase;
-    private long _monotonicDeadline;
-    private double _remaining;
-    private double _total;
-    private DateTimeOffset? _utcDeadline;
+    private readonly List<ActiveTimer> _timers = new();
+    private string? _selectedTimerId;
+    private StopwatchPhase _stopwatchPhase;
+    private double _stopwatchElapsed;
+    private long _stopwatchStarted;
+    private readonly List<StopwatchLap> _laps = new();
     private bool _disposed;
     public event EventHandler? Changed;
     public event EventHandler? Completion;
+    public event EventHandler<TimerCompletedEventArgs>? TimerCompleted;
     public string? LastError => _store.LastError;
 
     public LocalHub(SettingsStore store, Func<AppSettings> settings) : this(store, settings, new WindowsTimerClock(), true) { }
@@ -67,8 +80,20 @@ public sealed class LocalHub : IDisposable
         get
         {
             lock (_gate)
-                return new(_phase, Remaining(), _total, _utcDeadline);
+                return SelectedTimer() is { } timer ? Snapshot(timer) : new(TimerPhase.Idle, 0, 0, null);
         }
+    }
+    public IReadOnlyList<TimerSnapshot> Timers
+    {
+        get { lock (_gate) return _timers.Select(Snapshot).ToArray(); }
+    }
+    public string? SelectedTimerId
+    {
+        get { lock (_gate) return _selectedTimerId; }
+    }
+    public StopwatchSnapshot Stopwatch
+    {
+        get { lock (_gate) return new(_stopwatchPhase, StopwatchElapsed(), _laps.ToArray()); }
     }
     public IReadOnlyList<ShelfItem> Shelf
     {
@@ -81,100 +106,192 @@ public sealed class LocalHub : IDisposable
 
     public void StartTimer(TimeSpan duration)
     {
-        if (duration.TotalSeconds < 1 || duration.TotalDays > 7)
-            throw new ArgumentOutOfRangeException(nameof(duration), "Choose a timer between one second and seven days.");
+        ValidateDuration(duration);
         lock (_gate)
         {
             ThrowIfDisposed();
-            _remaining = _total = duration.TotalSeconds;
-            _phase = TimerPhase.Running;
-            _monotonicDeadline = _clock.MonotonicMilliseconds + (long)(duration.TotalMilliseconds);
-            _utcDeadline = _clock.UtcNow + duration;
-            Persist();
-            StartTicker();
+            var timer = SelectedTimer();
+            if (timer is null)
+            {
+                timer = new ActiveTimer { Id = Guid.NewGuid().ToString("N"), Name = "Focus" };
+                _timers.Add(timer);
+                _selectedTimerId = timer.Id;
+            }
+            Start(timer, duration);
+            PersistTimers();
+            UpdateTicker();
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
-
-    public void PauseTimer()
+    public string AddTimer(TimeSpan duration, string? name = null)
     {
-        bool completed = false;
+        ValidateDuration(duration);
+        string id;
         lock (_gate)
         {
-            if (_disposed || _phase != TimerPhase.Running)
-                return;
-            _remaining = Remaining();
-            _phase = _remaining <= 0 ? TimerPhase.Completed : TimerPhase.Paused;
-            completed = _phase == TimerPhase.Completed;
-            _utcDeadline = null;
-            StopTicker();
-            Persist();
+            ThrowIfDisposed();
+            if (_timers.Count >= MaxTimers)
+                throw new InvalidOperationException($"Crest holds {MaxTimers} timers. Cancel or acknowledge a timer to make room.");
+            var timer = new ActiveTimer { Id = Guid.NewGuid().ToString("N"), Name = TimerName(name, "Timer " + (_timers.Count + 1)) };
+            Start(timer, duration);
+            _timers.Add(timer);
+            _selectedTimerId = id = timer.Id;
+            PersistTimers();
+            UpdateTicker();
         }
         Changed?.Invoke(this, EventArgs.Empty);
-        if (completed)
-            Completion?.Invoke(this, EventArgs.Empty);
+        return id;
     }
-
-    public void ResumeTimer()
+    public void SelectTimer(string id)
     {
         lock (_gate)
         {
-            if (_disposed || _phase != TimerPhase.Paused)
-                return;
-            _phase = TimerPhase.Running;
-            _monotonicDeadline = _clock.MonotonicMilliseconds + (long)(_remaining * 1000);
-            _utcDeadline = _clock.UtcNow + TimeSpan.FromSeconds(_remaining);
-            Persist();
-            StartTicker();
+            if (_disposed || FindTimer(id) is null || _selectedTimerId == id) return;
+            _selectedTimerId = id;
+            PersistTimers();
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
-
-    public void CancelTimer() => ResetTimer();
-    public void AcknowledgeTimer()
+    public void RenameTimer(string id, string name)
     {
         lock (_gate)
         {
-            if (_phase != TimerPhase.Completed)
-                return;
+            if (_disposed || FindTimer(id) is not { } timer) return;
+            timer.Name = TimerName(name, timer.Name);
+            PersistTimers();
         }
-        ResetTimer();
+        Changed?.Invoke(this, EventArgs.Empty);
     }
-    private void ResetTimer()
+    public void PauseTimer() => PauseTimer(SelectedTimerId);
+    public void PauseTimer(string? id)
+    {
+        TimerSnapshot? completed = null;
+        lock (_gate)
+        {
+            if (_disposed || FindTimer(id) is not { Phase: TimerPhase.Running } timer) return;
+            timer.RemainingSeconds = Remaining(timer);
+            timer.Phase = timer.RemainingSeconds <= 0 ? TimerPhase.Completed : TimerPhase.Paused;
+            timer.DeadlineUtc = null;
+            if (timer.Phase == TimerPhase.Completed) completed = Snapshot(timer);
+            PersistTimers();
+            UpdateTicker();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+        if (completed is not null) NotifyCompletion(completed);
+    }
+    public void ResumeTimer() => ResumeTimer(SelectedTimerId);
+    public void ResumeTimer(string? id)
     {
         lock (_gate)
         {
-            if (_disposed)
-                return;
-            StopTicker();
-            _phase = TimerPhase.Idle;
-            _total = _remaining = 0;
-            _utcDeadline = null;
+            if (_disposed || FindTimer(id) is not { Phase: TimerPhase.Paused } timer) return;
+            timer.Phase = TimerPhase.Running;
+            timer.MonotonicDeadline = MonotonicDeadline(timer.RemainingSeconds);
+            timer.DeadlineUtc = UtcDeadline(timer.RemainingSeconds);
+            PersistTimers();
+            UpdateTicker();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    public void CancelTimer() => CancelTimer(SelectedTimerId);
+    public void CancelTimer(string? id) => RemoveTimer(id, false);
+    public void AcknowledgeTimer() => AcknowledgeTimer(SelectedTimerId);
+    public void AcknowledgeTimer(string? id) => RemoveTimer(id, true);
+    private void RemoveTimer(string? id, bool completedOnly)
+    {
+        lock (_gate)
+        {
+            if (_disposed || FindTimer(id) is not { } timer || (completedOnly && timer.Phase != TimerPhase.Completed)) return;
+            _timers.Remove(timer);
+            if (_selectedTimerId == id) _selectedTimerId = _timers.FirstOrDefault()?.Id;
+            PersistTimers();
+            UpdateTicker();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    public void StartStopwatch()
+    {
+        lock (_gate)
+        {
+            ThrowIfDisposed();
+            if (_stopwatchPhase == StopwatchPhase.Running) return;
+            _stopwatchPhase = StopwatchPhase.Running;
+            _stopwatchStarted = _clock.MonotonicMilliseconds;
+            PersistStopwatch();
+            UpdateTicker();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    public void PauseStopwatch()
+    {
+        lock (_gate)
+        {
+            if (_disposed || _stopwatchPhase != StopwatchPhase.Running) return;
+            _stopwatchElapsed = StopwatchElapsed();
+            _stopwatchPhase = StopwatchPhase.Paused;
+            PersistStopwatch();
+            UpdateTicker();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    public StopwatchLap? LapStopwatch()
+    {
+        StopwatchLap lap;
+        lock (_gate)
+        {
+            if (_disposed || _stopwatchPhase != StopwatchPhase.Running || _laps.Count >= MaxStopwatchLaps) return null;
+            double elapsed = StopwatchElapsed();
+            lap = new(_laps.Count + 1, elapsed, Math.Max(0, elapsed - (_laps.LastOrDefault()?.TotalSeconds ?? 0)));
+            _laps.Add(lap);
+            PersistStopwatch();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+        return lap;
+    }
+    public void ResetStopwatch()
+    {
+        lock (_gate)
+        {
+            if (_disposed) return;
+            ClearStopwatch();
+            _store.DeleteState("stopwatch.json");
+            UpdateTicker();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    public void ResetProductivity()
+    {
+        lock (_gate)
+        {
+            if (_disposed) return;
+            _timers.Clear();
+            _selectedTimerId = null;
+            ClearStopwatch();
             _store.DeleteState("timer.json");
+            _store.DeleteState("stopwatch.json");
+            UpdateTicker();
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
-
     public void Tick()
     {
-        bool completed = false;
+        var completed = new List<TimerSnapshot>();
         lock (_gate)
         {
-            if (_disposed || _phase != TimerPhase.Running)
-                return;
-            _remaining = Remaining();
-            if (_remaining <= 0)
+            if (_disposed || !HasRunningActivity()) return;
+            foreach (var timer in _timers.Where(x => x.Phase == TimerPhase.Running))
             {
-                _phase = TimerPhase.Completed;
-                _utcDeadline = null;
-                StopTicker();
-                Persist();
-                completed = true;
+                timer.RemainingSeconds = Remaining(timer);
+                if (timer.RemainingSeconds > 0) continue;
+                timer.Phase = TimerPhase.Completed;
+                timer.DeadlineUtc = null;
+                completed.Add(Snapshot(timer));
             }
+            if (completed.Count > 0) PersistTimers();
+            UpdateTicker();
         }
         Changed?.Invoke(this, EventArgs.Empty);
-        if (completed)
-            Completion?.Invoke(this, EventArgs.Empty);
+        foreach (var timer in completed) NotifyCompletion(timer);
     }
 
     public string? AddShelfFiles(IEnumerable<string> paths)
@@ -294,12 +411,57 @@ public sealed class LocalHub : IDisposable
         }
     }
 
-    private double Remaining() => _phase == TimerPhase.Running ? Math.Max(0, (_monotonicDeadline - _clock.MonotonicMilliseconds) / 1000d) : Math.Max(0, _remaining);
-    private void StartTicker()
+    private static void ValidateDuration(TimeSpan duration)
     {
-        if (!_automaticTick || _ticker is not null)
-            return;
-        _ticker = new System.Threading.Timer(_ => Tick(), null, 1000, 1000);
+        if (duration.TotalSeconds < 1 || duration.TotalDays > 7)
+            throw new ArgumentOutOfRangeException(nameof(duration), "Choose a timer between one second and seven days.");
+    }
+    private static string TimerName(string? name, string fallback)
+    {
+        string value = string.IsNullOrWhiteSpace(name) ? fallback : name.Trim();
+        return value[..Math.Min(value.Length, 40)];
+    }
+    private ActiveTimer? FindTimer(string? id) => _timers.FirstOrDefault(x => x.Id == id);
+    private ActiveTimer? SelectedTimer() => FindTimer(_selectedTimerId);
+    private TimerSnapshot Snapshot(ActiveTimer timer) => new(timer.Phase, Remaining(timer), timer.TotalSeconds, timer.DeadlineUtc, timer.Id, timer.Name);
+    private double Remaining(ActiveTimer timer) => timer.Phase == TimerPhase.Running ? Math.Clamp(((double)timer.MonotonicDeadline - _clock.MonotonicMilliseconds) / 1000d, 0, MaxActivitySeconds) : Math.Clamp(timer.RemainingSeconds, 0, MaxActivitySeconds);
+    private long MonotonicDeadline(double seconds)
+    {
+        long now = _clock.MonotonicMilliseconds, duration = (long)(seconds * 1000);
+        return now > long.MaxValue - duration ? long.MaxValue : now + duration;
+    }
+    private DateTimeOffset UtcDeadline(double seconds)
+    {
+        var now = _clock.UtcNow.ToUniversalTime();
+        long durationTicks = (long)(seconds * TimeSpan.TicksPerSecond);
+        return new DateTimeOffset(now.Ticks + Math.Min(durationTicks, DateTimeOffset.MaxValue.Ticks - now.Ticks), TimeSpan.Zero);
+    }
+    private void Start(ActiveTimer timer, TimeSpan duration)
+    {
+        timer.RemainingSeconds = timer.TotalSeconds = duration.TotalSeconds;
+        timer.Phase = TimerPhase.Running;
+        timer.MonotonicDeadline = MonotonicDeadline(duration.TotalSeconds);
+        timer.DeadlineUtc = UtcDeadline(duration.TotalSeconds);
+    }
+    private double StopwatchElapsed() => Math.Min(MaxActivitySeconds, _stopwatchElapsed + (_stopwatchPhase == StopwatchPhase.Running ? Math.Max(0, ((double)_clock.MonotonicMilliseconds - _stopwatchStarted) / 1000d) : 0));
+    private void ClearStopwatch()
+    {
+        _stopwatchPhase = StopwatchPhase.Idle;
+        _stopwatchElapsed = 0;
+        _stopwatchStarted = 0;
+        _laps.Clear();
+    }
+    private bool HasRunningActivity() => _stopwatchPhase == StopwatchPhase.Running || _timers.Any(x => x.Phase == TimerPhase.Running);
+    private void UpdateTicker()
+    {
+        if (!HasRunningActivity()) { StopTicker(); return; }
+        if (_automaticTick && _ticker is null)
+            _ticker = new System.Threading.Timer(_ => Tick(), null, 1000, 1000);
+    }
+    private void NotifyCompletion(TimerSnapshot timer)
+    {
+        TimerCompleted?.Invoke(this, new(timer));
+        Completion?.Invoke(this, EventArgs.Empty);
     }
     private void StopTicker()
     {
@@ -314,44 +476,93 @@ public sealed class LocalHub : IDisposable
 
     private void Restore()
     {
-        TimerState? state = _store.ReadState<TimerState>("timer.json");
-        if (state is null || state.SchemaVersion != 1 || !Enum.IsDefined(state.Phase) || state.Phase == TimerPhase.Idle || !double.IsFinite(state.TotalSeconds) || state.TotalSeconds < 1 || state.TotalSeconds > TimeSpan.FromDays(7).TotalSeconds || !double.IsFinite(state.RemainingSeconds))
-            return;
-        _total = state.TotalSeconds;
-        _remaining = Math.Max(0, state.RemainingSeconds);
-        _phase = Enum.IsDefined(state.Phase) ? state.Phase : TimerPhase.Idle;
-        if (_phase == TimerPhase.Running && state.DeadlineUtc is { } deadline)
+        TimerSetState? state = _store.ReadState<TimerSetState>("timer.json");
+        bool normalize = false;
+        if (state?.SchemaVersion == 2)
         {
-            _utcDeadline = deadline;
-            // Restart recovery deliberately uses UTC, including backwards clock changes.
-            _remaining = Math.Max(0, (deadline - _clock.UtcNow).TotalSeconds);
-            _monotonicDeadline = _clock.MonotonicMilliseconds + (long)(_remaining * 1000);
-            if (_remaining <= 0)
+            foreach (var saved in (state.Timers ?? new()).Take(MaxTimers))
             {
-                _phase = TimerPhase.Completed;
-                _utcDeadline = null;
-                Persist();
+                if (saved is null || string.IsNullOrWhiteSpace(saved.Id) || saved.Id.Length > 64 || FindTimer(saved.Id) is not null || RestoreTimer(saved) is not { } timer)
+                { normalize = true; continue; }
+                _timers.Add(timer);
+                normalize |= timer.Phase != saved.Phase;
             }
-            else
-                StartTicker();
+            _selectedTimerId = FindTimer(state.SelectedTimerId)?.Id ?? _timers.FirstOrDefault()?.Id;
+            normalize |= _selectedTimerId != state.SelectedTimerId || (state.Timers?.Count ?? 0) != _timers.Count;
         }
-        else if (_phase == TimerPhase.Running)
+        else if (state?.SchemaVersion == 1)
         {
-            _phase = TimerPhase.Idle;
-            _remaining = _total = 0;
+            TimerState? legacy = _store.ReadState<TimerState>("timer.json");
+            if (legacy is not null && RestoreTimer(legacy) is { } timer)
+            {
+                timer.Id = Guid.NewGuid().ToString("N");
+                timer.Name = "Focus";
+                _timers.Add(timer);
+                _selectedTimerId = timer.Id;
+            }
+            normalize = true;
         }
-        else if (_phase == TimerPhase.Completed)
-        {
-            _remaining = 0;
-            _utcDeadline = null;
-        }
-        else if (_phase == TimerPhase.Paused && _remaining <= 0)
-        {
-            _phase = TimerPhase.Completed;
-            Persist();
-        }
+        if (normalize) PersistTimers();
+        RestoreStopwatch();
+        UpdateTicker();
     }
-    private void Persist() => _store.WriteState("timer.json", new TimerState { SchemaVersion = 1, Phase = _phase, RemainingSeconds = Remaining(), TotalSeconds = _total, DeadlineUtc = _utcDeadline });
+    private ActiveTimer? RestoreTimer(TimerState saved)
+    {
+        if (!Enum.IsDefined(saved.Phase) || saved.Phase == TimerPhase.Idle || !double.IsFinite(saved.TotalSeconds) || saved.TotalSeconds < 1 || saved.TotalSeconds > TimeSpan.FromDays(7).TotalSeconds || !ValidElapsed(saved.RemainingSeconds))
+            return null;
+        var timer = new ActiveTimer { Id = saved.Id, Name = TimerName(saved.Name, "Timer"), Phase = saved.Phase, TotalSeconds = saved.TotalSeconds, RemainingSeconds = saved.RemainingSeconds };
+        if (timer.Phase == TimerPhase.Running)
+        {
+            if (saved.DeadlineUtc is not { } deadline) return null;
+            // Live activity is monotonic; restart recovery deliberately compares the saved UTC deadline.
+            timer.RemainingSeconds = Math.Max(0, (deadline - _clock.UtcNow).TotalSeconds);
+            if (!ValidElapsed(timer.RemainingSeconds)) return null;
+            timer.MonotonicDeadline = MonotonicDeadline(timer.RemainingSeconds);
+            if (timer.RemainingSeconds <= 0) timer.Phase = TimerPhase.Completed;
+            else timer.DeadlineUtc = deadline;
+        }
+        if (timer.Phase == TimerPhase.Completed || timer.RemainingSeconds <= 0)
+        {
+            timer.Phase = TimerPhase.Completed;
+            timer.RemainingSeconds = 0;
+            timer.DeadlineUtc = null;
+        }
+        return timer;
+    }
+    private static bool ValidElapsed(double seconds) => double.IsFinite(seconds) && seconds >= 0 && seconds <= MaxActivitySeconds;
+    private void RestoreStopwatch()
+    {
+        var saved = _store.ReadState<StopwatchState>("stopwatch.json");
+        if (saved is null || saved.SchemaVersion != 1 || !Enum.IsDefined(saved.Phase) || saved.Phase == StopwatchPhase.Idle || !ValidElapsed(saved.ElapsedSeconds)) return;
+        if (saved.Phase == StopwatchPhase.Running && saved.StartedUtc is null) return;
+        _stopwatchPhase = saved.Phase;
+        _stopwatchElapsed = saved.ElapsedSeconds;
+        if (saved.Phase == StopwatchPhase.Running)
+        {
+            // A backwards UTC change cannot make the saved elapsed duration negative or erase recorded laps.
+            _stopwatchElapsed = Math.Min(MaxActivitySeconds, _stopwatchElapsed + Math.Max(0, (_clock.UtcNow - saved.StartedUtc!.Value).TotalSeconds));
+            _stopwatchStarted = _clock.MonotonicMilliseconds;
+        }
+        double previous = 0;
+        foreach (var lap in (saved.Laps ?? new()).Take(MaxStopwatchLaps))
+        {
+            if (lap is null || !ValidElapsed(lap.TotalSeconds) || lap.TotalSeconds < previous || lap.TotalSeconds > _stopwatchElapsed) continue;
+            _laps.Add(new(_laps.Count + 1, lap.TotalSeconds, lap.TotalSeconds - previous));
+            previous = lap.TotalSeconds;
+        }
+        PersistStopwatch();
+    }
+    private void PersistTimers()
+    {
+        if (_timers.Count == 0) { _store.DeleteState("timer.json"); return; }
+        _store.WriteState("timer.json", new TimerSetState { SelectedTimerId = _selectedTimerId, Timers = _timers.Select(timer => new TimerState { Id = timer.Id, Name = timer.Name, Phase = timer.Phase, RemainingSeconds = Remaining(timer), TotalSeconds = timer.TotalSeconds, DeadlineUtc = timer.DeadlineUtc }).ToList() });
+    }
+    private void PersistStopwatch()
+    {
+        if (_stopwatchPhase == StopwatchPhase.Idle) { _store.DeleteState("stopwatch.json"); return; }
+        // Save elapsed at this instant and a matching UTC anchor, never the original start time with a later elapsed value.
+        _store.WriteState("stopwatch.json", new StopwatchState { Phase = _stopwatchPhase, ElapsedSeconds = StopwatchElapsed(), StartedUtc = _stopwatchPhase == StopwatchPhase.Running ? _clock.UtcNow : null, Laps = _laps.ToList() });
+    }
 
     public void Dispose()
     {
@@ -361,8 +572,8 @@ public sealed class LocalHub : IDisposable
                 return;
             _disposed = true;
             StopTicker();
-            if (_phase != TimerPhase.Idle)
-                Persist();
+            PersistTimers();
+            PersistStopwatch();
             _shelf.Clear();
         }
     }
@@ -370,6 +581,8 @@ public sealed class LocalHub : IDisposable
     public sealed class TimerState
     {
         public int SchemaVersion { get; set; } = 1;
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "Focus";
         public TimerPhase Phase
         {
             get; set;
@@ -386,5 +599,29 @@ public sealed class LocalHub : IDisposable
         {
             get; set;
         }
+    }
+    public sealed class TimerSetState
+    {
+        public int SchemaVersion { get; set; } = 2;
+        public string? SelectedTimerId { get; set; }
+        public List<TimerState>? Timers { get; set; } = new();
+    }
+    public sealed class StopwatchState
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public StopwatchPhase Phase { get; set; }
+        public double ElapsedSeconds { get; set; }
+        public DateTimeOffset? StartedUtc { get; set; }
+        public List<StopwatchLap>? Laps { get; set; } = new();
+    }
+    private sealed class ActiveTimer
+    {
+        public string Id { get; set; } = "";
+        public string Name { get; set; } = "Timer";
+        public TimerPhase Phase { get; set; }
+        public double RemainingSeconds { get; set; }
+        public double TotalSeconds { get; set; }
+        public DateTimeOffset? DeadlineUtc { get; set; }
+        public long MonotonicDeadline { get; set; }
     }
 }

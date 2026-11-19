@@ -73,7 +73,7 @@ public sealed class SettingsStore
     {
         lock (_gate)
         {
-            foreach (string name in new[] { "settings.json", "settings.json.recovered", "timer.json" })
+            foreach (string name in new[] { "settings.json", "settings.json.recovered", "timer.json", "stopwatch.json", "settings.json.tmp", "timer.json.tmp", "stopwatch.json.tmp" })
             {
                 try
                 {

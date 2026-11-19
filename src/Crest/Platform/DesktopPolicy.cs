@@ -25,6 +25,7 @@ public sealed class DesktopPolicy : IDisposable
     private bool _locked, _suspended, _started, _disposed, _queued, _monitoringPaused;
     private long _lastShellScan;
     private uint _shellProcess;
+    private bool _visibilitySettingsRead, _lastAllowOverApps, _lastStrictDesktop;
     public bool IsEligible
     {
         get; private set;
@@ -58,10 +59,7 @@ public sealed class DesktopPolicy : IDisposable
                 _virtualDesktop = Activator.CreateInstance(type) as IVirtualDesktopManager;
         }
         catch { _virtualDesktop = null; }
-        AddHook(3, 3); // Foreground changes, including own Settings window.
-        AddHook(16, 17); // Minimize transitions.
-        AddHook(0x8002, 0x8003); // Window show/hide.
-        AddHook(0x800B, 0x800B); // Window position and coverage changes.
+        InstallHooks();
         SystemEvents.SessionSwitch += OnSessionSwitch;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
         SystemEvents.DisplaySettingsChanged += OnDisplayChanged;
@@ -107,10 +105,7 @@ public sealed class DesktopPolicy : IDisposable
         }
         else if (_started)
         {
-            AddHook(3, 3);
-            AddHook(16, 17);
-            AddHook(0x8002, 0x8003);
-            AddHook(0x800B, 0x800B);
+            InstallHooks();
             _lastShellScan = 0;
             Recheck();
             _reconcile.Start();
@@ -162,10 +157,16 @@ public sealed class DesktopPolicy : IDisposable
         double oldDpi = DpiScale;
         try
         {
+            var settings = _settings();
+            if (_visibilitySettingsRead && (_lastAllowOverApps != settings.AllowOverApps || _lastStrictDesktop != settings.StrictDesktop))
+                SetEligibility(false, true); // Cancel old dwell/motion and require a fresh entry in the new mode.
+            _visibilitySettingsRead = true;
+            _lastAllowOverApps = settings.AllowOverApps;
+            _lastStrictDesktop = settings.StrictDesktop;
             PruneInvalidSurfaces();
             RefreshDisplay();
             var foreground = NativeMethods.GetForegroundWindow();
-            if (_started && !_monitoringPaused && !_locked && !_suspended && foreground != IntPtr.Zero && NativeMethods.IsNormalInputDesktop() && DisplayBounds.Width > 0 && _hooks.Count >= 2)
+            if (_started && !_monitoringPaused && !_locked && !_suspended && foreground != IntPtr.Zero && NativeMethods.IsNormalInputDesktop() && DisplayBounds.Width > 0 && _hooks.Count == 5)
             {
                 IntPtr root = NativeMethods.GetAncestor(foreground, 2);
                 if (root == IntPtr.Zero)
@@ -176,7 +177,13 @@ public sealed class DesktopPolicy : IDisposable
                     SetEligibility(false, true);
                 bool inputSurface = _surfaces.TryGetValue(root, out bool acceptsInput) && acceptsInput && NativeMethods.IsWindowVisible(root);
                 bool actualDesktop = _desktopRoots.Contains(root) && NativeMethods.IsWindow(root);
-                eligible = (actualDesktop || inputSurface) && (!_settings().StrictDesktop || !HasCoveringApp());
+                uint foregroundThread = NativeMethods.GetWindowThreadProcessId(root, out uint foregroundOwner);
+                bool otherApp = foregroundThread != 0 && foregroundOwner != 0 && foregroundOwner != (uint)Environment.ProcessId
+                    && NativeMethods.IsWindow(root) && NativeMethods.IsWindowVisible(root)
+                    && !NativeMethods.IsIconic(root) && !NativeMethods.IsCloaked(root);
+                // Unregistered own windows (Settings and tray dialogs) are never overlay targets.
+                bool coveringApp = !settings.AllowOverApps && settings.StrictDesktop && (actualDesktop || inputSurface) && HasCoveringApp();
+                eligible = VisibilityRules.Allows(settings, new(true, actualDesktop, inputSurface, otherApp, coveringApp));
             }
         }
         catch { eligible = false; }
@@ -332,10 +339,25 @@ public sealed class DesktopPolicy : IDisposable
             _hooks.Add(handle);
     }
 
+    private void InstallHooks()
+    {
+        AddHook(3, 3); // Foreground changes, including own Settings window.
+        AddHook(16, 17); // Minimize transitions.
+        AddHook(0x20, 0x20); // Input desktop switches, including secure desktop transitions.
+        AddHook(0x8001, 0x8003); // Destroy/show/hide; shell destruction must invalidate cached identity.
+        AddHook(0x800B, 0x800B); // Window position and coverage changes.
+    }
+
     private void OnWindowEvent(IntPtr hook, uint eventType, IntPtr hwnd, int objectId, int childId, uint threadId, uint time)
     {
-        if (_disposed || (eventType >= 0x8000 && (objectId != 0 || childId != 0)))
+        if (_disposed || _monitoringPaused || (eventType >= 0x8000 && (objectId != 0 || childId != 0)))
             return;
+        if (eventType == 0x20 || (eventType == 0x8001 && _desktopRoots.Contains(hwnd)))
+        {
+            _lastShellScan = 0;
+            InvalidateAndRecheck();
+            return;
+        }
         QueueRecheck();
     }
 
@@ -349,7 +371,8 @@ public sealed class DesktopPolicy : IDisposable
 
     private void OnSessionSwitch(object sender, SessionSwitchEventArgs e)
     {
-        _locked = e.Reason == SessionSwitchReason.SessionLock || e.Reason == SessionSwitchReason.SessionLogoff || e.Reason == SessionSwitchReason.RemoteDisconnect || e.Reason == SessionSwitchReason.ConsoleDisconnect;
+        if (e.Reason == SessionSwitchReason.SessionLock || e.Reason == SessionSwitchReason.SessionLogoff || e.Reason == SessionSwitchReason.RemoteDisconnect || e.Reason == SessionSwitchReason.ConsoleDisconnect)
+            _locked = true;
         if (e.Reason == SessionSwitchReason.SessionUnlock || e.Reason == SessionSwitchReason.SessionLogon || e.Reason == SessionSwitchReason.ConsoleConnect || e.Reason == SessionSwitchReason.RemoteConnect)
             _locked = false;
         InvalidateAndRecheck();

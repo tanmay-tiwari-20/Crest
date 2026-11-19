@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased — core completion and F09
+
+- Added an off-by-default **Allow Crest over other apps** setting so hover and the separately enabled keyboard shortcut can reveal Crest while another app is active. Strict desktop remains the default.
+
+- Added eight independent named timers, per-timer pause/resume/cancel/acknowledgement, and migration of the previous saved timer.
+- Added a persistent stopwatch with 100 bounded laps, split/total times, pause/resume, and reset. Live time is monotonic; restart recovery uses saved UTC state.
+- Fixed repeated keyboard reveal, locked-session handling, shell recovery subscriptions, and incomplete native-hook initialization.
+- Completed high-contrast control colors/boundaries and live repaint; clarified fresh-hover onboarding.
+- Bounded optional asynchronous technical diagnostics to 5 MiB, 128 queued codes, and 72-hour retention.
+- Added source/binary-bound packaging verification and 31 explicit P1 acceptance gates. Strict P1 release verification refuses open, failed, or stale evidence.
+- Current verification: 46 domain outcomes, eight WPF productivity UI outcomes, eight provenance checks, and dark/light renders at four DPI densities. A native Chrome-foreground comparison rejects/allows/rejects access as the option is switched off/on/off. Native P1 acceptance remains open; see the test report.
+
 ## 0.1.0 - prerelease candidate
 
 ### Added

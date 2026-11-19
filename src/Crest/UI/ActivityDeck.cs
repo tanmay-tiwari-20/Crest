@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
@@ -311,7 +312,8 @@ public sealed class ActivityDeck : UserControl
             return;
         _focusBusy = true;
         _focusAction.IsEnabled = false;
-        var phase = _app.Local.Timer.Phase;
+        var selected = _app.Local.Timer;
+        var phase = selected.Phase;
         try
         {
             await Task.Run(() =>
@@ -319,19 +321,24 @@ public sealed class ActivityDeck : UserControl
                 switch (phase)
                 {
                     case TimerPhase.Running:
-                        _app.Local.PauseTimer();
+                        _app.Local.PauseTimer(selected.Id);
                         break;
                     case TimerPhase.Paused:
-                        _app.Local.ResumeTimer();
+                        _app.Local.ResumeTimer(selected.Id);
                         break;
                     case TimerPhase.Completed:
-                        _app.Local.AcknowledgeTimer();
+                        _app.Local.AcknowledgeTimer(selected.Id);
                         break;
                     default:
-                        _app.Local.StartTimer(TimeSpan.FromMinutes(25));
+                        _app.Local.AddTimer(TimeSpan.FromMinutes(25), "Focus");
                         break;
                 }
             });
+        }
+        catch (InvalidOperationException)
+        {
+            // A concurrent add can fill the bound after the action took its snapshot.
+            _expand("Timer");
         }
         finally { _focusBusy = false; Refresh(); }
     }
@@ -358,10 +365,12 @@ public sealed class ActivityDeck : UserControl
         {
             bool timerEnabled = _app.Preferences.EnabledModules.Contains("Timer");
             var timer = _app.Local.Timer;
+            var timers = _app.Local.Timers;
+            int complete = timers.Count(item => item.Phase == TimerPhase.Completed);
             _focusTime.Text = Time(timer.Phase == TimerPhase.Idle ? 25 * 60 : timer.RemainingSeconds);
             _focusTime.FontSize = timer.RemainingSeconds >= 3600 ? 18 : 22;
-            _focusCaption.Text = timer.Phase == TimerPhase.Completed ? "COMPLETE" : "FOCUS";
-            _focusHint.Text = !timerEnabled ? "Timer is off in Settings." : timer.Phase switch
+            _focusCaption.Text = timer.Phase == TimerPhase.Completed ? "COMPLETE" : timer.Phase == TimerPhase.Idle ? "FOCUS" : timer.Name.ToUpperInvariant();
+            _focusHint.Text = !timerEnabled ? "Timers off in Settings." : complete > 0 ? complete + " complete · open timers" : timers.Count > 1 ? timers.Count + " timers · open to choose" : timer.Phase switch
             {
                 TimerPhase.Running => "One thing at a time.",
                 TimerPhase.Paused => "Ready when you are.",
@@ -384,7 +393,7 @@ public sealed class ActivityDeck : UserControl
                 TimerPhase.Completed => "Acknowledge completed timer",
                 _ => "Start a twenty-five minute focus timer"
             });
-            AutomationProperties.SetName(_focusHeader, "Open timer controls, " + timer.Phase + ", " + _focusTime.Text);
+            AutomationProperties.SetName(_focusHeader, "Open timers and stopwatch, " + timer.Name + ", " + timer.Phase + ", " + _focusTime.Text + ", " + complete + " completed timers");
 
             bool musicEnabled = _app.Preferences.EnabledModules.Contains("Music");
             var media = _app.Hardware.Music;
@@ -587,7 +596,9 @@ public sealed class ActivityDeck : UserControl
         foreach (var condition in new[] { (UIElement.IsMouseOverProperty, 0.80), (ButtonBase.IsPressedProperty, 0.60), (UIElement.IsEnabledProperty, 0.42) })
         {
             var trigger = new Trigger { Property = condition.Item1, Value = condition.Item1 == UIElement.IsEnabledProperty ? false : true };
-            trigger.Setters.Add(new Setter(UIElement.OpacityProperty, condition.Item2, "buttonSurface"));
+            object opacity = condition.Item1 == UIElement.IsMouseOverProperty ? new DynamicResourceExtension("ButtonHoverOpacity")
+                : condition.Item1 == ButtonBase.IsPressedProperty ? new DynamicResourceExtension("ButtonPressedOpacity") : condition.Item2;
+            trigger.Setters.Add(new Setter(UIElement.OpacityProperty, opacity, "buttonSurface"));
             template.Triggers.Add(trigger);
         }
         var focus = new Trigger { Property = UIElement.IsKeyboardFocusedProperty, Value = true };

@@ -6,3 +6,8 @@ artifacts/
 *.user
 tests/Crest.PlatformProbe/latest.json
 tests/Crest.PlatformProbe/watch.json
+docs/app-access-native-verification.json
+docs/p1-hidden-idle.json
+docs/p1-native-verification-before-row-layout.json
+docs/p1-native-verification.json
+docs/p1-warm-resident.json

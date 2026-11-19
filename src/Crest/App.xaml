@@ -7,6 +7,12 @@
     <SolidColorBrush x:Key="Line" Color="#6B778F" />
     <SolidColorBrush x:Key="Accent" Color="#A8BDFF" />
     <SolidColorBrush x:Key="AccentFill" Color="#6A8EFF" />
+    <SolidColorBrush x:Key="AccentText" Color="#0E172D" />
+    <Thickness x:Key="ButtonBoundary">0</Thickness>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Key="ButtonHoverOpacity">0.76</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Key="ButtonPressedOpacity">0.55</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Key="CircleHoverOpacity">0.7</sys:Double>
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Key="CirclePressedOpacity">0.5</sys:Double>
     <Style TargetType="Window">
       <Setter Property="FontFamily" Value="Segoe UI" />
       <Setter Property="Foreground" Value="{DynamicResource Text}" />
@@ -15,7 +21,8 @@
     <Style TargetType="Button">
       <Setter Property="Foreground" Value="{DynamicResource Text}" />
       <Setter Property="Background" Value="{DynamicResource Raised}" />
-      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource ButtonBoundary}" />
       <Setter Property="Padding" Value="12,8" />
       <Setter Property="MinHeight" Value="34" />
       <Setter Property="MinWidth" Value="34" />
@@ -38,15 +45,15 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate TargetType="Button">
-            <Border x:Name="bg" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+            <Border x:Name="bg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}">
               <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
             </Border>
             <ControlTemplate.Triggers>
               <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="bg" Property="Opacity" Value="0.76" />
+                <Setter TargetName="bg" Property="Opacity" Value="{DynamicResource ButtonHoverOpacity}" />
               </Trigger>
               <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="bg" Property="Opacity" Value="0.55" />
+                <Setter TargetName="bg" Property="Opacity" Value="{DynamicResource ButtonPressedOpacity}" />
               </Trigger>
               <Trigger Property="IsEnabled" Value="False">
                 <Setter TargetName="bg" Property="Opacity" Value="0.42" />
@@ -58,8 +65,8 @@
     </Style>
     <Style x:Key="CircleButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
       <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
-        <Border x:Name="circle" CornerRadius="50" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-        <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="circle" Property="Opacity" Value="0.7"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="circle" Property="Opacity" Value="0.5"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger></ControlTemplate.Triggers>
+        <Border x:Name="circle" CornerRadius="50" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+        <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="circle" Property="Opacity" Value="{DynamicResource CircleHoverOpacity}"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="circle" Property="Opacity" Value="{DynamicResource CirclePressedOpacity}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.5"/></Trigger></ControlTemplate.Triggers>
       </ControlTemplate></Setter.Value></Setter>
     </Style>
     <Style TargetType="TextBox">

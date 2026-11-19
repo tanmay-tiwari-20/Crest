@@ -131,6 +131,25 @@ internal static class FoundationTests
             }
             Check(reveals == 100);
         });
+        Test("Repeated accessibility reveal keeps one transition and existing open state", () =>
+        {
+            var machine = new InteractionStateMachine();
+            int reveals = 0;
+            machine.RevealRequested += (_, _) => reveals++;
+            machine.RevealAccessibility();
+            Check(reveals == 0 && machine.State == IslandState.Ineligible);
+            machine.SetEligibility(true, true);
+            machine.RevealAccessibility();
+            long version = machine.TransitionVersion;
+            for (int i = 0; i < 100; i++) machine.RevealAccessibility();
+            Check(reveals == 1 && machine.TransitionVersion == version && machine.State == IslandState.Revealing);
+            machine.CompleteReveal(version);
+            machine.RevealAccessibility();
+            Check(reveals == 1 && machine.State == IslandState.Open);
+            machine.Dismiss();
+            machine.RevealAccessibility();
+            Check(reveals == 2 && machine.State == IslandState.Revealing);
+        });
         return passed;
     }
 }

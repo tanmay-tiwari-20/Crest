@@ -9,6 +9,9 @@ try
 {
     passed += FoundationTests.Run();
     passed += ControlEditTests.Run();
+    passed += ProductivityTests.Run();
+    passed += DiagnosticTests.Run();
+    passed += VisibilityTests.Run();
     Test("Live clock changes do not affect running countdown", () =>
     {
         var env = Create("clock");

@@ -4,6 +4,8 @@ Source: Crest Product Requirements v1.1, dated 18 November 2026, supplied as `Cr
 
 The document defines a Windows 11 utility and a staged roadmap. Its central constraint is desktop-only visibility, including the invisible input region. P0 is the behavioral foundation; P1 is the local first release. P2 refinements and P3 integrations are later, individually verified work. The application must never represent future API access as already available.
 
+On 19 November 2026, the owner explicitly requested a Settings option to open Crest while another app is active. **Allow Crest over other apps** is the approved exception to the original desktop-only scope. It is off by default; strict desktop remains the starting policy. Enabled access uses the existing hover/controller and optional keyboard shortcut, with Settings, Pause, lock, suspend, and secure-desktop guards retained. Background events still cannot reveal the island.
+
 ## Decisions used
 
 | Decision | Implemented starting choice |
@@ -11,14 +13,14 @@ The document defines a Windows 11 utility and a staged roadmap. Its central cons
 | Architecture | x64, confirmed on owner's Ryzen 5 5600H laptop |
 | Platform | Windows 11; observed build 10.0.26300 |
 | Renderer | WPF/.NET 10, transparent non-activating island |
-| Desktop policy | Strict mode default; optional desktop-active mode still rejects unrelated foreground apps |
+| Desktop policy | Strict mode default; optional desktop-active mode; owner-requested opt-in access over other apps |
 | Trigger | Top center, 240 × 3 DIP; centered/full-width and geometry settings |
 | Geometry | Owner-reference redesign:260 ×44 DIP compact,820 ×150 DIP activity deck,284 ×40 DIP dock,420 ×316 DIP detail card; automatic fit to display work area |
 | Timing | 120 ms dwell; 240 ms reveal; 190 ms close; 220 ms expansion; 250 ms grace |
 | Theme | Follow Windows by default; original dark/light token palette |
 | Motion | Follow Windows preference; reduced fade; adjustable speed |
 | Sounds/startup/shortcut | Off by default, enabled explicitly in Settings |
-| Data | Versioned local JSON; no analytics or account; shelf memory-only |
+| Data | Versioned local JSON; schema-2 timer set migrates schema-1 timer; saved stopwatch; no analytics/account; shelf memory-only |
 | Optional catalogue | P2/P3 deferred; no implied permissions or fake data |
 
 The owner supplied two images and a 62.2-second recording during implementation. Those references supersede the initial visual geometry: a near-black horizontal deck, focus/music/battery cards, small round controls, and a separate dock. The current focus character is original Crest artwork, authored in `assets/focus-orb.svg` and exported as a transparent PNG; it replaces the earlier reference crop for public distribution. Expansion clips stable content instead of resizing it every frame. Deck, dock, and lower detail card share one HWND and precise rounded hit regions; transparent gaps do not retain input. Presented-frame pacing remains to be measured.
@@ -27,7 +29,7 @@ The owner supplied two images and a 62.2-second recording during implementation.
 
 | PRD scope | Implementation | Verification |
 |---|---|---|
-| VIS01–06: shell identity, strict desktop, any-app suppression, recovery/fresh entry | `Platform/DesktopPolicy.cs`, `Core/InteractionStateMachine.cs` | Native current-app/DPI probe; automated fresh-entry and interruption tests; full desktop matrix pending |
+| VIS01–06: shell identity, default strict desktop/app suppression, recovery/fresh entry; optional owner-approved app access | `Platform/DesktopPolicy.cs`, `Core/InteractionStateMachine.cs`, Settings behavior | Original desktop gates apply with app access off; opt-in mode requires its own reveal/settings/lock checks |
 | VIS07–09: registered focus/popups, immediate hide, no placeholder/hit region | `UI/IslandWindow.cs`, `DesktopPolicy.cs`, `App.xaml.cs` | Native hidden HWND probe; popup and desktop focus integration pending |
 | INT01–06: dwell cancel, corridor/grace, reversal, cancellation, no duplicate reveal | Single `InteractionController` and deterministic state machine | Nine outcome tests, including 100 interrupted cycles |
 | DES01–08: compact/expanded design, themes, stable metadata, capability states | `UI/Design.cs`, `App.xaml`, `IslandWindow.cs` | Dark/light WPF render review and native Settings review |
@@ -36,7 +38,7 @@ The owner supplied two images and a 62.2-second recording during implementation.
 | F02 audio | `Features/CoreAudioAdapter.cs` | Actual endpoint, callbacks, and same-value volume write verified |
 | F03 battery | Native Windows power status | Actual 100%, plugged-in status; no invented time estimate |
 | F04 brightness | Asynchronous WMI provider | Built-in capability and same-value write verified |
-| F05 clock and timer | `Features/LocalHub.cs`, GetTickCount64 and saved UTC state | Clock shift, sleep-equivalent elapsed time, restart, pause, acknowledgement tests |
+| F05 clock and F09 timers/stopwatch | `Features/LocalHub.cs`, `UI/TimerToolsPanel.cs`, GetTickCount64 and saved UTC state | 14 F09 outcomes plus legacy clock/restart tests; eight WPF UI outcomes; dark/light renders at 100/125/150/200% density |
 | F06 launcher | Explicit `LauncherEntry` settings and shell open | Reference/protocol validation tests; native user-launch matrix pending |
 | F07 shelf | Bounded session-only reference list; native WPF OLE drag/drop | Cap/missing/source-preservation tests; real desktop drag acceptance pending |
 | P1 settings/tray/startup | `SettingsWindow`, tray, registry preference, named IPC | Native Settings and graceful quit checks; installer record in test report |
@@ -48,10 +50,16 @@ The owner supplied two images and a 62.2-second recording during implementation.
 
 The visual concurrent-activity overview (part ofF15) was selected explicitly through the owner's reference redesign and is included. Other P2 refinements remain deferred.
 
+F09 multiple timers and stopwatch are the first requested P2 expansion. Eight timers have independent identities, names, selection, pause/resume, cancellation, and retained completions. The stopwatch supports 100 saved laps, monotonic elapsed time, pause/resume, and reset. Schema migration preserves the previous timer. Live clock changes do not affect elapsed time; timers recover against saved UTC deadlines and stopwatch recovery adds nonnegative UTC downtime. Names, collections, and malformed recovery values are bounded. Completion never reveals the island. Focus sessions and reminders are not implemented yet.
+
 P2 F08–F18 covers playback-device switching, multiple productivity tools, opt-in clipboard history, system statistics, connectivity, capture references, workspace presets, concurrent chips, persistent shelf references, per-display appearance, and gestures. The remaining catalogue is not presented as working in this local candidate. Device switching especially needs a supported verified mechanism.
 
 P3 F19–F26 covers notification access, weather, calendars, accessory batteries, named meeting integrations, download progress, AI commands, and supported phone integrations. Each needs an independent specification, actual API compatibility, permissions, bounded retention, offline handling, and disconnect behavior. All are absent/off in this build.
 
 ## Release gate
 
+The current source closes concrete core gaps in repeated accessibility reveal, locked-session state, mandatory native-hook health, shell/input-desktop invalidation, high-contrast colors and live repaint, onboarding copy, and bounded asynchronous diagnostic retention. The build runs domain, WPF UI, and packaging-provenance checks. Packaging validates that binaries match the tested source; `verify-release-gates.ps1 -RequireP1Gates` requires every P1 acceptance row and measured budget to have current, hashed evidence. See `release-gates.json` and the test report.
+
 The PRD's measured budgets and real Windows acceptance are requirements, not facts inferred from a successful compile. This candidate is not certified as passing every P0/P1 release gate until desktop dragging, shell and focus transitions, accessibility, presentation timing, and clean-account install/upgrade/uninstall have been recorded. The test report separates completed evidence from outstanding checks.
+
+Record the access mode for every native run. The original desktop-only visibility gates require `AllowOverApps=false`. A user-requested reveal over another app is expected when the override is enabled; it must not be reported as an unexpected overlay incident. Existing DLL-bound evidence does not qualify the changed optional-access candidate.

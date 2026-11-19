@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,6 +17,8 @@ namespace Crest;
 
 public partial class App : Application
 {
+    private static readonly DiagnosticLog? Diagnostics = Environment.GetCommandLineArgs().Contains("--diagnostics")
+        ? new DiagnosticLog(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Crest")) : null;
     private Mutex? _single; private EventWaitHandle? _settingsSignal, _quitSignal; private Forms.NotifyIcon? _tray; private bool _quitting, _cleaned;
     public AppSettings Preferences { get; private set; } = new();
     public SettingsStore Store { get; private set; } = null!;
@@ -89,6 +92,7 @@ public partial class App : Application
         _quitSignal = new EventWaitHandle(false, EventResetMode.AutoReset, @"Local\Crest.Quit");
         _ = Task.Run(() => { while (!_quitting) { try { int signal = WaitHandle.WaitAny(new WaitHandle[] { _settingsSignal, _quitSignal }, 1000); if (!_quitting && signal == 0) Dispatcher.BeginInvoke(OpenSettings); if (!_quitting && signal == 1) Dispatcher.BeginInvoke(Quit); } catch { break; } } });
         SystemEvents.UserPreferenceChanged += OnThemeChanged;
+        SystemParameters.StaticPropertyChanged += OnSystemPreferenceChanged;
         Policy.Start();
         Controller.Start();
         Hardware.Start();
@@ -133,11 +137,21 @@ public partial class App : Application
         Policy.Recheck();
         _island.Refresh();
     }
-    private void OnThemeChanged(object sender, UserPreferenceChangedEventArgs e) => Dispatcher.BeginInvoke(() => Design.Apply(Preferences));
+    private void OnThemeChanged(object sender, UserPreferenceChangedEventArgs e) => RefreshSystemAppearance();
+    private void OnSystemPreferenceChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(SystemParameters.HighContrast) or nameof(SystemParameters.ClientAreaAnimation))
+            RefreshSystemAppearance();
+    }
+    private void RefreshSystemAppearance()
+    {
+        if (_quitting || Dispatcher.HasShutdownStarted) return;
+        Dispatcher.BeginInvoke(() => { if (_quitting) return; Design.Apply(Preferences); _island.Refresh(); });
+    }
     public void ResetData()
     {
         SetStartup(false);
-        Local.CancelTimer();
+        Local.ResetProductivity();
         foreach (var item in Local.Shelf)
             Local.RemoveShelf(item.Id);
         Store.Clear();
@@ -164,18 +178,7 @@ public partial class App : Application
     }
     public static void WriteDiagnostic(string code)
     {
-        if (!Environment.GetCommandLineArgs().Contains("--diagnostics"))
-            return;
-        try
-        {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Crest");
-            Directory.CreateDirectory(dir);
-            string p = Path.Combine(dir, "diagnostic.log");
-            if (File.Exists(p) && new FileInfo(p).Length > 5 * 1024 * 1024)
-                File.WriteAllText(p, "");
-            File.AppendAllText(p, DateTimeOffset.UtcNow.ToString("O") + " " + code + Environment.NewLine);
-        }
-        catch { }
+        Diagnostics?.Enqueue(code);
     }
     public void Quit()
     {
@@ -194,7 +197,8 @@ public partial class App : Application
         _cleaned = true;
         _quitting = true;
         SystemEvents.UserPreferenceChanged -= OnThemeChanged;
-        foreach (Action release in new Action[] { () => _island?.Suppress(), () => Controller?.Dispose(), () => Policy?.Dispose(), () => Hardware?.Dispose(), () => Local?.Dispose(), () => _tray?.Dispose(), () => _settings?.Close(), () => _island?.Close(), () => _settingsSignal?.Dispose(), () => _quitSignal?.Dispose(), () => _single?.ReleaseMutex(), () => _single?.Dispose() })
+        SystemParameters.StaticPropertyChanged -= OnSystemPreferenceChanged;
+        foreach (Action release in new Action[] { () => _island?.Suppress(), () => Controller?.Dispose(), () => Policy?.Dispose(), () => Hardware?.Dispose(), () => Local?.Dispose(), () => _tray?.Dispose(), () => _settings?.Close(), () => _island?.Close(), () => _settingsSignal?.Dispose(), () => _quitSignal?.Dispose(), () => _single?.ReleaseMutex(), () => _single?.Dispose(), () => Diagnostics?.Dispose() })
         {
             try
             {

@@ -5,9 +5,9 @@
 [![Windows build](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml/badge.svg)](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, a focus timer, system controls, shortcuts, and a temporary file shelf. It stays hidden while an application is active.
+Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, a focus timer, system controls, shortcuts, and a temporary file shelf. It stays hidden while an application is active by default; an optional setting lets you open it over other apps.
 
-**Crest 0.1.0 is a release candidate.** The core implementation and 24 automated outcome tests are complete; the remaining native acceptance checks are listed in the [test report](docs/TEST_REPORT.md).
+**Crest is a release candidate.** The current source includes core reliability fixes and F09 timers/stopwatch. Native P1 acceptance remains open; the [test report](docs/TEST_REPORT.md) distinguishes this working candidate from the published 0.1.0 build.
 
 ## Download and install
 
@@ -31,9 +31,11 @@ Crest starts quietly in the system tray. Open **Crest Settings** from Start, dou
 3. Enter the top-center edge and pause briefly. The default trigger is 240 × 3 device-independent pixels, with a 120 ms hover delay.
 4. Click the chevron to expand the focus, music, and battery cards. Use the icon dock below them to open a detail panel.
 
-A stationary pointer does not reveal Crest after Win+D, unlock, resume, or tray Resume. Move away and enter the trigger again. Opening an app dismisses Crest; media and timer activity never reveal it automatically.
+A stationary pointer does not reveal Crest after Win+D, unlock, resume, or tray Resume. Move away and enter the trigger again. In desktop-only mode, opening an app dismisses Crest. Media and timer activity never reveal it automatically.
 
 The default **strict desktop mode** requires the actual wallpaper desktop to be foreground and ordinary visible apps on the selected display to be minimized. File Explorer, Start, Search, Task View, and foreground apps on another monitor also suppress Crest. The optional desktop-active mode allows visible app windows when the actual desktop is foreground.
+
+To open Crest while using another app, enable **Settings → Behavior → Allow Crest over other apps**. Then enter the top-center trigger on your selected display, or use **Ctrl+Alt+Space** if you also enable the accessibility reveal shortcut. This option is off by default. Settings, tray Pause, lock, suspend, and secure desktop still suppress Crest.
 
 ## Features
 
@@ -41,13 +43,18 @@ The default **strict desktop mode** requires the actual wallpaper desktop to be 
 |---|---|
 | Music | Windows media-session metadata and artwork, supported playback and seek controls, and a preferred-player selector when several sessions are available. |
 | System controls | Default output volume and mute, Windows-reported battery state, and supported built-in display brightness. |
-| Focus timer | One timer with presets or custom minutes, pause/resume, cancellation, completion acknowledgement, and saved state across restarts. |
+| Timers and stopwatch (F09) | Eight independent named timers with presets/custom minutes and retained completion; stopwatch with pause/resume and up to 100 saved laps. State survives restarts. |
 | Launch shortcuts | Explicit app, file, folder, HTTP/HTTPS website, and Windows shortcut entries. The side rail shows the first two; the detail panel shows the full list. |
 | File shelf | Up to 20 session-only references from the wallpaper desktop, with open, drag-out, removal, and missing-source states. Original files are not copied, moved, or deleted by Crest. |
-| Personalization | System/light/dark theme, motion preferences, size, trigger, display, module, startup, and optional keyboard-reveal settings. |
+| Personalization | System/light/dark theme, motion preferences, size, trigger, display, module, startup, optional access over other apps, and keyboard reveal. |
 | Tray controls | Settings, Pause / Resume, and Quit, with a single-instance application and graceful installer upgrades. |
 
 The [user guide](docs/USER_GUIDE.md) explains each module, keyboard access, upgrades, and removal.
+
+<img src="docs/images/timers-dark.png" alt="Crest timer controls in the dark theme" width="320" />
+<img src="docs/images/stopwatch-light.png" alt="Crest stopwatch and lap controls in the light theme" width="320" />
+
+These are static WPF renders using isolated test data, rather than native desktop captures.
 
 ## Privacy and local data
 
@@ -59,9 +66,9 @@ Crest has no analytics, required account, clipboard collection, notification acc
 
 This candidate is distributed for Windows 11 x64. ARM64 and Windows 10 packages are not available. Media actions depend on the player exposing a compatible Windows session; brightness and battery details depend on hardware support and the values Windows supplies.
 
-The current automated suite has 24 passing outcome tests. Full real desktop dragging, shell and app transitions, active/multiple media sessions, keyboard and screen-reader operation, high contrast, physical frame pacing, and clean-account installation still require acceptance. The proposed cold-start budget and high-refresh animation performance have not been established. See the [test report](docs/TEST_REPORT.md) for the evidence and open gates.
+The current candidate passes 46 domain outcomes, eight WPF productivity UI outcomes, and eight release-provenance checks. Full real desktop dragging, shell and app transitions, active/multiple media sessions, keyboard and screen-reader operation, high contrast, physical frame pacing, and clean-account installation still require acceptance. The cold-start and high-refresh budgets have not been established. See the [test report](docs/TEST_REPORT.md) for the evidence and open gates.
 
-The concurrent activity overview selected from the owner's reference is included. Clipboard history, multiple timers, weather, accounts, and AI integrations remain future roadmap work.
+The concurrent activity overview is included. Multiple timers and stopwatch are the first F09 expansion in the current source; focus sessions and reminders remain deferred with clipboard history, weather, accounts, and AI integrations. Existing published assets do not acquire these source changes automatically.
 
 ## Troubleshooting
 
@@ -91,7 +98,7 @@ For a development run, quit any other Crest instance first:
 dotnet run --project src/Crest/Crest.csproj -- --settings
 ```
 
-Crest uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Read the [build instructions](docs/BUILD.md) for packaging details. Contributions should describe the user-visible change and include relevant validation; changes to reveal or suppression behavior must preserve the desktop eligibility rules.
+Crest uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Read the [build instructions](docs/BUILD.md) for packaging details. Contributions should describe the user-visible change and include relevant validation; changes to reveal or suppression behavior must preserve the default desktop eligibility rules and the explicit access-mode setting.
 
 ## Documentation
 

@@ -16,7 +16,7 @@ cd Crest
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-The script restores committed app/test lockfiles in locked mode, compiles with deterministic settings and warnings treated as errors, runs the outcome tests, and publishes `artifacts/portable/Crest`. It does not install or launch Crest. The current suite has 24 outcome tests; see the [test report](TEST_REPORT.md) for their scope.
+The script restores committed app/test/UI-probe lockfiles in locked mode, compiles with deterministic settings and warnings treated as errors, runs domain outcomes, the isolated WPF productivity UI harness, and release-provenance checks, then publishes `artifacts/portable/Crest`. Fingerprints use ordinal input ordering across Windows PowerShell and PowerShell 7. The UI harness briefly opens a test window, uses temporary isolated data, exercises timer/stopwatch controls, and renders both themes at four DPI densities. It does not install or launch the Crest product. See the [test report](TEST_REPORT.md) for scope and release-gate evidence.
 
 For a focused test run or development launch:
 
@@ -41,8 +41,11 @@ This runs the Release build/tests and creates a clean distribution containing th
 | `Crest-Portable-0.1.0-x64.zip` | Complete application in a `Crest` folder |
 | `SHA256SUMS.txt` | SHA-256 hashes of both application packages |
 | `release-notes.md` | Release-description text |
+| `release-gate-report.json` | Candidate-bound acceptance status for review |
 
-`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, and runtime files. `scripts/release.ps1 -SkipBuild -Tag v0.1.0` is for a publish already built/tested from the intended commit; it does not rerun tests. Release assets must come from the tagged source.
+`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, runtime files, and its source/test-bound build record. `scripts/release.ps1 -SkipBuild -Tag v0.1.0` does not rerun tests; it requires the existing publish to match the current verified source and every file hash. Changed source, changed binaries, skipped tests, or Debug output require a fresh Release build.
+
+Default release packaging remains a release-candidate operation while native acceptance is open. Use `scripts/verify-release-gates.ps1` to inspect the candidate-bound report. Add `-RequireP1Gates` to `scripts/release.ps1` when preparing a P1-qualified release; it refuses to package if any applicable gate is incomplete, failed, or stale. The [gate record](release-gates.json) must link hashed observed evidence to the current candidate before a gate can pass. CI compilation cannot certify physical desktop, accessibility, hardware, or presentation behavior.
 
 The portable ZIP uses sorted entries, normalized paths, and fixed timestamps; every entry is checked against the clean distribution. Fixed inputs improve repeatability. Byte-for-byte installer reproducibility across machines is not claimed without comparing actual outputs.
 
@@ -60,7 +63,7 @@ App/test NuGet lockfiles are committed. Deliberately refresh them with:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1 -UpdateLockFiles
-git diff -- src/Crest/packages.lock.json tests/Crest.Tests/packages.lock.json
+git diff -- src/Crest/packages.lock.json tests/Crest.Tests/packages.lock.json tests/Crest.UIProbe/packages.lock.json
 ```
 
 Review dependency changes and notices before committing. Normal CI/release builds use locked restore. SDK/runtime upgrades also require updating `global.json` and reviewed metadata in `scripts/release-common.ps1`, then appropriate Windows acceptance.

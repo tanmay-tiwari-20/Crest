@@ -1,7 +1,8 @@
 param(
     [string]$Tag = '',
     [switch]$SkipBuild,
-    [switch]$UpdateLockFiles
+    [switch]$UpdateLockFiles,
+    [switch]$RequireP1Gates
 )
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 $metadata = Get-CrestBuildMetadata
@@ -10,6 +11,7 @@ if ($SkipBuild -and $UpdateLockFiles) { throw '-UpdateLockFiles requires a build
 if (-not $SkipBuild) {
     & (Join-Path $PSScriptRoot 'build.ps1') -Configuration Release -UpdateLockFiles:$UpdateLockFiles
 }
+$gateReport = & (Join-Path $PSScriptRoot 'verify-release-gates.ps1') -RequireP1Gates:$RequireP1Gates
 $package = & (Join-Path $PSScriptRoot 'package.ps1')
 $releaseDir = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\release')
 $installerPath = Join-Path $releaseDir ([IO.Path]::GetFileName($package.InstallerPath))
@@ -50,5 +52,11 @@ $checksumLines = @(@($installerPath, $zipPath) | Sort-Object { [IO.Path]::GetFil
 $checksumPath = Join-Path $releaseDir 'SHA256SUMS.txt'
 Write-CrestUtf8 $checksumPath (($checksumLines -join "`n") + "`n")
 Copy-Item -LiteralPath (Join-Path $package.DistributionDir 'docs\RELEASE_NOTES.md') -Destination (Join-Path $releaseDir 'release-notes.md') -Force
-Write-Host "Validated Crest $($metadata.Version) release assets: $releaseDir"
-return [pscustomobject]@{ Version = $metadata.Version; Tag = "v$($metadata.Version)"; Installer = $installerPath; PortableZip = $zipPath; Checksums = $checksumPath; Notes = (Join-Path $releaseDir 'release-notes.md'); BuildTestsRun = (-not $SkipBuild) }
+Copy-Item -LiteralPath $gateReport.ReportPath -Destination (Join-Path $releaseDir 'release-gate-report.json') -Force
+if (-not $gateReport.P1GatesPassed) {
+    $notePath = Join-Path $releaseDir 'release-notes.md'
+    $candidateNotice = "**Release candidate: P1 acceptance gates remain open.** Build and outcome tests do not certify desktop, accessibility, hardware, distribution, or measured performance acceptance.`n`n"
+    Write-CrestUtf8 $notePath ($candidateNotice + [IO.File]::ReadAllText($notePath))
+}
+Write-Host "Validated Crest $($metadata.Version) release candidate assets: $releaseDir; P1 gates passed: $($gateReport.P1GatesPassed)"
+return [pscustomobject]@{ Version = $metadata.Version; Tag = "v$($metadata.Version)"; Installer = $installerPath; PortableZip = $zipPath; Checksums = $checksumPath; Notes = (Join-Path $releaseDir 'release-notes.md'); GateReport = (Join-Path $releaseDir 'release-gate-report.json'); P1GatesPassed = $gateReport.P1GatesPassed; BuildTestsRun = (-not $SkipBuild) }

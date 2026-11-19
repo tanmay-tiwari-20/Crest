@@ -29,7 +29,7 @@ public static class Design
         if (primary)
         {
             b.SetResourceReference(Control.BackgroundProperty, "AccentFill");
-            b.Foreground = new SolidColorBrush(Color.FromRgb(14, 23, 45));
+            b.SetResourceReference(Control.ForegroundProperty, "AccentText");
         }
         b.Click += (_, _) => action();
         return b;
@@ -57,6 +57,12 @@ public static class Design
         var keys = new[] { "Surface", "Raised", "Text", "Muted", "Line", "Accent", "AccentFill" };
         for (int i = 0; i < keys.Length; i++)
             Application.Current.Resources[keys[i]] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(colors[i]));
+        Application.Current.Resources["AccentText"] = new SolidColorBrush(Color.FromRgb(14, 23, 45));
+        Application.Current.Resources["ButtonBoundary"] = new Thickness(0);
+        Application.Current.Resources["ButtonHoverOpacity"] = 0.76;
+        Application.Current.Resources["ButtonPressedOpacity"] = 0.55;
+        Application.Current.Resources["CircleHoverOpacity"] = 0.7;
+        Application.Current.Resources["CirclePressedOpacity"] = 0.5;
         var islandKeys = new[] { "IslandShell", "IslandCard", "IslandLine", "IslandText", "IslandMuted", "IslandAccent", "IslandOutline" };
         var islandColors = light ? new[] { "#F3F6FC", "#FFFFFF", "#7B869B", "#172031", "#526075", "#355AC7", "#C8CED8" } : new[] { "#07090C", "#13171D", "#6B778F", "#F5F7FA", "#ADB4C2", "#70E0C0", "#303640" };
         for (int i = 0; i < islandKeys.Length; i++)
@@ -65,13 +71,20 @@ public static class Design
         if (SystemParameters.HighContrast)
         {
             Application.Current.Resources["Surface"] = SystemColors.WindowBrush;
-            Application.Current.Resources["Raised"] = SystemColors.ControlBrush;
+            Application.Current.Resources["Raised"] = SystemColors.WindowBrush;
             Application.Current.Resources["Text"] = SystemColors.WindowTextBrush;
             Application.Current.Resources["Muted"] = SystemColors.WindowTextBrush;
             Application.Current.Resources["Line"] = SystemColors.WindowTextBrush;
             Application.Current.Resources["Accent"] = SystemColors.HighlightBrush;
+            Application.Current.Resources["AccentFill"] = SystemColors.HighlightBrush;
+            Application.Current.Resources["AccentText"] = SystemColors.HighlightTextBrush;
+            Application.Current.Resources["ButtonBoundary"] = new Thickness(1);
+            Application.Current.Resources["ButtonHoverOpacity"] = 1.0;
+            Application.Current.Resources["ButtonPressedOpacity"] = 1.0;
+            Application.Current.Resources["CircleHoverOpacity"] = 1.0;
+            Application.Current.Resources["CirclePressedOpacity"] = 1.0;
             Application.Current.Resources["IslandShell"] = SystemColors.WindowBrush;
-            Application.Current.Resources["IslandCard"] = SystemColors.ControlBrush;
+            Application.Current.Resources["IslandCard"] = SystemColors.WindowBrush;
             Application.Current.Resources["IslandText"] = SystemColors.WindowTextBrush;
             Application.Current.Resources["IslandMuted"] = SystemColors.WindowTextBrush;
             Application.Current.Resources["IslandLine"] = SystemColors.WindowTextBrush;

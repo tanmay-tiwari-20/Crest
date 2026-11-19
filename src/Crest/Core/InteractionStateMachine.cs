@@ -143,6 +143,9 @@ public sealed class InteractionStateMachine
     }
     private void RequestReveal()
     {
+        // A repeated keyboard shortcut should focus existing controls without restarting motion.
+        if (State == IslandState.Open || State == IslandState.Revealing)
+            return;
         _dwellStarted = 0;
         _exitStarted = -1;
         _explicitDismiss = false;

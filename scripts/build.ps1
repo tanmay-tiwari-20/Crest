@@ -15,9 +15,12 @@ $sdkVersion = & $dotnetExe --version
 if ($LASTEXITCODE -ne 0 -or $sdkVersion.Trim() -ne $metadata.Sdk) { throw "Building Crest requires pinned .NET SDK $($metadata.Sdk)." }
 $appProject = Join-Path $script:CrestRoot 'src\Crest\Crest.csproj'
 $testProject = Join-Path $script:CrestRoot 'tests\Crest.Tests\Crest.Tests.csproj'
+$uiProbeProject = Join-Path $script:CrestRoot 'tests\Crest.UIProbe\Crest.UIProbe.csproj'
 $commonProperties = @('-p:Deterministic=true', '-p:ContinuousIntegrationBuild=true', '-p:TreatWarningsAsErrors=true', '-p:DebugType=None', '-p:DebugSymbols=false', "-p:PathMap=$($script:CrestRoot)=/_/crest", '-nr:false', '-maxcpucount:2')
 $restoreMode = if ($UpdateLockFiles) { '--force-evaluate' } else { '--locked-mode' }
-foreach ($project in @($appProject, $testProject)) {
+# Restore the app last: the UI probe references it, and its restore must not
+# replace the final self-contained/ReadyToRun runtime assets.
+foreach ($project in @($testProject, $uiProbeProject, $appProject)) {
     if (-not $UpdateLockFiles -and -not (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $project) 'packages.lock.json'))) {
         throw 'Committed NuGet lockfiles are required. Use -UpdateLockFiles explicitly when reviewing dependency updates.'
     }
@@ -26,6 +29,7 @@ foreach ($project in @($appProject, $testProject)) {
     & $dotnetExe @restoreArguments
     if ($LASTEXITCODE -ne 0) { throw "Locked dependency restore failed: $project" }
 }
+$sourceFingerprint = Get-CrestSourceFingerprint
 & $dotnetExe build $appProject --configuration $Configuration --runtime $metadata.Rid --self-contained true --no-restore --nologo @commonProperties -p:PublishReadyToRun=true
 if ($LASTEXITCODE -ne 0) { throw 'Crest did not compile.' }
 if (-not $SkipTests) {
@@ -33,10 +37,16 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw 'Crest verification did not compile.' }
     & $dotnetExe run --project $testProject --configuration $Configuration --no-build --no-restore --no-launch-profile
     if ($LASTEXITCODE -ne 0) { throw 'Crest verification failed. No package was produced.' }
+    & $dotnetExe build $uiProbeProject --configuration $Configuration --no-restore --nologo @commonProperties
+    if ($LASTEXITCODE -ne 0) { throw 'Crest productivity UI verification did not compile.' }
+    & $dotnetExe run --project $uiProbeProject --configuration $Configuration --no-build --no-restore --no-launch-profile -- (Join-Path $script:CrestRoot 'artifacts\productivity-qa')
+    if ($LASTEXITCODE -ne 0) { throw 'Crest productivity UI verification failed. No package was produced.' }
+    & (Join-Path $PSScriptRoot 'test-release-verification.ps1')
 }
 $portableDir = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\portable\Crest')
 & $dotnetExe publish $appProject --configuration $Configuration --runtime $metadata.Rid --self-contained true --no-build --no-restore --output $portableDir --nologo @commonProperties -p:PublishSingleFile=false -p:PublishReadyToRun=true
 if ($LASTEXITCODE -ne 0) { throw 'Self-contained publication failed.' }
 Assert-CrestDistribution $portableDir $metadata
+Write-CrestBuildVerification $portableDir $metadata $Configuration (-not $SkipTests) $sourceFingerprint
 Write-Host "Validated self-contained Windows x64 application: $portableDir"
 if ($Package) { & (Join-Path $PSScriptRoot 'package.ps1') -SourceDir $portableDir | Out-Host }

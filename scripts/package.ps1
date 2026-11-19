@@ -7,6 +7,7 @@ $documentationTag = "v$($metadata.Version)"
 if ([string]::IsNullOrWhiteSpace($SourceDir)) { $SourceDir = Join-Path $script:CrestRoot 'artifacts\portable\Crest' }
 $SourceDir = [IO.Path]::GetFullPath($SourceDir)
 Assert-CrestDistribution $SourceDir $metadata
+$null = Assert-CrestBuildVerification $SourceDir $metadata
 foreach ($item in Get-ChildItem -LiteralPath $SourceDir -Recurse -Force) {
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Publish input cannot contain reparse points.' }
 }

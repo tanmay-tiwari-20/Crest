@@ -27,6 +27,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.
 
 Inspect `artifacts/release`, included licenses, and documentation. Leave local diagnostic output, SDK/compiler folders, and reference crops out of releases. Keep native acceptance claims accurate. Version 0.1.0 is a **prerelease** until its recorded release gates are complete.
 
+Inspect `artifacts/release/release-gate-report.json` with the packages. Builds/tests and binary provenance are checked automatically; desktop, accessibility, device, clean-account distribution, and measured quality gates require recorded observations. `docs/release-gates.json` contains the complete P0/P1 checklist. Passing evidence must match the candidate DLL and source fingerprint and include hashes of the evidence files.
+
+When preparing a P1-qualified release, run `scripts/release.ps1 -Tag v0.1.0 -RequireP1Gates`. This refuses packaging while any gate remains open, failed, or stale, or any visible-over-app incident is recorded. Default packaging permits a release candidate and prefixes release notes with its open acceptance status.
+
 ## Preferred: tag workflow
 
 After committing and pushing reviewed source:

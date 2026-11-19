@@ -1,6 +1,6 @@
 # Using Crest 0.1.0
 
-Crest opens a top-center island on an eligible Windows desktop. This guide covers the **0.1.0 release candidate** for Windows 11 x64. The [test report](TEST_REPORT.md) records verified behavior and the native acceptance checks still pending.
+Crest opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. This guide covers the **0.1.0 release candidate** for Windows 11 x64. The [test report](TEST_REPORT.md) records verified behavior and the native acceptance checks still pending.
 
 ## Install
 
@@ -54,7 +54,7 @@ Closing Settings keeps Crest running. Starting Crest again reuses its existing i
 4. Enter the top-center edge and pause for about 120 milliseconds.
 5. Click the chevron to open the horizontal activity deck. The focus, music, and battery cards show their current local state together.
 6. Select an icon below the deck to open Music, Controls, Timer, Launch, or Shelf. The overview icon returns to the activity cards; album artwork also opens Music.
-7. Move away to dismiss after the pointer grace period. Opening another app suppresses Crest.
+7. Move away to dismiss after the pointer grace period. In desktop-only mode, opening another app suppresses Crest.
 
 The default centered trigger is **240 × 3 device-independent pixels**, which scale with Windows display scaling. Settings can change the delay, width, depth, and whether the trigger spans the full top edge.
 
@@ -64,15 +64,21 @@ A pointer already at the edge does not reveal Crest after Win+D, unlock, resume,
 
 The default **strict desktop mode** requires the actual wallpaper desktop to be foreground. It also requires ordinary visible app windows intersecting the selected display to be minimized. A foreground app on any monitor suppresses Crest.
 
-File Explorer, Start, Search, Task View, and other shell panels are not eligible wallpaper-desktop states. An active File Explorer window cannot summon Crest for a drag.
+File Explorer, Start, Search, Task View, and other shell panels are not eligible wallpaper-desktop states. In desktop-only mode, an active File Explorer window cannot summon Crest for a drag.
 
 Turning off **Use strict desktop mode** in Behavior selects desktop-active mode. This permits visible app windows when the actual wallpaper desktop is foreground, such as after clicking an empty desktop area. Foreground apps and shell panels still suppress Crest.
 
-If Crest cannot establish desktop, display/DPI, or virtual-desktop eligibility, it stays hidden. Check the selected display if a monitor is connected, disconnected, or rearranged.
+In desktop-only mode, if Crest cannot establish desktop, display/DPI, or virtual-desktop eligibility, it stays hidden. Check the selected display if a monitor is connected, disconnected, or rearranged.
+
+### Open Crest over other apps
+
+Enable **Settings → Behavior → Allow Crest over other apps** to reveal Crest while using an app such as a browser or File Explorer. Close Settings, move away from the top edge, then enter the top-center trigger on your selected display. The usual dwell and pointer grace still apply.
+
+This option is off by default and overrides strict/desktop-active eligibility while enabled, including when Windows panels are active on the normal desktop. Your strict-mode preference is kept for when you turn the option off. Changing access mode hides Crest and waits for a fresh trigger entry. Settings and tray Pause still hide Crest; lock, suspend, and secure desktop also disable reveal. Background music and timer events never open it automatically.
 
 ### Keyboard access
 
-Enable **Settings → Behavior → Enable the accessibility reveal shortcut** to use **Ctrl+Alt+Space**. This is off by default and checks the same desktop eligibility as hover. It focuses the compact controls so keyboard navigation can begin.
+Enable **Settings → Behavior → Enable the accessibility reveal shortcut** to use **Ctrl+Alt+Space**. This is off by default and checks the same access mode as hover: eligible desktop by default, or another app when **Allow Crest over other apps** is enabled. It focuses the compact controls so keyboard navigation can begin.
 
 **Tab** and **Shift+Tab** move between controls, **Enter** or **Space** activate buttons, and **Escape** dismisses the island. Text input focuses Crest when needed. Appearance provides a reduced-motion option and a follow-system motion preference. Full keyboard, screen-reader, high-contrast, and reduced-motion acceptance is still listed in the [test report](TEST_REPORT.md).
 
@@ -92,15 +98,19 @@ Battery percentage, charging/power state, and remaining-time estimates come from
 
 Built-in brightness uses a supported Windows/WMI capability. An external monitor or unsupported laptop interface may not expose this control. Missing hardware controls do not prevent the timer, shortcuts, or other supported modules from working.
 
-## Focus and timer
+## Timers and stopwatch (F09)
 
-The focus card starts the **25-minute** preset. Its action changes to Pause, Resume, or completion acknowledgement as appropriate. Select its time to open the full Timer panel.
+The focus card starts a **25-minute** timer when none exists. It then controls the selected timer with Pause, Resume, or Done. Select the card's time to open **Timers and stopwatch**. These F09 tools are included in the current source candidate; earlier published builds have one timer.
 
-The Timer panel offers **5, 15, and 25 minute** presets or a custom duration in minutes. Custom input accepts a duration from one second up to 1,440 minutes. Choose a preset, or enter a duration and select **Start**.
+The Timers tab offers **5, 15, and 25 minute** presets. Each adds a new timer. For a custom timer, enter an optional name and a duration in minutes, then select **Add**. The range is one second to seven days (10,080 minutes); fractional minutes are accepted using your Windows number format.
 
-Crest keeps one timer. Starting another duration replaces the current timer. You can pause, resume, cancel, or acknowledge completion with **Done**. A completed timer remains available until acknowledged or replaced.
+Crest keeps up to **eight independent timers**. Select a timer name to make it the focus card's timer. Each row has its own Pause/Resume, Done, and cancel controls. Completion remains until you acknowledge or cancel that timer. If all eight slots are occupied, remove one to add another. Scroll to reach additional rows.
 
 The countdown continues while Crest is hidden and includes time spent asleep. System-clock changes do not alter a live countdown. After an application restart, a running timer recovers using its saved UTC deadline; a paused timer retains its remaining duration. Timer sound is off by default and can be enabled in **Settings → Modules**. Completion never reveals the island automatically.
+
+The **Stopwatch** tab provides Start, Pause/Resume, Lap, and Reset. Running elapsed time includes time hidden and asleep; paused time is excluded. Laps show the split and total, newest first. Up to **100 laps** are retained; recording stops at the cap until Reset clears them. Elapsed time and laps survive restarts. Restart recovery adds nonnegative UTC downtime, while live operation uses monotonic time. Reset clears the stopwatch and its saved laps. Hiding the Timers module hides these controls without stopping active tools.
+
+Focus sessions and local reminders are later F09 work. Productivity events never reveal Crest automatically, including when access over other apps is enabled.
 
 ## Launch shortcuts
 
@@ -121,7 +131,7 @@ The shelf holds up to **20 references for the current Crest session**.
 
 Crest does not silently copy, move, or delete source files. The destination handles a file dragged out through Windows. Removing a shelf reference does not delete its original. A moved or deleted source is marked missing.
 
-Quitting Crest clears the shelf. It is not saved across restarts. A drag from an active File Explorer window cannot reveal Crest; real desktop drag and drag-out behavior remains a native acceptance gate for this candidate.
+Quitting Crest clears the shelf. It is not saved across restarts. In desktop-only mode, a drag from an active File Explorer window cannot reveal Crest; real desktop drag and drag-out behavior remains a native acceptance gate for this candidate.
 
 ## Settings
 
@@ -129,14 +139,14 @@ Quitting Crest clears the shelf. It is not saved across restarts. A drag from an
 |---|---|
 | Overview | Application overview and getting-started information. |
 | Appearance | System/light/dark theme, motion preference, island size, and motion speed. |
-| Behavior | Strict desktop mode, selected display, trigger coverage and dimensions, hover delay, pointer grace, startup, and keyboard reveal. |
+| Behavior | Strict desktop mode, optional access over other apps, selected display, trigger coverage and dimensions, hover delay, pointer grace, startup, and keyboard reveal. |
 | Modules | Choose visible modules and opt into timer-completion sound. |
 | Shortcuts | Add and remove explicit launch entries. |
 | About | Local-data information, reset, tray instructions, and release-verification information. |
 
 ## Data, upgrades, and removal
 
-Preferences, shortcuts, and saved timer state are stored in `%LOCALAPPDATA%\Crest`. The shelf is held only in memory. Crest has no analytics, account access, clipboard collection, notification access, or online account integrations. Core features do not require internet; a website or launched application may require its own connection.
+Preferences, shortcuts, and saved timer and stopwatch state are stored in `%LOCALAPPDATA%\Crest`. The shelf is held only in memory. Crest has no analytics, account access, clipboard collection, notification access, or online account integrations. Core features do not require internet; a website or launched application may require its own connection.
 
 ### Reset local data
 

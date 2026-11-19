@@ -84,6 +84,7 @@ public static class Program
             {
                 using var document=JsonDocument.Parse(File.ReadAllText(file));var root=document.RootElement;
                 if(root.TryGetProperty("StrictDesktop",out var strict))settings.StrictDesktop=strict.GetBoolean();
+                if(root.TryGetProperty("AllowOverApps",out var overApps))settings.AllowOverApps=overApps.GetBoolean();
                 if(root.TryGetProperty("SelectedDisplay",out var display))settings.SelectedDisplay=display.GetString()??"";
                 if(root.TryGetProperty("TriggerWidth",out var width))settings.TriggerWidth=width.GetInt32();
                 if(root.TryGetProperty("TriggerDepth",out var depth))settings.TriggerDepth=depth.GetInt32();
@@ -93,7 +94,33 @@ public static class Program
             }
         }
         catch {settingsRead="settings-unreadable-safe-defaults";}
+        // Diagnostic overrides are in-memory only; never write the user's selected mode.
+        if(args.Contains("--allow-over-apps"))settings.AllowOverApps=true;
+        if(args.Contains("--desktop-only"))settings.AllowOverApps=false;
         using var policy=new DesktopPolicy(()=>settings);policy.Start();
+        if(args.Contains("--compare-access"))
+        {
+            var scene = GetForegroundWindow();
+            GetWindowThreadProcessId(scene, out uint foregroundOwner);
+            var accessResults = new List<object>();
+            foreach(bool allow in new[] { false, true, false })
+            {
+                settings.AllowOverApps=allow;
+                policy.Recheck();
+                accessResults.Add(new { AllowOverApps=allow, Eligible=policy.IsEligible });
+            }
+            bool stableScene=scene==GetForegroundWindow();
+            Console.WriteLine(JsonSerializer.Serialize(new {
+                TimestampUtc=DateTimeOffset.UtcNow,
+                AppDllSHA256=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(DesktopPolicy).Assembly.Location))),
+                ForegroundClass=ClassName(scene), ForegroundOwner=foregroundOwner,
+                StableForeground=stableScene, InputDesktop=InputDesktopName(), policy.DpiScale,
+                NativeHookCount=(Field(policy,"_hooks") as System.Collections.ICollection)?.Count,
+                Results=accessResults,
+                Limitations="Read-only comparison of a separate native policy with in-memory preferences. The user's preferences and foreground windows are untouched. Pointer/hotkey input and fullscreen presentation are separate acceptance checks."
+            },new JsonSerializerOptions{WriteIndented=true}));
+            return;
+        }
         if (args.Contains("--watch")) { Watch(policy, settings, appPid, 20); return; }
         bool currentEligible=policy.IsEligible;
         var desktopRoots=Field(policy,"_desktopRoots") as HashSet<IntPtr>??new();
@@ -120,13 +147,13 @@ public static class Program
         },IntPtr.Zero);
         var foregroundInfo=Describe(foregroundRoot,appPid,shellPid,desktopRoots,virtualDesktop,policy.DisplayBounds);
         string inputDesktop=InputDesktopName();
-        string reason=foreground==IntPtr.Zero?"foreground-unavailable":inputDesktop!="Default"?"input-desktop-not-default":policy.DisplayBounds.Width<=0?"display-or-DPI-unavailable":desktopRoots.Count==0?"verified-desktop-shell-not-found":!desktopRoots.Contains(foregroundRoot)?"foreground-is-not-actual-desktop":settings.StrictDesktop&&windows.Any(window=>window.WouldBlockStrict)?"strict-visible-window-coverage":virtualDesktop==null&&settings.StrictDesktop?"virtual-desktop-manager-unavailable":currentEligible?"eligible":"other-fail-closed-condition";
+        string reason=currentEligible&&settings.AllowOverApps?"eligible-app-access":foreground==IntPtr.Zero?"foreground-unavailable":inputDesktop!="Default"?"input-desktop-not-default":policy.DisplayBounds.Width<=0?"display-or-DPI-unavailable":desktopRoots.Count==0?"verified-desktop-shell-not-found":!desktopRoots.Contains(foregroundRoot)?"foreground-is-not-actual-desktop":settings.StrictDesktop&&windows.Any(window=>window.WouldBlockStrict)?"strict-visible-window-coverage":virtualDesktop==null&&settings.StrictDesktop?"virtual-desktop-manager-unavailable":currentEligible?"eligible":"other-fail-closed-condition";
         GetCursorPos(out var pointer);
         int triggerWidth=settings.FullWidthTrigger?policy.DisplayBounds.Width:Math.Min(policy.DisplayBounds.Width,(int)Math.Round(Math.Clamp(settings.TriggerWidth,100,1000)*policy.DpiScale));
         var trigger=new Rectangle(policy.DisplayBounds.Left+(policy.DisplayBounds.Width-triggerWidth)/2,policy.DisplayBounds.Top,triggerWidth,Math.Max(1,(int)Math.Round(Math.Clamp(settings.TriggerDepth,1,12)*policy.DpiScale)));
         var recheckTimes=new List<double>();for(int i=0;i<100;i++){var clock=Stopwatch.StartNew();policy.Recheck();clock.Stop();recheckTimes.Add(clock.Elapsed.TotalMilliseconds);}recheckTimes.Sort();
         Console.WriteLine(JsonSerializer.Serialize(new {
-            TimestampUtc=DateTimeOffset.UtcNow,SelectedCrestProcessId=appPid,SettingsRead=settingsRead,settings.StrictDesktop,settings.SelectedDisplay,settings.DwellMs,
+            TimestampUtc=DateTimeOffset.UtcNow,SelectedCrestProcessId=appPid,SettingsRead=settingsRead,settings.AllowOverApps,settings.StrictDesktop,settings.SelectedDisplay,settings.DwellMs,
             CurrentForegroundEligible=currentEligible,DiagnosticReason=reason,InputDesktop=inputDesktop,ForegroundHandle=Handle(foreground),ForegroundRoot=foregroundInfo,
             ShellHandle=Handle(GetShellWindow()),ShellPid=shellPid,VerifiedDesktopRoots=desktopRoots.Select(Handle),DesktopCandidates=candidates,VirtualDesktopManagerAvailable=virtualDesktop!=null,
             NativeHookCount=(Field(policy,"_hooks") as System.Collections.ICollection)?.Count,
@@ -160,7 +187,7 @@ public static class Program
                 return true;
             },IntPtr.Zero);
             string inputDesktop = InputDesktopName();
-            string reason = foreground == IntPtr.Zero ? "foreground-unavailable" : inputDesktop != "Default" ? "input-desktop-not-default" : policy.DisplayBounds.Width <= 0 ? "display-or-DPI-unavailable" : roots.Count == 0 ? "verified-desktop-shell-not-found" : !roots.Contains(root) ? "foreground-is-not-actual-desktop" : settings.StrictDesktop && blockers.Count > 0 ? "strict-visible-window-coverage" : vd == null && settings.StrictDesktop ? "virtual-desktop-manager-unavailable" : policy.IsEligible ? "eligible" : "other-fail-closed-condition";
+            string reason = policy.IsEligible && settings.AllowOverApps ? "eligible-app-access" : foreground == IntPtr.Zero ? "foreground-unavailable" : inputDesktop != "Default" ? "input-desktop-not-default" : policy.DisplayBounds.Width <= 0 ? "display-or-DPI-unavailable" : roots.Count == 0 ? "verified-desktop-shell-not-found" : !roots.Contains(root) ? "foreground-is-not-actual-desktop" : settings.StrictDesktop && blockers.Count > 0 ? "strict-visible-window-coverage" : vd == null && settings.StrictDesktop ? "virtual-desktop-manager-unavailable" : policy.IsEligible ? "eligible" : "other-fail-closed-condition";
             GetCursorPos(out var pointer);
             int width = settings.FullWidthTrigger ? policy.DisplayBounds.Width : Math.Min(policy.DisplayBounds.Width,(int)Math.Round(Math.Clamp(settings.TriggerWidth,100,1000)*policy.DpiScale));
             var trigger = new Rectangle(policy.DisplayBounds.Left+(policy.DisplayBounds.Width-width)/2,policy.DisplayBounds.Top,width,Math.Max(1,(int)Math.Round(Math.Clamp(settings.TriggerDepth,1,12)*policy.DpiScale)));
@@ -183,6 +210,7 @@ public static class Program
             StartedUtc = DateTimeOffset.UtcNow.AddMilliseconds(-clock.Elapsed.TotalMilliseconds),
             DurationSeconds = Math.Round(clock.Elapsed.TotalSeconds,3),
             settings.StrictDesktop,
+            settings.AllowOverApps,
             policy.DpiScale,
             Samples = samples,
             Limitations = "Passive20-second native observations. No screenshots, input actions, window activation/minimization or product policy changes. This reads a separate diagnostic policy; it does not read the running product's controller fields."
