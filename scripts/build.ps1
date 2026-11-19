@@ -16,11 +16,12 @@ if ($LASTEXITCODE -ne 0 -or $sdkVersion.Trim() -ne $metadata.Sdk) { throw "Build
 $appProject = Join-Path $script:CrestRoot 'src\Crest\Crest.csproj'
 $testProject = Join-Path $script:CrestRoot 'tests\Crest.Tests\Crest.Tests.csproj'
 $uiProbeProject = Join-Path $script:CrestRoot 'tests\Crest.UIProbe\Crest.UIProbe.csproj'
+$platformProbeProject = Join-Path $script:CrestRoot 'tests\Crest.PlatformProbe\Crest.PlatformProbe.csproj'
 $commonProperties = @('-p:Deterministic=true', '-p:ContinuousIntegrationBuild=true', '-p:TreatWarningsAsErrors=true', '-p:DebugType=None', '-p:DebugSymbols=false', "-p:PathMap=$($script:CrestRoot)=/_/crest", '-nr:false', '-maxcpucount:2')
 $restoreMode = if ($UpdateLockFiles) { '--force-evaluate' } else { '--locked-mode' }
 # Restore the app last: the UI probe references it, and its restore must not
 # replace the final self-contained/ReadyToRun runtime assets.
-foreach ($project in @($testProject, $uiProbeProject, $appProject)) {
+foreach ($project in @($testProject, $uiProbeProject, $platformProbeProject, $appProject)) {
     if (-not $UpdateLockFiles -and -not (Test-Path -LiteralPath (Join-Path (Split-Path -Parent $project) 'packages.lock.json'))) {
         throw 'Committed NuGet lockfiles are required. Use -UpdateLockFiles explicitly when reviewing dependency updates.'
     }
@@ -43,10 +44,9 @@ if (-not $SkipTests) {
     if ($LASTEXITCODE -ne 0) { throw 'Crest productivity UI verification failed. No package was produced.' }
     & (Join-Path $PSScriptRoot 'test-release-verification.ps1')
     & (Join-Path $PSScriptRoot 'test-gate-verification.ps1')
-    $platformProbe = Join-Path $script:CrestRoot 'tests\Crest.PlatformProbe\Crest.PlatformProbe.csproj'
-    & $dotnetExe build $platformProbe --configuration $Configuration --no-restore --nologo @commonProperties -p:BuildProjectReferences=false
+    & $dotnetExe build $platformProbeProject --configuration $Configuration --no-restore --nologo @commonProperties -p:BuildProjectReferences=false
     if ($LASTEXITCODE -ne 0) { throw 'Native diagnostic verification did not compile.' }
-    & $dotnetExe run --project $platformProbe --configuration $Configuration --no-build --no-restore --no-launch-profile -- --geometry-self-test
+    & $dotnetExe run --project $platformProbeProject --configuration $Configuration --no-build --no-restore --no-launch-profile -- --geometry-self-test
     if ($LASTEXITCODE -ne 0) { throw 'Native diagnostic geometry verification failed.' }
     & (Join-Path $PSScriptRoot 'Measure-HiddenIdle.ps1') -ObserverSelfTest
 }
