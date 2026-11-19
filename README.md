@@ -5,18 +5,18 @@
 [![Windows build](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml/badge.svg)](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, a focus timer, system controls, shortcuts, and a temporary file shelf. It stays hidden while an application is active by default; an optional setting lets you open it over other apps.
+Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, productivity tools, system controls, shortcuts, and a file shelf. It stays hidden while an application is active by default; an optional setting lets you open it over other apps.
 
-**Crest is a release candidate.** The current source includes core reliability fixes and F09 timers/stopwatch. Native P1 acceptance remains open; the [test report](docs/TEST_REPORT.md) distinguishes this working candidate from the published 0.1.0 build.
+**Crest 0.2.0 is a prerelease candidate.** It adds audio-output selection, focus sessions and reminders, opt-in clipboard history, system activity and connectivity, capture references, workspaces, pinned shelf references, and more personalization. Native release acceptance remains open; the [test report](docs/TEST_REPORT.md) separates automated verification from the remaining Windows checks.
 
 ## Download and install
 
-Download a packaged application from [GitHub Releases](https://github.com/tanmay-tiwari-20/Crest/releases). Open the release's **Assets** list and choose one of these:
+Download a packaged application from the [0.2.0 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.0). Open **Assets** and choose one of these:
 
 | Package | Use it when | Installation |
 |---|---|---|
-| `Crest-Setup-0.1.0-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
-| `Crest-Portable-0.1.0-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
+| `Crest-Setup-0.2.0-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
+| `Crest-Portable-0.2.0-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
 
 Both packages target **Windows 11 x64** and include the .NET runtime. You do not need an SDK, a separate runtime installation, administrator access, or a Crest account. The source-code archives on a GitHub release are for building the application; download an application package to run it.
 
@@ -42,14 +42,22 @@ To open Crest while using another app, enable **Settings → Behavior → Allow 
 | Feature | Included behavior |
 |---|---|
 | Music | Windows media-session metadata and artwork, supported playback and seek controls, and a preferred-player selector when several sessions are available. |
-| System controls | Default output volume and mute, Windows-reported battery state, and supported built-in display brightness. |
-| Timers and stopwatch (F09) | Eight independent named timers with presets/custom minutes and retained completion; stopwatch with pause/resume and up to 100 saved laps. State survives restarts. |
+| System controls (F08/F11/F12) | Connected audio-output selection with verified switching or Windows sound settings fallback; volume/mute, Windows battery warnings, supported brightness, real CPU/memory/network activity, and Wi-Fi/Bluetooth status/settings links. |
+| Clock | Local date and time in the detail footer, using Windows formatting preferences. |
+| Productivity (F09) | Eight independent named timers, stopwatch with 100 saved laps, work/break focus sessions, and 32 local reminders with 5/15-minute snooze and dismissal. State survives restarts; completed focus phases wait for you to continue. |
+| Clipboard history (F10) | Off by default. Explicit opt-in captures new text copies locally; search, copy, pin, pause/resume, remove, clear, and 1–30-day retention. |
+| Capture references (F13) | Launch the Windows screenshot tool and retain up to 12 recent image references that you explicitly select. |
+| Workspaces (F14) | Save up to 20 presets of up to 20 app, file, folder, and HTTP/HTTPS website targets, then launch a group together. |
 | Launch shortcuts | Explicit app, file, folder, HTTP/HTTPS website, and Windows shortcut entries. The side rail shows the first two; the detail panel shows the full list. |
-| File shelf | Up to 20 session-only references from the wallpaper desktop, with open, drag-out, removal, and missing-source states. Original files are not copied, moved, or deleted by Crest. |
-| Personalization | System/light/dark theme, motion preferences, size, trigger, display, module, startup, optional access over other apps, and keyboard reveal. |
-| Tray controls | Settings, Pause / Resume, and Quit, with a single-instance application and graceful installer upgrades. |
+| File shelf (F16) | Up to 20 references, with open, drag-out, pinning across restarts, removal, and missing-source recovery by locating a replacement or opening the nearest existing folder. Original files are not copied, moved, or deleted by Crest. |
+| Personalization (F17/F18) | System/light/dark/Ocean/Forest/Rose themes, size presets, module ordering, configurable surface gestures, separate appearance/trigger preferences per display, motion, startup, optional access over other apps, and keyboard reveal. |
+| Tray controls | Settings, Timers/focus/reminders, Pause / Resume, and Quit, with local due notices and a single-instance application. |
 
 The [user guide](docs/USER_GUIDE.md) explains each module, keyboard access, upgrades, and removal.
+
+The compact island respects enabled modules. Its status, accessible name, and action follow the displayed battery warning, timer, focus session, due reminder, or music session. Due reminder and completed focus actions open their relevant controls. The tray's **Timers, focus and reminders** opens **Settings → Activities**; live due events can notify through the Windows tray without revealing the island. Settings keeps keyboard focus and tab order when switching pages.
+
+Timer-completion sound is off by default. Enable **Settings → Modules → Play a sound for timer completion** to hear Crest's original bundled **3.54-second chime**, including while the island is hidden. **Test timer sound** previews the chime regardless of that preference and leaves it unchanged. Completion never opens the island automatically.
 
 <img src="docs/images/timers-dark.png" alt="Crest timer controls in the dark theme" width="320" />
 <img src="docs/images/stopwatch-light.png" alt="Crest stopwatch and lap controls in the light theme" width="320" />
@@ -58,7 +66,9 @@ These are static WPF renders using isolated test data, rather than native deskto
 
 ## Privacy and local data
 
-Crest has no analytics, required account, clipboard collection, notification access, or online account integrations. Preferences, explicit shortcuts, and timer state live in `%LOCALAPPDATA%\Crest`; the file shelf exists only in memory and clears when Crest quits. Website shortcuts open through Windows when you select them.
+Crest has no analytics, required account, notification access, or online account integrations. Preferences, shortcuts, workspaces, activities, pinned shelf paths, selected capture paths, and explicitly enabled clipboard history live in `%LOCALAPPDATA%\Crest`. Unpinned shelf references clear when Crest quits. Website targets open through Windows when you select them.
+
+Text capture is **off by default**. Enable it in **Settings → Privacy** to collect new clipboard changes while Crest runs. History is limited to 100 entries, 8,192 characters per entry, and 120,000 stored characters. Unpinned entries expire after the configured retention period; pinned text remains until removed or cleared. Pause keeps existing history and retention active. Clear removes pins too; disabling capture clears retained text. Enabling or resuming capture does not import the existing clipboard contents.
 
 **Settings → About → Reset Crest data** asks before clearing Crest's data and disabling startup. Your original files are untouched. Installed uninstall offers a choice to retain or delete local settings.
 
@@ -66,9 +76,11 @@ Crest has no analytics, required account, clipboard collection, notification acc
 
 This candidate is distributed for Windows 11 x64. ARM64 and Windows 10 packages are not available. Media actions depend on the player exposing a compatible Windows session; brightness and battery details depend on hardware support and the values Windows supplies.
 
-The current candidate passes 46 domain outcomes, eight WPF productivity UI outcomes, and eight release-provenance checks. Full real desktop dragging, shell and app transitions, active/multiple media sessions, keyboard and screen-reader operation, high contrast, physical frame pacing, and clean-account installation still require acceptance. The cold-start and high-refresh budgets have not been established. See the [test report](docs/TEST_REPORT.md) for the evidence and open gates.
+Local verification passes **97 domain outcomes, 107 WPF/native UI outcomes, eight release-provenance checks, and three observer-lifecycle checks**. An existing-account P2 upgrade matched all 492 distribution files and preserved saved data and the Windows startup preference. Clean-account installation, broader shell/app transitions, active/multiple media sessions, physical display/accessibility operation, and measured performance still require acceptance. See the [test report](docs/TEST_REPORT.md) and [acceptance runbook](docs/P1_ACCEPTANCE_RUNBOOK.md).
 
-The concurrent activity overview is included. Multiple timers and stopwatch are the first F09 expansion in the current source; focus sessions and reminders remain deferred with clipboard history, weather, accounts, and AI integrations. Existing published assets do not acquire these source changes automatically.
+Earlier hearing, desktop/shelf and resource observations remain historical for their recorded binaries. The preceding core candidate qualified 12 of 31 gates; those results do not qualify this changed release. Cold startup, frame delivery, hidden resource use, battery impact and remaining physical acceptance must be measured on the exact candidate.
+
+The concurrent activity overview and requested P2 local functionality are included in 0.2.0. Audio switching probes Windows PolicyConfig at runtime and reads back the selected default; this undocumented interface may be unavailable on a Windows build, so **Windows sound settings** is always offered. System statistics sample only while Crest is visible. Weather, calendars, account access, AI commands and other P3 integrations remain deferred.
 
 ## Troubleshooting
 
@@ -87,7 +99,7 @@ Maintainers need Windows, Git, and **.NET SDK 10.0.404**, pinned by [global.json
 ```powershell
 git clone https://github.com/tanmay-tiwari-20/Crest.git
 cd Crest
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.1.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.2.0
 ```
 
 The release script restores locked dependencies, builds, runs outcome tests, publishes a self-contained x64 app, and uses the verified Inno Setup compiler to create an installer and portable ZIP. It uses `.tools/dotnet` when available, otherwise the pinned system SDK. Upload-ready files and checksums go under `artifacts/release/`. Use `scripts/build.ps1` for a build without packaging.
@@ -106,6 +118,7 @@ Crest uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Read the [b
 - [PRD analysis and implementation scope](docs/PRD_ANALYSIS.md)
 - [Reference design observations](docs/REFERENCE_DESIGN.md)
 - [Compatibility and test report](docs/TEST_REPORT.md)
+- [P0/P1 native acceptance runbook](docs/P1_ACCEPTANCE_RUNBOOK.md)
 - [Release notes](docs/RELEASE_NOTES.md)
 - [Build and packaging instructions](docs/BUILD.md)
 - [Release publishing steps](docs/RELEASING.md)
@@ -115,4 +128,4 @@ Crest uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Read the [b
 
 ## License
 
-Original project code, documentation, icon, and current focus artwork use the [MIT license](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). Editable character artwork is in `assets/focus-orb.svg`; the earlier reference crop was replaced for public distribution.
+Original project code, documentation, icon, current focus artwork, and synthesized timer chime use the [MIT license](LICENSE). Dependencies retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). Editable character artwork is in `assets/focus-orb.svg`; the earlier reference crop was replaced for public distribution.

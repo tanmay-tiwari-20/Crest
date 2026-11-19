@@ -128,7 +128,7 @@ public sealed class InteractionController : IDisposable
     {
         var bounds = _policy.DisplayBounds;
         var settings = _settings();
-        int width = settings.FullWidthTrigger ? bounds.Width : (int)Math.Round(Math.Clamp(settings.TriggerWidth, 100, 1000) * _policy.DpiScale);
+        int width = settings.FullWidthTrigger ? bounds.Width : (int)Math.Round(Math.Clamp(settings.TriggerWidth, 80, 800) * _policy.DpiScale);
         width = Math.Min(width, bounds.Width);
         int depth = Math.Max(1, (int)Math.Round(Math.Clamp(settings.TriggerDepth, 1, 12) * _policy.DpiScale));
         return new Rectangle(bounds.Left + (bounds.Width - width) / 2, bounds.Top, width, depth);

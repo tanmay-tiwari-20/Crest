@@ -1,10 +1,12 @@
 # Third-party notices and artwork
 
-## Crest code and current artwork
+## Crest code and original assets
 
-Original Crest source code and documentation are available under the [MIT license](LICENSE), copyright 2026 Tanmay Tiwari. The Crest icon and the current focus character are original project artwork and use the same license.
+Original Crest source code and documentation are available under the [MIT license](LICENSE), copyright 2026 Tanmay Tiwari. The Crest icon, current focus character, and synthesized timer chime are original project assets and use the same license.
 
 `assets/focus-orb.svg` is the editable source for the original blue focus character; `assets/focus-orb.png` is its transparent raster export. The character uses original vector geometry, gradients, and eye/face details. It contains no crop from the earlier visual references.
+
+`assets/timer-complete.wav` is Crest's original 3.54-second timer chime: mono 16-bit PCM at 44.1 kHz, synthesized from mathematical oscillators with fades and silence. It contains no third-party recordings, music, or sampled audio. The bundled recording uses the project's MIT license.
 
 The initial prototype used a character cropped from a user-provided reference image. That crop was replaced for public distribution. Earlier Git history and historical test reports may refer to that prototype; the project does not claim ownership of third-party reference material or extend its MIT grant to such material.
 

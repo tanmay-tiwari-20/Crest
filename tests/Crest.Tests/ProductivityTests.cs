@@ -47,6 +47,81 @@ internal static class ProductivityTests
                 hub.AcknowledgeTimer(ids[0]);
                 Check(hub.Timers.Count == 1 && hub.Timer.Id == ids[1] && hub.Timer.Phase == TimerPhase.Completed);
             });
+            Test("Reset, acknowledgement, cancellation, or disposal during notification suppresses stale completion", () =>
+            {
+                foreach (string action in new[] { "reset", "acknowledge", "cancel", "dispose" })
+                {
+                    var env = Create("completion-invalidated-" + action); using var hub = env.Hub;
+                    string id = hub.AddTimer(TimeSpan.FromSeconds(1));
+                    int typed = 0, compatibility = 0;
+                    bool invalidated = false;
+                    hub.TimerCompleted += (_, _) => typed++;
+                    hub.Completion += (_, _) => compatibility++;
+                    hub.Changed += (_, _) =>
+                    {
+                        if (invalidated || !hub.Timers.Any(timer => timer.Phase == TimerPhase.Completed)) return;
+                        invalidated = true;
+                        switch (action)
+                        {
+                            case "reset": hub.ResetProductivity(); break;
+                            case "acknowledge": hub.AcknowledgeTimer(id); break;
+                            case "cancel": hub.CancelTimer(id); break;
+                            case "dispose": hub.Dispose(); break;
+                        }
+                    };
+                    env.Clock.Advance(TimeSpan.FromSeconds(2));
+                    hub.Tick(); hub.Tick(); hub.PauseTimer(id);
+                    Check(invalidated && typed == 0 && compatibility == 0);
+                }
+                var acknowledged = Create("completion-typed-acknowledgement"); using var typedHub = acknowledged.Hub;
+                typedHub.AddTimer(TimeSpan.FromSeconds(1));
+                int typedCount = 0, compatibilityCount = 0;
+                typedHub.TimerCompleted += (_, e) => { typedCount++; typedHub.AcknowledgeTimer(e.Timer.Id); };
+                typedHub.Completion += (_, _) => compatibilityCount++;
+                acknowledged.Clock.Advance(TimeSpan.FromSeconds(1));
+                typedHub.Tick();
+                Check(typedCount == 1 && compatibilityCount == 0 && typedHub.Timers.Count == 0);
+            });
+            Test("Pausing at expiry completes once while paused timers remain silent", () =>
+            {
+                var env = Create("pause-at-expiry"); using var hub = env.Hub;
+                string expired = hub.AddTimer(TimeSpan.FromSeconds(1));
+                int typed = 0, compatibility = 0;
+                hub.TimerCompleted += (_, e) => { Check(e.Timer.Id == expired); typed++; };
+                hub.Completion += (_, _) => compatibility++;
+                env.Clock.Advance(TimeSpan.FromSeconds(1));
+                hub.PauseTimer(expired);
+                hub.Tick(); hub.PauseTimer(expired); hub.ResumeTimer(expired);
+                string paused = hub.AddTimer(TimeSpan.FromSeconds(10));
+                env.Clock.Advance(TimeSpan.FromSeconds(3)); hub.PauseTimer(paused);
+                env.Clock.Advance(TimeSpan.FromHours(1)); hub.Tick();
+                Check(hub.Timers.Single(timer => timer.Id == expired).Phase == TimerPhase.Completed && typed == 1 && compatibility == 1);
+                Check(hub.Timers.Single(timer => timer.Id == paused).Phase == TimerPhase.Paused);
+                Equal(7, hub.Timers.Single(timer => timer.Id == paused).RemainingSeconds);
+            });
+            Test("Restored overdue timers stay quiet while future recovered timers still complete normally", () =>
+            {
+                var env = Create("quiet-overdue-restart");
+                string overdue = env.Hub.AddTimer(TimeSpan.FromSeconds(1));
+                string future = env.Hub.AddTimer(TimeSpan.FromMinutes(1));
+                env.Hub.Dispose();
+                env.Clock.Advance(TimeSpan.FromSeconds(5));
+                using var restored = new LocalHub(env.Store, () => new(), env.Clock);
+                var completions = new List<string>(); int compatibility = 0;
+                restored.TimerCompleted += (_, e) => completions.Add(e.Timer.Id);
+                restored.Completion += (_, _) => compatibility++;
+                restored.Tick(); restored.Tick();
+                Check(restored.Timers.Single(timer => timer.Id == overdue).Phase == TimerPhase.Completed && completions.Count == 0 && compatibility == 0);
+                env.Clock.Advance(TimeSpan.FromMinutes(1)); restored.Tick(); restored.Tick();
+                Check(completions.SequenceEqual(new[] { future }) && compatibility == 1 && restored.Timers.All(timer => timer.Phase == TimerPhase.Completed));
+                restored.Dispose();
+                using var again = new LocalHub(env.Store, () => new(), env.Clock);
+                int replayed = 0;
+                again.TimerCompleted += (_, _) => replayed++;
+                again.Completion += (_, _) => replayed++;
+                again.Tick();
+                Check(again.Timers.Count == 2 && replayed == 0);
+            });
             Test("Selection and compatibility start preserve other concurrent timers", () =>
             {
                 var env = Create("selection"); using var hub = env.Hub;

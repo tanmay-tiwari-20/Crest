@@ -53,7 +53,7 @@ $report = [ordered]@{
     CandidateDllSHA256 = $dllHash; SourceFingerprint = $build.SourceFingerprint; BuildTestsVerified = $true
     P1GatesPassed = $passed; ReleaseStatus = $(if ($passed) { 'P1 acceptance recorded' } else { 'Release candidate; P1 gates open' })
     OpenGateCount = $open.Count; VisibleOverAppIncidents = @($gates.VisibleOverAppIncidents); Gates = $evaluated
-    Limitations = 'A passing source-bound build is automatic evidence only. Native acceptance must be observed and recorded. AC18 clipboard and AC19 optional integrations are outside the enabled P1 scope. F09 is a separately tested P2 subset.'
+    Limitations = 'A passing source-bound build is automatic evidence only. Native acceptance must be observed and recorded. AC18 clipboard and AC19 optional integrations remain outside the P1 gate set; P2 local functionality has separate domain/UI verification. Historical evidence does not qualify a changed candidate.'
 }
 Write-CrestUtf8 $OutputPath (($report | ConvertTo-Json -Depth 8) + "`n")
 Write-Host "P1 gate verification: $($evaluated.Count - $open.Count)/$($evaluated.Count) acceptance gates recorded as passing; $($open.Count) open."

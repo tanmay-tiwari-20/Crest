@@ -1,6 +1,6 @@
 {
   "Date": "2026-11-18",
-  "UserAccount": "hp",
+  "UserAccount": "Existing Windows user (redacted)",
   "AccountCoverage": "Existing current Windows user; clean-account validation pending",
   "ProcessorArchitecture": "x64",
   "ElevationRequired": false,

@@ -1,0 +1,53 @@
+{
+  "SchemaVersion": 1,
+  "VerifiedUtc": "2026-11-19T18:38:58.6263274+00:00",
+  "ReviewedLocalDate": "2026-11-20",
+  "ApplicationVersion": "0.2.0",
+  "Configuration": "Release",
+  "SourceFingerprint": "9028DB144AA8A6A8BC75959155AE046D6155B86F8777A1E8AE3308D0977E7DF0",
+  "SourceFingerprintOrigin": "LF maintainer checkout; exact staged checkout fingerprint verified",
+  "SelfContainedX64DllSHA256": "5DB16954608DFBA410DDA40476405FDFA2AD62B5B0C8CAB87A7BBE6181E7B5A3",
+  "UiFixtureAppDllSHA256": "ac90fc13edc9dc1b1c5bb329e35212f01038f431f999cb704856c2d233ecb61e",
+  "ImplementedFeatures": [
+    "F08",
+    "F09",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+    "F14",
+    "F16",
+    "F17",
+    "F18"
+  ],
+  "DomainOutcomesPassed": 97,
+  "UiOutcomesPassed": 107,
+  "ReleaseProvenanceChecksPassed": 8,
+  "ObserverLifecycleChecksPassed": 3,
+  "CompilationWarnings": 0,
+  "CompilationErrors": 0,
+  "StaticLayoutRenders": 23,
+  "IsolatedNativeStartup": {
+    "ClipboardHistoryOff": true,
+    "GracefulExitCode": 0,
+    "NativeHooks": 5,
+    "DispatcherReady": true,
+    "HiddenByDefault": true
+  },
+  "PriorInstalledPreview": {
+    "ExistingDataUnchangedByInstaller": true,
+    "CandidateDllSHA256": "649244A9F08AF5C437C7423FA179A75B9187B9973E0E7312B6BB8A4D40779937",
+    "VerifiedDistributionFiles": 492,
+    "ApplicationVersion": "0.1.0 local P2 preview",
+    "StartupValueUnchanged": true,
+    "RestartedInstalledAppLifecycleReady": true
+  },
+  "ValidationCommand": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.2.0",
+  "P1Qualified": false,
+  "Limitations": [
+    "Direct audio switching uses a runtime-probed Windows interface; no real output was changed in validation and the sound-settings fallback remains available.",
+    "Display preference fixtures use isolated settings scopes; physical mixed-display acceptance remains separate.",
+    "External workspace targets and file-picker/screenshot dialogs were not launched by automated UI fixtures.",
+    "Historical P1 native/resource evidence remains bound to its prior binaries; this candidate requires fresh qualification."
+  ]
+}

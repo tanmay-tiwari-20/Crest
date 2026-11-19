@@ -21,7 +21,7 @@ public sealed class TimerCompletedEventArgs(TimerSnapshot timer) : EventArgs
 {
     public TimerSnapshot Timer { get; } = timer;
 }
-public sealed record ShelfItem(string Id, string Name, string Path, bool Available, bool IsDirectory);
+public sealed record ShelfItem(string Id, string Name, string Path, bool Available, bool IsDirectory, bool Pinned = false);
 
 public interface ITimerClock
 {
@@ -42,7 +42,7 @@ public sealed class WindowsTimerClock : ITimerClock
 }
 
 /// <summary>Bounded durable timers, a stopwatch, and a memory-only file reference shelf.</summary>
-public sealed class LocalHub : IDisposable
+public sealed partial class LocalHub : IDisposable
 {
     public const int MaxTimers = 8;
     public const int MaxStopwatchLaps = 100;
@@ -53,6 +53,7 @@ public sealed class LocalHub : IDisposable
     private readonly ITimerClock _clock;
     private readonly bool _automaticTick;
     private readonly List<ShelfItem> _shelf = new();
+    private long _shelfGeneration;
     private System.Threading.Timer? _ticker;
     private readonly List<ActiveTimer> _timers = new();
     private string? _selectedTimerId;
@@ -102,6 +103,10 @@ public sealed class LocalHub : IDisposable
             lock (_gate)
                 return _shelf.ToArray();
         }
+    }
+    public long ShelfGeneration
+    {
+        get { lock (_gate) return _shelfGeneration; }
     }
 
     public void StartTimer(TimeSpan duration)
@@ -269,6 +274,7 @@ public sealed class LocalHub : IDisposable
             ClearStopwatch();
             _store.DeleteState("timer.json");
             _store.DeleteState("stopwatch.json");
+            ClearFocusAndReminders();
             UpdateTicker();
         }
         Changed?.Invoke(this, EventArgs.Empty);
@@ -276,6 +282,8 @@ public sealed class LocalHub : IDisposable
     public void Tick()
     {
         var completed = new List<TimerSnapshot>();
+        FocusSnapshot? focusCompleted = null;
+        var remindersDue = new List<ReminderSnapshot>();
         lock (_gate)
         {
             if (_disposed || !HasRunningActivity()) return;
@@ -288,21 +296,32 @@ public sealed class LocalHub : IDisposable
                 completed.Add(Snapshot(timer));
             }
             if (completed.Count > 0) PersistTimers();
+            TickFocusAndReminders(ref focusCompleted, remindersDue);
             UpdateTicker();
         }
         Changed?.Invoke(this, EventArgs.Empty);
         foreach (var timer in completed) NotifyCompletion(timer);
+        NotifyFocusAndReminders(focusCompleted, remindersDue);
     }
 
-    public string? AddShelfFiles(IEnumerable<string> paths)
+    public string? AddShelfFiles(IEnumerable<string> paths, long? expectedGeneration = null)
     {
+        long generation;
+        lock (_gate)
+        {
+            if (_disposed)
+                return "The shelf is no longer available.";
+            generation = _shelfGeneration;
+            if (expectedGeneration is long expected && expected != generation)
+                return "The shelf was cleared before these items could be added. Drag them again to retain new references.";
+        }
         var prepared = new List<ShelfItem>();
         int missing = 0;
         foreach (string input in paths.Take(100))
         {
             try
             {
-                string path = System.IO.Path.GetFullPath(input);
+                string path = System.IO.Path.TrimEndingDirectorySeparator(System.IO.Path.GetFullPath(input));
                 bool directory = Directory.Exists(path);
                 bool exists = directory || File.Exists(path);
                 if (!exists)
@@ -322,6 +341,8 @@ public sealed class LocalHub : IDisposable
         {
             if (_disposed)
                 return "The shelf is no longer available.";
+            if (_shelfGeneration != generation)
+                return "The shelf was cleared before these items could be added. Drag them again to retain new references.";
             foreach (ShelfItem item in prepared)
             {
                 if (_shelf.Any(existing => string.Equals(existing.Path, item.Path, StringComparison.OrdinalIgnoreCase)))
@@ -340,10 +361,27 @@ public sealed class LocalHub : IDisposable
         return missing > 0 ? "Some items are unavailable. Drag the original files from your desktop again." : null;
     }
 
+    public void ClearShelf()
+    {
+        lock (_gate)
+        {
+            if (_disposed)
+                return;
+            ++_shelfGeneration;
+            _shelf.Clear();
+            PersistShelf();
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
     public void RemoveShelf(string id)
     {
         lock (_gate)
+        {
+            if (_disposed) return;
             _shelf.RemoveAll(item => item.Id == id);
+            PersistShelf();
+        }
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -365,9 +403,9 @@ public sealed class LocalHub : IDisposable
             foreach (ShelfItem item in refreshed)
             {
                 int index = _shelf.FindIndex(x => x.Id == item.Id);
-                if (index >= 0 && _shelf[index].Available != item.Available)
+                if (index >= 0 && _shelf[index].Path == item.Path && _shelf[index].Available != item.Available)
                 {
-                    _shelf[index] = item;
+                    _shelf[index] = _shelf[index] with { Available = item.Available };
                     changed = true;
                 }
             }
@@ -451,16 +489,32 @@ public sealed class LocalHub : IDisposable
         _stopwatchStarted = 0;
         _laps.Clear();
     }
-    private bool HasRunningActivity() => _stopwatchPhase == StopwatchPhase.Running || _timers.Any(x => x.Phase == TimerPhase.Running);
+    private bool HasRunningActivity() => _stopwatchPhase == StopwatchPhase.Running || _timers.Any(x => x.Phase == TimerPhase.Running) || HasRunningFocusOrReminders();
     private void UpdateTicker()
     {
         if (!HasRunningActivity()) { StopTicker(); return; }
-        if (_automaticTick && _ticker is null)
-            _ticker = new System.Threading.Timer(_ => Tick(), null, 1000, 1000);
+        if (!_automaticTick) return;
+        // Elapsed tools update each second. A distant reminder alone needs at most
+        // one wake per minute, with earlier wakes close to its wall-clock deadline.
+        int delay = _stopwatchPhase == StopwatchPhase.Running || _timers.Any(x => x.Phase == TimerPhase.Running) || _focus?.Phase == TimerPhase.Running
+            ? 1000 : (int)Math.Clamp((_reminders.Where(x => x.Phase == ReminderPhase.Scheduled).Min(x => x.DueUtc) - _clock.UtcNow).TotalMilliseconds, 1000, 60000);
+        _ticker ??= new System.Threading.Timer(_ => Tick(), null, Timeout.Infinite, Timeout.Infinite);
+        _ticker.Change(delay, Timeout.Infinite);
     }
     private void NotifyCompletion(TimerSnapshot timer)
     {
+        lock (_gate)
+        {
+            if (_disposed || FindTimer(timer.Id) is not { Phase: TimerPhase.Completed })
+                return;
+        }
         TimerCompleted?.Invoke(this, new(timer));
+        // A subscriber can acknowledge, reset, or dispose while receiving the typed event.
+        lock (_gate)
+        {
+            if (_disposed || FindTimer(timer.Id) is not { Phase: TimerPhase.Completed })
+                return;
+        }
         Completion?.Invoke(this, EventArgs.Empty);
     }
     private void StopTicker()
@@ -504,6 +558,8 @@ public sealed class LocalHub : IDisposable
         }
         if (normalize) PersistTimers();
         RestoreStopwatch();
+        RestoreFocusAndReminders();
+        RestoreShelf();
         UpdateTicker();
     }
     private ActiveTimer? RestoreTimer(TimerState saved)
@@ -571,9 +627,13 @@ public sealed class LocalHub : IDisposable
             if (_disposed)
                 return;
             _disposed = true;
+            ++_shelfGeneration;
             StopTicker();
             PersistTimers();
             PersistStopwatch();
+            PersistFocus();
+            PersistReminders();
+            PersistShelf();
             _shelf.Clear();
         }
     }

@@ -1,0 +1,33 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedDate": "2026-11-19",
+  "CandidateDllSHA256": "3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159",
+  "SourceFingerprint": "ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086",
+  "Conditions": {
+    "IsolatedProfile": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "Method": "Native Windows keyboard input, UI Automation focus, screenshots and exact-candidate HWND snapshots"
+  },
+  "Observations": [
+    "Tab reaches Appearance from Overview",
+    "Enter opens Appearance and retains focus on Appearance",
+    "Tab reaches Behavior after changing page",
+    "Enter opens Behavior and retains focus on Behavior",
+    "Shift+Tab returns to Appearance after changing page",
+    "Maximized Settings minimizes and isolated single-instance Settings IPC restores it maximized",
+    "Island HWND is hidden in both minimized and restored Settings snapshots"
+  ],
+  "RawEvidenceDigests": [
+    {
+      "Path": "settings-minimized-snapshot.json",
+      "SHA256": "B0F3B04C6DB47D043111409E9765DF060C07C33642F9B410CF52B67B31FAC551"
+    },
+    {
+      "Path": "settings-restored-snapshot.json",
+      "SHA256": "319ACA59843BEF71B44B478509C5FDCED11D256BBF7F4947C75418CECC75AB62"
+    }
+  ],
+  "QualifiedGates": [],
+  "Limitations": "Current-candidate partial AC09/AC21 evidence. Full island keyboard, screen reader, contrast, physical DPI, launcher and popup acceptance remains open. Native window snapshots are point-in-time; they do not qualify suppression percentiles or continuous hidden rendering. Raw HWND/process snapshots remain local."
+}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -17,12 +18,11 @@ using Crest.Core;
 using Crest.Features;
 namespace Crest.UI;
 
-public sealed class IslandWindow : Window
+public sealed partial class IslandWindow : Window
 {
     private const double DeckWidth = 820, DeckHeight = 150, TotalHeight = 522, DockWidth = 284;
     private static readonly Rect CompactRect = new(280, 0, 260, 44);
     private static readonly Rect OpenRect = new(0, 0, DeckWidth, DeckHeight);
-    private static readonly Rect DockRect = new((DeckWidth - DockWidth) / 2, 158, DockWidth, 40);
     private static readonly Rect DetailRect = new(200, 206, 420, 316);
     private readonly App _app;
     private readonly Grid _surface = new(), _shell = new(), _compact = new();
@@ -48,8 +48,17 @@ public sealed class IslandWindow : Window
     private ComboBox? _playersCombo;
     private TextBlock? _artFallback;
     private TimerToolsPanel? _timerTools;
+    private P2SystemPanel? _systemTools;
+    private ClipboardHistoryPanel? _clipboardTools;
+    private BatteryNoticeSnapshot? _shownBatteryNotice;
+    private bool _shelfDropPending;
+    private string? _shelfMessage;
+    private long _shelfMessageGeneration = -1;
+    private string _compactModule = "Overview";
+    private bool _compactShowsCompletedTimers, _compactActionBusy;
+    private bool _compactShowsFocus, _compactShowsDueReminders;
     public bool HoldsInteraction => IsKeyboardFocusWithin || _playerPopupOpen;
-    private static readonly string[] Modules = { "Music", "Controls", "Timer", "Launch", "Shelf" };
+    private static readonly string[] Modules = ModuleCatalog.All;
     [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr h, int index);
     [DllImport("user32.dll")] private static extern int SetWindowLong(IntPtr h, int index, int value);
     [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int w, int height, uint flags);
@@ -92,12 +101,59 @@ public sealed class IslandWindow : Window
         BuildDetail();
         SourceInitialized += (_, _) => { _hwnd = new WindowInteropHelper(this).Handle; SetWindowLong(_hwnd, -20, GetWindowLong(_hwnd, -20) | 0x08000000 | 0x80); HwndSource.FromHwnd(_hwnd)?.AddHook(WindowHook); _app.Policy.RegisterSurface(_hwnd, true, () => PixelBounds, ContainsVisiblePoint); PositionOnDisplay(); };
         PreviewMouseDown += (_, e) => { if (e.OriginalSource is DependencyObject d && Ancestor<TextBox>(d) != null) SetForegroundWindow(_hwnd); };
+        PreviewMouseDown += (_, e) =>
+        {
+            if (e.OriginalSource is not DependencyObject source || HasPointerControl(source)) return;
+            string? gesture = e.ChangedButton == MouseButton.Middle ? _app.Preferences.MiddleClickGesture
+                : e.ChangedButton == MouseButton.Left && e.ClickCount == 2 ? _app.Preferences.DoubleClickGesture : null;
+            if (gesture != null && gesture != "None") { PerformGesture(gesture); e.Handled = true; }
+        };
+        PreviewMouseWheel += (_, e) =>
+        {
+            if (_app.Preferences.WheelGesture != "Switch modules" || e.OriginalSource is not DependencyObject source || HasPointerControl(source)) return;
+            PerformGesture(e.Delta < 0 ? "Next module" : "Previous module"); e.Handled = true;
+        };
         PreviewKeyDown += (_, e) => { if (e.Key == Key.Escape) { _app.Controller.Dismiss(); e.Handled = true; } };
         AllowDrop = true;
-        DragEnter += (_, e) => { if (_app.Preferences.EnabledModules.Contains("Shelf") && e.Data.GetDataPresent(DataFormats.FileDrop)) { Expand("Shelf"); e.Effects = DragDropEffects.Link; e.Handled = true; } };
-        DragOver += (_, e) => { e.Effects = _app.Preferences.EnabledModules.Contains("Shelf") && e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Link : DragDropEffects.None; e.Handled = true; };
-        Drop += async (_, e) => { if (_app.Preferences.EnabledModules.Contains("Shelf") && e.Data.GetData(DataFormats.FileDrop) is string[] paths) { var error = await Task.Run(() => _app.Local.AddShelfFiles(paths)); BuildBody(); if (error != null) ShowMessage(error); } e.Handled = true; };
+        PreviewDragEnter += (_, e) =>
+        {
+            e.Handled = true;
+            e.Effects = ShelfDropEffect(e);
+            if (e.Effects != DragDropEffects.None)
+                Expand("Shelf");
+        };
+        PreviewDragOver += (_, e) =>
+        {
+            e.Handled = true;
+            e.Effects = ShelfDropEffect(e);
+            if (e.Effects != DragDropEffects.None && _module != "Shelf")
+                Expand("Shelf");
+        };
+        PreviewDrop += ImportShelfDrop;
         _clock.Tick += (_, _) => { Refresh(); if (_wide && _module == "Shelf" && !_checkingShelf && Environment.TickCount64 - _lastShelfCheck >= 3000) { _checkingShelf = true; _lastShelfCheck = Environment.TickCount64; _ = Task.Run(_app.Local.RefreshShelf).ContinueWith(_ => Dispatcher.BeginInvoke(() => { _checkingShelf = false; if (IsVisible && _wide && _module == "Shelf") { string current = string.Join("|", _app.Local.Shelf.Select(i => i.Id + ":" + i.Available)); if (current != _shelfSignature) BuildBody(); } })); } };
+    }
+    private static bool HasPointerControl(DependencyObject source)
+    {
+        while (source != null)
+        {
+            if (source is ButtonBase or TextBoxBase or Slider or ComboBox or ScrollViewer) return true;
+            source = VisualTreeHelper.GetParent(source);
+        }
+        return false;
+    }
+    private void PerformGesture(string action)
+    {
+        switch (action)
+        {
+            case "Expand": Expand("Overview"); break;
+            case "Collapse": Collapse(); break;
+            case "Dismiss": _app.Controller.Dismiss(); break;
+            case "Settings": _app.OpenSettings(); break;
+            case "Next module": case "Previous module":
+                var modules = new[] { "Overview" }.Concat(_app.Preferences.ModuleOrder.Where(_app.Preferences.EnabledModules.Contains)).ToArray();
+                int current = Array.IndexOf(modules, _module);
+                Expand(modules[(Math.Max(0, current) + (action == "Next module" ? 1 : modules.Length - 1)) % modules.Length]); break;
+        }
     }
     private static T? Ancestor<T>(DependencyObject d) where T : DependencyObject
     {
@@ -130,14 +186,122 @@ public sealed class IslandWindow : Window
     }
     public bool ContainsVisiblePoint(System.Drawing.Point screenPoint)
     {
-        if (!IsVisible || _hwnd == IntPtr.Zero)
+        if (!IsVisible || !IsHitTestVisible || Opacity <= 0 || _hwnd == IntPtr.Zero)
             return false;
         try
         {
             var p = _surface.PointFromScreen(new Point(screenPoint.X, screenPoint.Y));
-            return RoundedContains(p, _clip.Rect, 26) || (_dock.Visibility == Visibility.Visible && RoundedContains(p, DockRect, 20)) || (_detail.Visibility == Visibility.Visible && RoundedContains(p, DetailRect, 22));
+            return ContainsSurfacePoint(p);
         }
         catch { return false; }
+    }
+    private bool ContainsSurfacePoint(Point point)
+    {
+        if (RoundedContains(point, _clip.Rect, 26))
+            return true;
+        if (_dock.IsVisible && _dock.IsHitTestVisible && _dock.Opacity > 0
+            && RoundedContains(_surface.TranslatePoint(point, _dock), new Rect(0, 0, _dock.ActualWidth, _dock.ActualHeight), 20))
+            return true;
+        return _detail.IsVisible && _detail.IsHitTestVisible && _detail.Opacity > 0
+            && RoundedContains(_surface.TranslatePoint(point, _detail), new Rect(0, 0, _detail.ActualWidth, _detail.ActualHeight), 22);
+    }
+    private DragDropEffects ShelfDropEffect(DragEventArgs e)
+    {
+        var local = _app.Local;
+        long generation = local.ShelfGeneration;
+        var effect = ShelfSurfaceEffect(e);
+        if (effect == DragDropEffects.None)
+            return effect;
+        try
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop, false))
+                return DragDropEffects.None;
+            // A COM data provider can pump messages and re-enter Reset or suppression.
+            return ReferenceEquals(local, _app.Local) && generation == local.ShelfGeneration
+                && ShelfSurfaceEffect(e) == effect ? effect : DragDropEffects.None;
+        }
+        catch (Exception ex) when (ex is ExternalException or InvalidOperationException or ArgumentException)
+        {
+            return DragDropEffects.None;
+        }
+    }
+    private DragDropEffects ShelfSurfaceEffect(DragEventArgs e)
+    {
+        if (_shelfDropPending || !IsVisible || !IsHitTestVisible || Opacity <= 0
+            || !_app.Policy.IsEligible || !_app.Preferences.EnabledModules.Contains("Shelf"))
+            return DragDropEffects.None;
+        var effect = (e.AllowedEffects & DragDropEffects.Link) != 0 ? DragDropEffects.Link
+            : (e.AllowedEffects & DragDropEffects.Copy) != 0 ? DragDropEffects.Copy : DragDropEffects.None;
+        if (effect == DragDropEffects.None)
+            return effect;
+        try
+        {
+            return ContainsSurfacePoint(e.GetPosition(_surface)) ? effect : DragDropEffects.None;
+        }
+        catch (Exception ex) when (ex is ExternalException or InvalidOperationException or ArgumentException)
+        {
+            return DragDropEffects.None;
+        }
+    }
+    private async void ImportShelfDrop(object sender, DragEventArgs e)
+    {
+        // OLE reads these values when the routed event returns, before any awaited work.
+        e.Handled = true;
+        e.Effects = DragDropEffects.None;
+        var local = _app.Local;
+        long generation = local.ShelfGeneration;
+        var effect = ShelfDropEffect(e);
+        if (effect == DragDropEffects.None)
+            return;
+        string[] paths;
+        try
+        {
+            if (e.Data.GetData(DataFormats.FileDrop, false) is not string[] source || source.Length == 0)
+                return;
+            paths = source.Take(100).ToArray();
+        }
+        catch (Exception ex) when (ex is ExternalException or InvalidOperationException or ArgumentException)
+        {
+            if (ReferenceEquals(local, _app.Local) && generation == local.ShelfGeneration
+                && ShelfSurfaceEffect(e) != DragDropEffects.None)
+                RememberShelfMessage("Windows could not provide these file references. Drag the originals again.", generation);
+            return;
+        }
+        if (!ReferenceEquals(local, _app.Local) || generation != local.ShelfGeneration || ShelfSurfaceEffect(e) != effect)
+            return;
+        _shelfDropPending = true;
+        _shelfMessage = null;
+        _shelfMessageGeneration = generation;
+        e.Effects = effect; // Only Link or Copy; never authorize moving the source.
+        UpdateShelfMessage();
+        string? error;
+        try { error = await Task.Run(() => local.AddShelfFiles(paths, generation)); }
+        catch (Exception ex) when (ex is ExternalException or InvalidOperationException or ArgumentException or System.IO.IOException or UnauthorizedAccessException)
+        {
+            error = "Crest could not add these references. Try dragging the originals again.";
+        }
+        finally { _shelfDropPending = false; UpdateShelfMessage(); }
+        if (Dispatcher.HasShutdownStarted || !ReferenceEquals(local, _app.Local) || generation != local.ShelfGeneration)
+            return;
+        RememberShelfMessage(error, generation);
+    }
+    private bool ShowingShelf => IsVisible && _wide && _module == "Shelf"
+        && _detail.IsVisible && _app.Preferences.EnabledModules.Contains("Shelf");
+    private void RememberShelfMessage(string? message, long generation)
+    {
+        _shelfMessage = message;
+        _shelfMessageGeneration = generation;
+        if (ShowingShelf)
+            BuildBody();
+    }
+    private void UpdateShelfMessage()
+    {
+        if (!ShowingShelf || !_labels.TryGetValue("bodyShelfNotice", out var notice))
+            return;
+        if (_shelfMessageGeneration != _app.Local.ShelfGeneration)
+            _shelfMessage = null;
+        notice.Text = _shelfDropPending ? "Adding file references…" : _shelfMessage ?? "";
+        notice.Visibility = notice.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
     private static bool RoundedContains(Point p, Rect r, double radius)
     {
@@ -171,7 +335,7 @@ public sealed class IslandWindow : Window
         if (screen.Width <= 0 || screen.Height <= 0)
             return;
         double dpi = _app.Policy.DpiScale, fit = Math.Min(screen.Width / (836 * dpi), (System.Windows.Forms.Screen.FromRectangle(screen).WorkingArea.Bottom - screen.Top) / (530 * dpi));
-        double size = Math.Min(_app.Preferences.SizeScale, fit);
+        double size = Math.Min(_app.EffectivePreferences.SizeScale, fit);
         _surface.LayoutTransform = new ScaleTransform(size, size);
         Width = 836 * size;
         Height = 530 * size;
@@ -213,15 +377,17 @@ public sealed class IslandWindow : Window
         foreach (double width in new[] { 40d, 156, 32, 32 })
             _compact.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(width) });
         var cover = new Grid { Width = 28, Height = 28 };
-        var glyph = Design.Icon("\uE8D6", 15);
+        var glyph = Design.Icon("\uE80F", 15);
         glyph.SetResourceReference(TextBlock.ForegroundProperty, "IslandAccent");
+        _compactGlyph = glyph;
         cover.Children.Add(glyph);
         cover.Children.Add(_compactArt);
-        var coverButton = Design.Button("", () => Expand(_app.Local.Timers.Any(timer => timer.Phase == TimerPhase.Completed) ? "Timer" : "Music"));
+        var coverButton = Design.Button("", ExpandCompactDetails);
         coverButton.Content = cover;
         coverButton.Background = Brushes.Transparent;
         coverButton.Padding = new Thickness(0);
-        AutomationProperties.SetName(coverButton, "Open music details");
+        AutomationProperties.SetName(coverButton, "Open activity overview");
+        _compactDetails = coverButton;
         _compact.Children.Add(coverButton);
         var meta = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
         var title = Label("compactTitle", "crest", 12, "IslandText", true);
@@ -234,7 +400,7 @@ public sealed class IslandWindow : Window
         meta.Children.Add(artist);
         Grid.SetColumn(meta, 1);
         _compact.Children.Add(meta);
-        var play = Design.IconButton("\uE768", "Play or pause music", () => Run(_app.Hardware.TogglePlaybackAsync));
+        var play = Design.IconButton("\uE768", "Activity action", RunCompactAction);
         play.Background = Brushes.Transparent;
         play.Padding = new Thickness(5);
         play.MinWidth = 32;
@@ -251,6 +417,44 @@ public sealed class IslandWindow : Window
         _compact.Children.Add(open);
     }
     private Button _compactPlay = null!;
+    private Button _compactDetails = null!;
+    private TextBlock _compactGlyph = null!;
+    private void ExpandCompactDetails()
+    {
+        Expand(_compactModule);
+        if (_compactModule != "Timer") return;
+        if (_compactShowsDueReminders) _timerTools?.ShowReminders();
+        else if (_compactShowsFocus) _timerTools?.ShowFocusSessions();
+    }
+    private async void RunCompactAction()
+    {
+        if (_compactActionBusy || _compactModule == "Overview"
+            || !_app.Preferences.EnabledModules.Contains(_compactModule))
+            return;
+        if (_compactModule == "Controls" || (_compactModule == "Timer" && (_compactShowsCompletedTimers || _compactShowsDueReminders || _compactShowsFocus && _app.Local.Focus.Phase == TimerPhase.Completed)))
+        {
+            ExpandCompactDetails();
+            return;
+        }
+        var timer = _app.Local.Timer;
+        Func<Task>? action = _compactModule == "Music" && _app.Hardware.Music.CanPlayPause
+            ? _app.Hardware.TogglePlaybackAsync
+            : _compactModule == "Timer" && _compactShowsFocus && _app.Local.Focus.Phase == TimerPhase.Running
+                ? () => Task.Run(_app.Local.PauseFocus)
+                : _compactModule == "Timer" && _compactShowsFocus && _app.Local.Focus.Phase == TimerPhase.Paused
+                    ? () => Task.Run(_app.Local.ResumeFocus)
+            : _compactModule == "Timer" && timer.Phase == TimerPhase.Running
+                ? () => Task.Run(() => _app.Local.PauseTimer(timer.Id))
+                : _compactModule == "Timer" && timer.Phase == TimerPhase.Paused
+                    ? () => Task.Run(() => _app.Local.ResumeTimer(timer.Id)) : null;
+        if (action == null)
+            return;
+        _compactActionBusy = true;
+        _compactPlay.IsEnabled = false;
+        try { await action(); }
+        catch { ShowMessage("This activity is currently unavailable. Try again shortly."); }
+        finally { _compactActionBusy = false; Refresh(); }
+    }
     private void BuildDock()
     {
         _dock.Width = DockWidth;
@@ -273,8 +477,8 @@ public sealed class IslandWindow : Window
     private void BuildTabs()
     {
         _tabs.Children.Clear();
-        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers and stopwatch"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf") };
-        foreach (var (module, glyph, name) in items.Where(i => i.Item1 == "Overview" || _app.Preferences.EnabledModules.Contains(i.Item1)))
+        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers, focus and reminders"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf"), ("Capture", "\uE722", "Screen capture references"), ("Workspaces", "\uE8A5", "Workspace presets"), ("Clipboard", "\uE77F", "Clipboard history") };
+        foreach (var (module, glyph, name) in items.Where(i => i.Item1 == "Overview" || _app.Preferences.EnabledModules.Contains(i.Item1)).OrderBy(i => i.Item1 == "Overview" ? -1 : _app.Preferences.ModuleOrder.IndexOf(i.Item1)))
         {
             var b = Design.IconButton(glyph, name, () => Expand(module));
             b.Style = (Style)FindResource("CircleButton");
@@ -311,6 +515,7 @@ public sealed class IslandWindow : Window
         close.Background = Brushes.Transparent;
         close.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
         _tabs.Children.Add(close);
+        _dock.Width = Math.Max(DockWidth, _tabs.Children.Count * 34 + 10);
     }
     private void BuildDetail()
     {
@@ -351,7 +556,8 @@ public sealed class IslandWindow : Window
         status.TextWrapping = TextWrapping.NoWrap;
         status.TextTrimming = TextTrimming.CharacterEllipsis;
         footer.Children.Add(status);
-        var clock = Label("clock", DateTime.Now.ToString("t"), 9, "IslandMuted");
+        var clock = Label("clock", DateTime.Now.ToString("g", CultureInfo.CurrentCulture), 9, "IslandMuted");
+        AutomationProperties.SetName(clock, "Local date and time");
         Grid.SetColumn(clock, 1);
         footer.Children.Add(clock);
         Grid.SetRow(footer, 2);
@@ -365,13 +571,15 @@ public sealed class IslandWindow : Window
     {
         bool reversing = IsVisible;
         IsHitTestVisible = true;
-        Design.Apply(_app.Preferences);
+        Design.Apply(_app.EffectivePreferences);
         if (!reversing)
         {
+            _shownBatteryNotice = !_rendering && _app.Preferences.EnabledModules.Contains("Controls")
+                ? _app.Hardware.PendingBatteryNotice : null;
             Set("footer", _app.Preferences.AllowOverApps ? "LOCAL · OVER OTHER APPS" : "LOCAL · DESKTOP ONLY");
             Collapse(false);
             Opacity = 0;
-            _slide.Y = -9;
+            _slide.Y = Design.ReducedMotion(_app.EffectivePreferences) ? 0 : -9;
             PositionOnDisplay();
             Show();
         }
@@ -379,18 +587,42 @@ public sealed class IslandWindow : Window
         _clock.Start();
         Refresh();
         _ = Task.Run(_app.Local.RefreshShelf).ContinueWith(_ => Dispatcher.BeginInvoke(() => { if (IsVisible && _module == "Shelf" && _wide) BuildBody(); }));
-        AnimateVisibility(1, 0, Design.ReducedMotion(_app.Preferences) ? 60 : 240, () => _app.Controller.CompleteReveal(version));
+        var displayedNotice = _shownBatteryNotice;
+        AnimateVisibility(1, 0, Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 240, () =>
+        {
+            if (version != _app.Controller.TransitionVersion || !IsVisible)
+                return;
+            _app.Controller.CompleteReveal(version);
+            if (displayedNotice == _shownBatteryNotice)
+                AcknowledgeShownBatteryNotice();
+        });
     }
-    public void CloseAnimated(long version) => AnimateVisibility(0, -8, Design.ReducedMotion(_app.Preferences) ? 60 : 190, () => { if (version != _app.Controller.TransitionVersion) return; Suppress(); _app.Controller.CompleteClose(version); });
+    private void AcknowledgeShownBatteryNotice()
+    {
+        if (_shownBatteryNotice == null || _rendering || !IsVisible || Opacity < 0.99
+            || !_app.Preferences.EnabledModules.Contains("Controls"))
+            return;
+        bool controlsNoticeVisible = _module == "Controls" && _detail.IsVisible && _detail.Opacity >= 0.99
+            && _labels.TryGetValue("bodyBatteryNotice", out var noticeLabel) && noticeLabel.IsVisible;
+        if (_compact.IsVisible || controlsNoticeVisible)
+            _app.Hardware.AcknowledgeBatteryNotice(_shownBatteryNotice.Id);
+    }
+    public void CloseAnimated(long version) => AnimateVisibility(0, -8, Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 190, () => { if (version != _app.Controller.TransitionVersion) return; Suppress(); _app.Controller.CompleteClose(version); });
     private void AnimateVisibility(double opacity, double y, int ms, Action completed)
     {
         int generation = ++_motionGeneration;
-        var time = TimeSpan.FromMilliseconds(ms / _app.Preferences.MotionSpeed);
+        var time = TimeSpan.FromMilliseconds(ms / _app.EffectivePreferences.MotionSpeed);
         var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
         var fade = new DoubleAnimation(Opacity, opacity, time) { EasingFunction = ease };
         fade.Completed += (_, _) => { if (generation == _motionGeneration) completed(); };
         BeginAnimation(OpacityProperty, fade, HandoffBehavior.SnapshotAndReplace);
-        _slide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(_slide.Y, y, time) { EasingFunction = ease }, HandoffBehavior.SnapshotAndReplace);
+        if (Design.ReducedMotion(_app.EffectivePreferences))
+        {
+            _slide.BeginAnimation(TranslateTransform.YProperty, null);
+            _slide.Y = 0;
+        }
+        else
+            _slide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(_slide.Y, y, time) { EasingFunction = ease }, HandoffBehavior.SnapshotAndReplace);
     }
     public void Suppress()
     {
@@ -411,6 +643,7 @@ public sealed class IslandWindow : Window
             _detail.BeginAnimation(OpacityProperty, null);
             _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
             _clock.Stop();
+            _shownBatteryNotice = null;
             _app.Hardware.SetVisible(false);
             Keyboard.ClearFocus();
         }
@@ -445,14 +678,25 @@ public sealed class IslandWindow : Window
                 "Launch" => "Your shortcuts",
                 "Shelf" => "File shelf",
                 "Timer" => "Timers and stopwatch",
+                "Capture" => "Recent captures",
+                "Workspaces" => "Your workspaces",
+                "Clipboard" => "Clipboard history",
                 _ => module
             });
             BuildBody();
             double opacity = detailWasVisible ? _detail.Opacity : 0;
             double offset = detailWasVisible ? _detailSlide.Y : -6;
-            var duration = TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.Preferences) ? 60 : 220 / _app.Preferences.MotionSpeed);
-            _detail.BeginAnimation(OpacityProperty, new DoubleAnimation(opacity, 1, duration), HandoffBehavior.SnapshotAndReplace);
-            _detailSlide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(offset, 0, duration) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } }, HandoffBehavior.SnapshotAndReplace);
+            var duration = TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 220 / _app.EffectivePreferences.MotionSpeed);
+            var detailFade = new DoubleAnimation(opacity, 1, duration);
+            detailFade.Completed += (_, _) => AcknowledgeShownBatteryNotice();
+            _detail.BeginAnimation(OpacityProperty, detailFade, HandoffBehavior.SnapshotAndReplace);
+            if (Design.ReducedMotion(_app.EffectivePreferences))
+            {
+                _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
+                _detailSlide.Y = 0;
+            }
+            else
+                _detailSlide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(offset, 0, duration) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } }, HandoffBehavior.SnapshotAndReplace);
         }
         AnimateShape(OpenRect);
         Refresh();
@@ -484,7 +728,13 @@ public sealed class IslandWindow : Window
     }
     private void AnimateShape(Rect target)
     {
-        var a = new RectAnimation(_clip.Rect, target, TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.Preferences) ? 60 : 220 / _app.Preferences.MotionSpeed)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        if (Design.ReducedMotion(_app.EffectivePreferences))
+        {
+            _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
+            _clip.Rect = target;
+            return;
+        }
+        var a = new RectAnimation(_clip.Rect, target, TimeSpan.FromMilliseconds(220 / _app.EffectivePreferences.MotionSpeed)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
         _clip.BeginAnimation(RectangleGeometry.RectProperty, a, HandoffBehavior.SnapshotAndReplace);
     }
     private void AnimateDock(bool show, bool animated)
@@ -501,7 +751,7 @@ public sealed class IslandWindow : Window
             _dock.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
             return;
         }
-        var duration = TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.Preferences) ? 60 : 220 / _app.Preferences.MotionSpeed);
+        var duration = TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 220 / _app.EffectivePreferences.MotionSpeed);
         var fade = new DoubleAnimation(from, show ? 1 : 0, duration) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
         fade.Completed += (_, _) =>
         {
@@ -526,6 +776,8 @@ public sealed class IslandWindow : Window
         _playerSignature = "";
         _body.Children.Clear();
         _timerTools = null;
+        _systemTools = null;
+        _clipboardTools = null;
         foreach (string k in _labels.Keys.Where(k => k.StartsWith("body")).ToArray())
             _labels.Remove(k);
         _buttons.Clear();
@@ -547,6 +799,11 @@ public sealed class IslandWindow : Window
             case "Shelf":
                 BuildShelf();
                 break;
+            case "Capture": BuildCaptures(); break;
+            case "Workspaces": BuildWorkspaces(); break;
+            case "Clipboard":
+                _clipboardTools = new ClipboardHistoryPanel(_app.ClipboardHistory, _app.ClipboardListener.CopyToClipboard, ShowMessage, () => _app.ClipboardListener.Status);
+                _body.Children.Add(_clipboardTools); break;
         }
         Refresh();
     }
@@ -664,11 +921,16 @@ public sealed class IslandWindow : Window
         var battery = new StackPanel();
         battery.Children.Add(Label("bodyBattery", "Battery", 23, "Text", true));
         battery.Children.Add(Label("bodyBatteryStatus", "Reading Windows battery status…", 11, "Muted"));
+        var notice = Label("bodyBatteryNotice", "", 11, "Muted");
+        notice.Visibility = Visibility.Collapsed;
+        battery.Children.Add(notice);
         _body.Children.Add(Design.Card(battery, new Thickness(12)));
         AddSlider("volume", "System volume", () => _app.Hardware.Volume, v => _app.Hardware.SetVolumeAsync(v));
         AddSlider("brightness", "Laptop brightness", () => _app.Hardware.Brightness, v => _app.Hardware.SetBrightnessAsync(v));
         var mute = Design.Button("Mute audio", () => Run(_app.Hardware.ToggleMuteAsync));
         _buttons["mute"] = mute;
+        _systemTools = new P2SystemPanel(_app.Hardware, _app.OpenWindowsTool, ShowMessage);
+        _body.Children.Add(_systemTools);
         mute.Margin = new Thickness(0, 7, 0, 0);
         _body.Children.Add(mute);
     }
@@ -774,7 +1036,12 @@ public sealed class IslandWindow : Window
     {
         _shelfSignature = string.Join("|", _app.Local.Shelf.Select(i => i.Id + ":" + i.Available));
         _body.Children.Add(Design.Text("Keep it close.", 22, "Text", true));
-        _body.Children.Add(Label("bodyShelfCount", $"{_app.Local.Shelf.Count} / 20 file references · this session", 11, "Muted"));
+        _body.Children.Add(Label("bodyShelfCount", $"{_app.Local.Shelf.Count} / 20 references · {_app.Local.Shelf.Count(x => x.Pinned)} pinned", 11, "Muted"));
+        var notice = Label("bodyShelfNotice", "", 11, "Muted");
+        notice.Visibility = Visibility.Collapsed;
+        notice.Margin = new Thickness(0, 8, 0, 0);
+        _body.Children.Add(notice);
+        UpdateShelfMessage();
         if (_app.Local.Shelf.Count == 0)
         {
             var stack = new StackPanel { HorizontalAlignment = HorizontalAlignment.Center };
@@ -791,6 +1058,7 @@ public sealed class IslandWindow : Window
         {
             var row = new Grid { Margin = new Thickness(0, 8, 0, 0) };
             row.ColumnDefinitions.Add(new ColumnDefinition());
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
             row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
             Point? origin = null;
             bool suppressClick = false;
@@ -827,7 +1095,19 @@ public sealed class IslandWindow : Window
             remove.Margin = new Thickness(4, 0, 0, 0);
             Grid.SetColumn(remove, 1);
             row.Children.Add(remove);
+            var pin = Design.IconButton("\uE718", (item.Pinned ? "Unpin " : "Pin ") + item.Name, () => { _app.Local.SetShelfPinned(item.Id, !item.Pinned); BuildBody(); });
+            if (item.Pinned) pin.SetResourceReference(Control.ForegroundProperty, "Accent");
+            Grid.SetColumn(pin, 2); row.Children.Add(pin);
             _body.Children.Add(row);
+            if (!item.Available)
+            {
+                _body.Children.Add(Design.Text(item.Path, 11, "Muted"));
+                var recovery = new WrapPanel();
+                recovery.Children.Add(Design.Button("Locate " + item.Name, () => RelinkShelf(item)));
+                var folder = _app.Local.ShelfRecoveryFolder(item.Id);
+                if (folder != null) recovery.Children.Add(Design.Button("Open nearby folder", () => _ = _app.OpenTarget(() => _app.Local.Launch(new LauncherEntry { Target = folder, Kind = "Folder" }))));
+                _body.Children.Add(recovery);
+            }
         }
     }
     private async void Run(Func<Task> action)
@@ -867,7 +1147,7 @@ public sealed class IslandWindow : Window
         foreach (string theme in new[] { "Dark", "Light" })
         {
             _app.Preferences.Theme = theme;
-            Design.Apply(_app.Preferences);
+            Design.Apply(_app.EffectivePreferences);
             foreach (string module in new[] { "Overview", "Music", "Controls", "Timer", "Launch", "Shelf" })
             {
                 _module = module;
@@ -902,7 +1182,7 @@ public sealed class IslandWindow : Window
         }
         _rendering = false;
         _app.Preferences.Theme = previous;
-        Design.Apply(_app.Preferences);
+        Design.Apply(_app.EffectivePreferences);
         Collapse(false);
     }
     private static void SaveVisual(Visual visual, string path, int width, int height)
@@ -922,7 +1202,17 @@ public sealed class IslandWindow : Window
     {
         if (!IsVisible && !_rendering)
             return;
-        string enabled = string.Join("|", Modules.Where(m => _app.Preferences.EnabledModules.Contains(m)));
+        // A live preference change also removes clocks created by normal motion.
+        if (Design.ReducedMotion(_app.EffectivePreferences))
+        {
+            _slide.BeginAnimation(TranslateTransform.YProperty, null);
+            _slide.Y = 0;
+            _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
+            _detailSlide.Y = 0;
+            _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
+            _clip.Rect = _wide ? OpenRect : CompactRect;
+        }
+        string enabled = string.Join("|", _app.Preferences.ModuleOrder.Where(m => _app.Preferences.EnabledModules.Contains(m)));
         if (enabled != _enabledSignature)
         {
             _enabledSignature = enabled;
@@ -938,16 +1228,68 @@ public sealed class IslandWindow : Window
         {
             var music = _app.Hardware.Music;
             var timer = _app.Local.Timer;
-            var completedTimers = _app.Local.Timers.Count(item => item.Phase == TimerPhase.Completed);
+            bool musicEnabled = _app.Preferences.EnabledModules.Contains("Music");
+            bool timerEnabled = _app.Preferences.EnabledModules.Contains("Timer");
+            var completedTimers = timerEnabled ? _app.Local.Timers.Count(item => item.Phase == TimerPhase.Completed) : 0;
+            var focus = _app.Local.Focus;
+            int dueReminders = timerEnabled ? _app.Local.Reminders.Count(item => item.Phase == ReminderPhase.Due) : 0;
+            bool focusActive = timerEnabled && focus.Phase != TimerPhase.Idle;
             var battery = _app.Hardware.Battery;
-            Set("compactTitle", completedTimers > 0 ? completedTimers == 1 ? "Timer complete" : completedTimers + " timers complete" : music.HasSession ? music.Title : "crest");
-            Set("compactDetail", completedTimers > 0 ? "Open timers to acknowledge" : timer.Phase == TimerPhase.Running ? timer.Name + " · " + FormatTime(timer.RemainingSeconds) : music.HasSession ? music.Artist : "Your desktop, in reach");
-            _compactArt.Source = music.Artwork;
-            _compactArt.Visibility = music.Artwork == null ? Visibility.Collapsed : Visibility.Visible;
-            _compactPlay.IsEnabled = _app.Preferences.EnabledModules.Contains("Music") && music.CanPlayPause;
+            var notice = _app.Preferences.EnabledModules.Contains("Controls") ? _shownBatteryNotice : null;
+            bool activeTimer = timerEnabled && (timer.Phase is TimerPhase.Running or TimerPhase.Paused);
+            _compactShowsCompletedTimers = completedTimers > 0;
+            _compactShowsDueReminders = dueReminders > 0;
+            _compactShowsFocus = focusActive && dueReminders == 0 && completedTimers == 0;
+            _compactModule = notice != null ? "Controls" : completedTimers > 0 || activeTimer || focusActive || dueReminders > 0 ? "Timer"
+                : musicEnabled && music.HasSession ? "Music" : "Overview";
+            string compactTitle = notice != null ? notice.Severity == BatteryWarningLevel.Critical ? "Battery was critically low" : "Battery was low"
+                : completedTimers > 0 ? completedTimers == 1 ? "Timer complete" : completedTimers + " timers complete"
+                : dueReminders > 0 ? dueReminders == 1 ? "Reminder due" : dueReminders + " reminders due"
+                : focusActive ? focus.Phase == TimerPhase.Completed ? focus.Stage + " complete" : focus.Name
+                : activeTimer ? timer.Name : _compactModule == "Music" ? music.Title : "crest";
+            string compactDetail = notice != null ? "Windows reported " + notice.Percent.ToString(CultureInfo.CurrentCulture) + "% · open controls"
+                : completedTimers > 0 ? "Open timers to acknowledge"
+                : dueReminders > 0 ? "Open reminders to snooze or dismiss"
+                : focusActive ? focus.Phase == TimerPhase.Completed ? "Continue or dismiss in Focus" : focus.Stage + " · " + FormatTime(focus.RemainingSeconds)
+                : activeTimer ? timer.Phase + " · " + FormatTime(timer.RemainingSeconds)
+                : _compactModule == "Music" ? music.Artist : "Your desktop, in reach";
+            Set("compactTitle", compactTitle);
+            Set("compactDetail", compactDetail);
+            AutomationProperties.SetName(_compact, compactTitle + ", " + compactDetail);
+            string detailsName = _compactModule switch { "Controls" => "Open laptop controls", "Timer" => "Open timers and stopwatch", "Music" => "Open music details", _ => "Open activity overview" };
+            AutomationProperties.SetName(_compactDetails, detailsName + ", " + compactTitle + ", " + compactDetail);
+            _compactGlyph.Text = _compactModule switch { "Controls" => "\uE9E9", "Timer" => "\uE823", "Music" => "\uE8D6", _ => "\uE80F" };
+            _compactArt.Source = _compactModule == "Music" ? music.Artwork : null;
+            _compactArt.Visibility = _compactArt.Source == null ? Visibility.Collapsed : Visibility.Visible;
+            string actionName = _compactModule switch
+            {
+                "Controls" => "Open laptop controls",
+                "Timer" when completedTimers > 0 => "Open completed timers",
+                "Timer" when dueReminders > 0 => "Open due reminders",
+                "Timer" when focusActive && focus.Phase == TimerPhase.Completed => "Open completed focus session",
+                "Timer" when focusActive => (focus.Phase == TimerPhase.Running ? "Pause " : "Resume ") + focus.Name,
+                "Timer" => (timer.Phase == TimerPhase.Running ? "Pause " : "Resume ") + timer.Name,
+                "Music" => music.IsPlaying ? "Pause music" : "Play music",
+                _ => "No activity action available"
+            };
+            AutomationProperties.SetName(_compactPlay, actionName);
+            Design.RegisterTooltip(_compactPlay, actionName);
+            _compactPlay.IsEnabled = !_compactActionBusy && (_compactModule is "Controls" or "Timer" || _compactModule == "Music" && music.CanPlayPause);
+            _compactPlay.Visibility = _compactModule == "Overview" ? Visibility.Collapsed : Visibility.Visible;
             if (_compactPlay.Content is TextBlock compactGlyph)
-                compactGlyph.Text = music.IsPlaying ? "\uE769" : "\uE768";
-            Set("clock", DateTime.Now.ToString("t"));
+                compactGlyph.Text = _compactModule == "Controls" ? "\uE70D" : completedTimers > 0 || dueReminders > 0 || focusActive && focus.Phase == TimerPhase.Completed ? "\uE823"
+                    : _compactModule == "Timer" && focusActive ? focus.Phase == TimerPhase.Running ? "\uE769" : "\uE768"
+                    : _compactModule == "Timer" ? timer.Phase == TimerPhase.Running ? "\uE769" : "\uE768"
+                    : music.IsPlaying ? "\uE769" : "\uE768";
+            var now = DateTime.Now;
+            Set("clock", now.ToString("g", CultureInfo.CurrentCulture));
+            AutomationProperties.SetHelpText(_labels["clock"], now.ToString("F", CultureInfo.CurrentCulture));
+            if (_labels.TryGetValue("bodyBatteryNotice", out var noticeLabel))
+            {
+                noticeLabel.Text = notice == null ? "" : (notice.Severity == BatteryWarningLevel.Critical ? "Earlier critical battery warning: " : "Earlier low-battery warning: ")
+                    + notice.Percent.ToString(CultureInfo.CurrentCulture) + "% reported by Windows.";
+                noticeLabel.Visibility = notice == null ? Visibility.Collapsed : Visibility.Visible;
+            }
             if (!_wide)
                 return;
             _expanded.Refresh();
@@ -989,11 +1331,13 @@ public sealed class IslandWindow : Window
                 UpdateSlider("brightness", _app.Hardware.Brightness, _app.Hardware.BrightnessAvailable, _app.Hardware.BrightnessStatus);
                 _buttons["mute"].Content = _app.Hardware.IsMuted ? "Unmute audio" : "Mute audio";
                 _buttons["mute"].IsEnabled = _app.Hardware.AudioAvailable;
+                _systemTools?.Refresh();
             }
             if (_module == "Timer")
             {
                 _timerTools?.Refresh();
             }
+            if (_module == "Clipboard") _clipboardTools?.Refresh();
         }
         finally { _refreshing = false; }
     }

@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using Windows.Media.Control;
 using Windows.Storage.Streams;
+using Crest.Core;
 
 namespace Crest.Features;
 
@@ -82,7 +83,10 @@ public sealed record BatterySnapshot
 
 public sealed class HardwareHub : IDisposable
 {
+    private readonly object _batteryGate = new();
+    private readonly BatteryNoticeState _batteryNotices = new();
     private readonly CoreAudioAdapter _audio = new();
+    private readonly WindowsSystemMonitor _systemMonitor = new();
     private readonly SemaphoreSlim _mediaGate = new(1, 1);
     private readonly SemaphoreSlim _brightnessGate = new(1, 1);
     private GlobalSystemMediaTransportControlsSessionManager? _manager;
@@ -108,7 +112,15 @@ public sealed class HardwareHub : IDisposable
     public bool AudioAvailable => _audio.Available;
     public string AudioStatus => _audio.Status;
     public string OutputName => _audio.OutputName;
+    public IReadOnlyList<AudioOutputInfo> AudioOutputs => _audio.Outputs;
+    public SystemStatisticsSnapshot SystemStatistics => _systemMonitor.Statistics;
+    public ConnectivitySnapshot Connectivity => _systemMonitor.Connectivity;
+    public Task<string?> SwitchAudioOutputAsync(string id) => Task.Run(() => _audio.SwitchOutputAsync(id));
+    public Task RefreshAudioOutputsAsync() => Task.Run(() => _audio.RefreshAsync(true));
     public BatterySnapshot Battery { get; private set; } = new();
+    public BatteryNoticeSnapshot? PendingBatteryNotice => _batteryNotices.Pending;
+    public bool AcknowledgeBatteryNotice(long id) => _batteryNotices.Acknowledge(id);
+    public void ClearBatteryNotices() => _batteryNotices.Clear();
     public double Brightness
     {
         get; private set;
@@ -123,6 +135,7 @@ public sealed class HardwareHub : IDisposable
     {
         _preferredPlayer = preferredPlayer;
         _audio.Changed += OnAudioChanged;
+        _systemMonitor.Changed += OnAudioChanged;
     }
 
     public void Start()
@@ -162,6 +175,7 @@ public sealed class HardwareHub : IDisposable
         if (_disposed || _visible == visible)
             return;
         _visible = visible;
+        _systemMonitor.SetVisible(visible);
         _visibleTimer?.Change(visible ? 0 : Timeout.Infinite, visible ? 1000 : Timeout.Infinite);
         if (visible)
             _ = RefreshAsync();
@@ -389,33 +403,35 @@ public sealed class HardwareHub : IDisposable
 
     private void ReadBattery(bool force = false)
     {
-        if (_disposed)
-            return;
-        var now = Environment.TickCount64;
-        var previous = Interlocked.Read(ref _lastBatteryRead);
-        if (!force && now - previous < 30_000)
-            return;
-        if (!force && Interlocked.CompareExchange(ref _lastBatteryRead, now, previous) != previous)
-            return;
-        if (force)
-            Interlocked.Exchange(ref _lastBatteryRead, now);
-        try
+        // Power events and reconciliation can arrive together. Serialize the native reading
+        // with its episode update so an older completion cannot reset a newer warning.
+        lock (_batteryGate)
         {
-            if (!GetSystemPowerStatus(out var power))
-                throw new InvalidOperationException();
-            var available = power.BatteryFlag != 128 && power.BatteryFlag != 255 && power.BatteryLifePercent <= 100;
-            var charging = available && (power.BatteryFlag & 8) != 0;
-            var minutes = power.BatteryLifeTime != uint.MaxValue ? (int?)(power.BatteryLifeTime / 60) : null;
-            Battery = new BatterySnapshot
+            if (_disposed)
+                return;
+            var now = Environment.TickCount64;
+            if (!force && now - _lastBatteryRead < 30_000)
+                return;
+            _lastBatteryRead = now;
+            try
             {
-                Available = available,
-                Percent = available ? power.BatteryLifePercent : 0,
-                Charging = charging,
-                RemainingMinutes = available && !charging ? minutes : null,
-                Status = !available ? "No battery reported by Windows" : charging ? "Charging" : power.ACLineStatus == 1 ? "Plugged in" : "On battery"
-            };
+                if (!GetSystemPowerStatus(out var power))
+                    throw new InvalidOperationException();
+                var available = (power.BatteryFlag & 128) == 0 && power.BatteryFlag != 255 && power.BatteryLifePercent <= 100;
+                var charging = available && (power.BatteryFlag & 8) != 0;
+                var minutes = power.BatteryLifeTime != uint.MaxValue ? (int?)(power.BatteryLifeTime / 60) : null;
+                Battery = new BatterySnapshot
+                {
+                    Available = available,
+                    Percent = available ? power.BatteryLifePercent : 0,
+                    Charging = charging,
+                    RemainingMinutes = available && !charging ? minutes : null,
+                    Status = !available ? "No battery reported by Windows" : charging ? "Charging" : power.ACLineStatus == 1 ? "Plugged in" : "On battery"
+                };
+                _batteryNotices.Observe(available, power.BatteryFlag, power.BatteryLifePercent, power.ACLineStatus == 1);
+            }
+            catch { Battery = new BatterySnapshot { Status = "Windows battery information is unavailable" }; }
         }
-        catch { Battery = new BatterySnapshot { Status = "Windows battery information is unavailable" }; }
         RaiseChanged();
     }
 
@@ -572,6 +588,8 @@ public sealed class HardwareHub : IDisposable
             catch { }
         _brightnessWatcher = null;
         _audio.Changed -= OnAudioChanged;
+        _systemMonitor.Changed -= OnAudioChanged;
+        _systemMonitor.Dispose();
         _audio.Dispose();
     }
 

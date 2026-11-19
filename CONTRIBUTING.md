@@ -36,7 +36,7 @@ Source layout:
 | --- | --- |
 | `src/Crest/Core` | Settings, interaction state, and pending control writes |
 | `src/Crest/Platform` | Windows desktop eligibility and native APIs |
-| `src/Crest/Features` | Media, audio, brightness, timer, launcher, and shelf |
+| `src/Crest/Features` | Media/audio/hardware, productivity, clipboard history, workspaces/capture references, and shelf |
 | `src/Crest/UI` | Island, activity deck, Settings, and theme controls |
 | `tests` | Outcome tests and optional read-only Windows probes |
 | `scripts` and `installer` | Build, distribution, and per-user setup |
@@ -49,7 +49,7 @@ GitHub Actions checks builds; it does not certify physical desktop dragging, scr
 
 - Check actual Windows capabilities and expose useful unavailable states. Do not fill disconnected media or hardware with invented data.
 - Preserve timer recovery and original files referenced by the shelf.
-- Keep accounts, permissions, clipboard capture, and future integrations out of flows until their behavior and data handling are specified.
+- Clipboard capture must remain off by default and collect only new text changes after explicit opt-in. Preserve durable pause, bounded retention, pin limits, clear/disable erasure and privacy-exclusion markers. Account and future integrations require separate behavior and permission specifications.
 - Keep desktop suppression immediate in the default mode, even when an animation is running. In opt-in app access, preserve the shared controller, secure-desktop and lifecycle guards, and registered popup rules. Changing access mode must cancel pending motion and require a fresh entry.
 - Respect the Windows reduced-motion and high-contrast preferences.
 

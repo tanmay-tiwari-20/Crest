@@ -434,7 +434,7 @@ public sealed class ActivityDeck : UserControl
             _batteryButton.IsEnabled = controlsEnabled;
             _chargingIcon.Visibility = controlsEnabled && battery.Available && battery.Charging ? Visibility.Visible : Visibility.Collapsed;
             AutomationProperties.SetName(_batteryButton, battery.Available ? "Open laptop controls, battery " + battery.Percent + " percent, " + battery.Status : "Open laptop controls, " + battery.Status);
-            if (IsVisible && controlsEnabled && battery.Charging && !Design.ReducedMotion(_app.Preferences))
+            if (IsVisible && controlsEnabled && battery.Charging && !Design.ReducedMotion(_app.EffectivePreferences))
             {
                 if (!_chargingAnimating)
                 {

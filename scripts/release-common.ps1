@@ -113,7 +113,7 @@ function Get-CrestSourceFingerprint {
             $inputs.Add($relative + ':' + (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash)
         }
     }
-    foreach ($name in @('global.json', 'Crest.slnx')) {
+    foreach ($name in @('global.json', 'Crest.slnx', '.gitattributes')) {
         $inputs.Add($name + ':' + (Get-FileHash -LiteralPath (Join-Path $script:CrestRoot $name) -Algorithm SHA256).Hash)
     }
     # Culture-sensitive sorting differs between Windows PowerShell (.NET/NLS)

@@ -42,6 +42,7 @@ if (-not $SkipTests) {
     & $dotnetExe run --project $uiProbeProject --configuration $Configuration --no-build --no-restore --no-launch-profile -- (Join-Path $script:CrestRoot 'artifacts\productivity-qa')
     if ($LASTEXITCODE -ne 0) { throw 'Crest productivity UI verification failed. No package was produced.' }
     & (Join-Path $PSScriptRoot 'test-release-verification.ps1')
+    & (Join-Path $PSScriptRoot 'Measure-HiddenIdle.ps1') -ObserverSelfTest
 }
 $portableDir = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\portable\Crest')
 & $dotnetExe publish $appProject --configuration $Configuration --runtime $metadata.Rid --self-contained true --no-build --no-restore --output $portableDir --nologo @commonProperties -p:PublishSingleFile=false -p:PublishReadyToRun=true

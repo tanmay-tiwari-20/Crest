@@ -1,0 +1,55 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedDate": "2026-11-19",
+  "CandidateDllSHA256": "98C806E924BDA5C9C35C5F1421E83E329E6B658D6136AF5E51AEE69A8BC38991",
+  "SourceFingerprint": "3D761913BB1C9A55AFA58BB916F7F2401B968D70055BF2ADC9D95628EC26A222",
+  "Conditions": {
+    "IsolatedProfile": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "TimerSound": true,
+    "RealTimerSeconds": 20,
+    "OutputVolumeChangedByTest": false
+  },
+  "Observed": {
+    "CompletedPhasePersisted": true,
+    "RemainingSeconds": 0,
+    "TimerAudioErrorsLogged": false,
+    "OwnerHeardBundledChime": true,
+    "GracefulTestQuit": true
+  },
+  "ComponentVerification": {
+    "DomainOutcomes": 64,
+    "UiOutcomes": 36,
+    "ReleaseProvenanceChecks": 8,
+    "TimerAudioUiOutcomes": 7,
+    "CompletionLifecycleOutcomes": 3,
+    "ChimeDurationSeconds": 3.54,
+    "ChimeSHA256": "E3FEE684D5C5B5DED2AB0AAE593851AD0D324A87C44291E0A6C25DB255146A61"
+  },
+  "RawEvidenceDigests": [
+    {
+      "Path": "setup.json",
+      "SHA256": "AF3B4B32F79B36996068722C7B9F71D2C342E1A05FDD89FF5C6D6D1030908C00"
+    },
+    {
+      "Path": "owner-feedback.json",
+      "SHA256": "77CD2A06C266A8721165CC4388AC4251D2032F9ABC9B88CFC28C391E625956E5"
+    },
+    {
+      "Path": "installed-upgrade.json",
+      "SHA256": "78123F3F3593D121FAA927E12FF42779EB5A86C0A4A063F814D637446957D1C7"
+    }
+  ],
+  "Limitations": "Owner confirmed hearing one real completion on the current Windows output. Silent injectable tests cover queueing, disabled/stale completions, cancellation, preview, shutdown and resource validity. This does not qualify endpoint-disconnect, sleep/resume or the complete P1 native acceptance matrix. Existing user settings and output volume were unchanged by the test.",
+  "InstalledUpgrade": {
+    "CandidateDllSHA256": "98C806E924BDA5C9C35C5F1421E83E329E6B658D6136AF5E51AEE69A8BC38991",
+    "InstallerSHA256": "9221B92D6BE586D5659AB05F7FE61E58DA18BBA551DF1DABDB8ACAD142C59AB9",
+    "VerifiedInstalledFileCount": 492,
+    "SavedDataUnchangedByUpgrade": true,
+    "StartupPreferenceUnchanged": true,
+    "InstalledInstanceReady": true,
+    "TimerSoundEnabled": true,
+    "Limitations": "Existing-user upgrade of the audio-tested candidate, with every distributed file verified. This is not clean-account install/uninstall coverage or an additional owner hearing observation."
+  }
+}

@@ -12,6 +12,12 @@ try
     passed += ProductivityTests.Run();
     passed += DiagnosticTests.Run();
     passed += VisibilityTests.Run();
+    passed += BatteryNoticeTests.Run();
+    passed += ShelfTests.Run();
+    passed += LocalP2Tests.Run();
+    passed += ClipboardHistoryTests.Run();
+    passed += SystemStatisticsTests.Run();
+    passed += LocalWorkflowTests.Run();
     Test("Live clock changes do not affect running countdown", () =>
     {
         var env = Create("clock");

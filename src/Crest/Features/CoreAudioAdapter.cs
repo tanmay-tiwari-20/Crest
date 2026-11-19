@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Crest.Features;
+
+public sealed record AudioOutputInfo(string Id, string Name, bool IsDefault);
 
 internal sealed class CoreAudioAdapter : IDisposable
 {
@@ -13,6 +17,8 @@ internal sealed class CoreAudioAdapter : IDisposable
     private EndpointCallback? _endpointCallback;
     private readonly DeviceCallback _deviceCallback;
     private bool _disposed;
+    private string _defaultOutputId = "";
+    public IReadOnlyList<AudioOutputInfo> Outputs { get; private set; } = Array.Empty<AudioOutputInfo>();
     public event EventHandler? Changed;
     public double Volume
     {
@@ -51,6 +57,7 @@ internal sealed class CoreAudioAdapter : IDisposable
                 Marshal.ThrowExceptionForHR(_enumerator.GetDefaultAudioEndpoint(0, 1, out var device));
                 try
                 {
+                    Marshal.ThrowExceptionForHR(device.GetId(out _defaultOutputId));
                     var iid = typeof(IAudioEndpointVolume).GUID;
                     Marshal.ThrowExceptionForHR(device.Activate(ref iid, 23, IntPtr.Zero, out var result));
                     _volume = (IAudioEndpointVolume)result;
@@ -66,16 +73,76 @@ internal sealed class CoreAudioAdapter : IDisposable
             Muted = mute;
             Available = true;
             Status = "System volume";
+            Outputs = ReadOutputs();
         }
         catch (Exception)
         {
             Available = false;
             Status = "No available audio output. Connect a speaker or headphones, then refresh.";
             ReleaseEndpoint();
+            Outputs = _enumerator is null ? Array.Empty<AudioOutputInfo>() : ReadOutputs();
         }
         finally { _gate.Release(); }
         if (!_disposed)
             Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private IReadOnlyList<AudioOutputInfo> ReadOutputs()
+    {
+        IMMDeviceCollection? collection = null;
+        var outputs = new List<AudioOutputInfo>();
+        try
+        {
+            Marshal.ThrowExceptionForHR(_enumerator!.EnumAudioEndpoints(0, 1, out collection));
+            Marshal.ThrowExceptionForHR(collection.GetCount(out uint count));
+            for (uint index = 0; index < Math.Min(count, 64); index++)
+            {
+                IMMDevice? device = null;
+                try
+                {
+                    Marshal.ThrowExceptionForHR(collection.Item(index, out device));
+                    Marshal.ThrowExceptionForHR(device.GetId(out string id));
+                    outputs.Add(new(id, ReadName(device), Available && id == _defaultOutputId));
+                }
+                catch { }
+                finally { ReleaseCom(device); }
+            }
+        }
+        catch { }
+        finally { ReleaseCom(collection); }
+        return outputs.OrderByDescending(x => x.IsDefault).ThenBy(x => x.Name).ToArray();
+    }
+
+    public async Task<string?> SwitchOutputAsync(string id)
+    {
+        string? error = null;
+        await _gate.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            if (_disposed) return "Audio controls have closed.";
+            if (!Outputs.Any(x => x.Id == id)) return "That output is no longer connected. Refresh or open Windows sound settings.";
+            object? policy = null;
+            IMMDevice? device = null;
+            try
+            {
+                // PolicyConfig is provided on many Windows builds, but is not a public
+                // compatibility contract. Probe at runtime and verify the actual default.
+                policy = new PolicyConfigClient();
+                var config = (IPolicyConfig)policy;
+                Marshal.ThrowExceptionForHR(config.SetDefaultEndpoint(id, 0));
+                Marshal.ThrowExceptionForHR(config.SetDefaultEndpoint(id, 1));
+                Marshal.ThrowExceptionForHR(config.SetDefaultEndpoint(id, 2));
+                Marshal.ThrowExceptionForHR(_enumerator!.GetDefaultAudioEndpoint(0, 1, out device));
+                Marshal.ThrowExceptionForHR(device.GetId(out string actual));
+                if (!string.Equals(actual, id, StringComparison.Ordinal))
+                    error = "Windows did not confirm the selected output. Choose it in Windows sound settings.";
+            }
+            catch { error = "Windows could not switch this output directly. Choose it in Windows sound settings."; }
+            finally { ReleaseCom(device); ReleaseCom(policy); }
+        }
+        finally { _gate.Release(); }
+        await RefreshAsync(true).ConfigureAwait(false);
+        return error;
     }
 
     public async Task SetVolumeAsync(double value)
@@ -190,11 +257,35 @@ internal sealed class CoreAudioAdapter : IDisposable
     [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
     private interface IMMDeviceEnumerator
     {
-        [PreserveSig] int EnumAudioEndpoints(int flow, uint state, out IntPtr devices);
+        [PreserveSig] int EnumAudioEndpoints(int flow, uint state, out IMMDeviceCollection devices);
         [PreserveSig] int GetDefaultAudioEndpoint(int flow, int role, out IMMDevice device);
         [PreserveSig] int GetDevice([MarshalAs(UnmanagedType.LPWStr)] string id, out IMMDevice device);
         [PreserveSig] int RegisterEndpointNotificationCallback(IMMNotificationClient callback);
         [PreserveSig] int UnregisterEndpointNotificationCallback(IMMNotificationClient callback);
+    }
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E")]
+    private interface IMMDeviceCollection
+    {
+        [PreserveSig] int GetCount(out uint count);
+        [PreserveSig] int Item(uint index, out IMMDevice device);
+    }
+    [ComImport, Guid("870AF99C-171D-4F9E-AF0D-E63DF40C2BC9")]
+    private class PolicyConfigClient { }
+    [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("F8679F50-850A-41CF-9C72-430F290290C8")]
+    private interface IPolicyConfig
+    {
+        [PreserveSig] int GetMixFormat([MarshalAs(UnmanagedType.LPWStr)] string id, out IntPtr format);
+        [PreserveSig] int GetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id, int isDefault, out IntPtr format);
+        [PreserveSig] int ResetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id);
+        [PreserveSig] int SetDeviceFormat([MarshalAs(UnmanagedType.LPWStr)] string id, IntPtr endpoint, IntPtr mix);
+        [PreserveSig] int GetProcessingPeriod([MarshalAs(UnmanagedType.LPWStr)] string id, int isDefault, out long period, out long minimum);
+        [PreserveSig] int SetProcessingPeriod([MarshalAs(UnmanagedType.LPWStr)] string id, ref long period);
+        [PreserveSig] int GetShareMode([MarshalAs(UnmanagedType.LPWStr)] string id, IntPtr mode);
+        [PreserveSig] int SetShareMode([MarshalAs(UnmanagedType.LPWStr)] string id, IntPtr mode);
+        [PreserveSig] int GetPropertyValue([MarshalAs(UnmanagedType.LPWStr)] string id, ref PropertyKey key, out PropVariant value);
+        [PreserveSig] int SetPropertyValue([MarshalAs(UnmanagedType.LPWStr)] string id, ref PropertyKey key, ref PropVariant value);
+        [PreserveSig] int SetDefaultEndpoint([MarshalAs(UnmanagedType.LPWStr)] string id, int role);
+        [PreserveSig] int SetEndpointVisibility([MarshalAs(UnmanagedType.LPWStr)] string id, int visible);
     }
     [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("D666063F-1587-4E43-81F1-B948E807363F")]
     private interface IMMDevice

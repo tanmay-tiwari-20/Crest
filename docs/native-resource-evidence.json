@@ -1,0 +1,79 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedDate": "2026-11-19",
+  "CandidateDllSHA256": "4C822F23A46C6B01021ACC0AD156A302227183796B74359E078499DAF0074B16",
+  "SourceFingerprint": "4FFC29422662CC099A7ACD38320860146A98ED20B022A6AEBA584D78D65ACF1B",
+  "Baseline": {
+    "WindowsVersion": "Windows 11 Home Single Language 10.0.26300",
+    "Architecture": "x64",
+    "Cpu": "AMD Ryzen 5 5600H",
+    "LogicalProcessors": 12,
+    "RamGiB": 7.34,
+    "Gpu": [
+      "AMD Radeon Graphics",
+      "AMD Radeon RX 6500M"
+    ],
+    "Display": "1920 x 1080",
+    "DpiPercent": 125,
+    "PowerScheme": "Balanced"
+  },
+  "Conditions": {
+    "IsolatedProfile": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "CoreModulesEnabled": [
+      "Music",
+      "Controls",
+      "Timer",
+      "Launch",
+      "Shelf"
+    ],
+    "AiModelIncluded": false
+  },
+  "NativeChecks": {
+    "ExactCandidateDllLoaded": true,
+    "ActualCandidateInstalledFiveHooksAtReadiness": true,
+    "ActualCandidateHiddenAtReadiness": true,
+    "SeparateDiagnosticInstalledFiveHooks": true,
+    "NormalInputDesktop": true,
+    "DesktopShellIdentityRecovered": true,
+    "ActualCandidateWindowsHidden": true,
+    "CurrentForegroundRejectedByDesktopPolicy": true
+  },
+  "Measurements": {
+    "DurationSeconds": 600.856,
+    "CpuMeasurementDurationSeconds": 600.847,
+    "SampleCount": 122,
+    "MeanTotalDeviceCpuPercent": 0.023,
+    "MaximumWorkingSetBytes": 152539136,
+    "MaximumWorkingSetMiB": 145.47,
+    "AllWindowsHidden": true,
+    "VisibleSamples": 0,
+    "WindowShowEvents": 0,
+    "WindowShowObservationHealthy": true,
+    "WindowEnumerationFailures": 0,
+    "CandidateDllUnchanged": true,
+    "ProcessExitedEarly": false,
+    "ExternalLaunchToReadinessMilliseconds": 2269.648
+  },
+  "QualifiedGates": [
+    "PER-idle",
+    "PER-memory"
+  ],
+  "RawEvidenceDigests": [
+    {
+      "Path": "readiness.json",
+      "SHA256": "31979BEBDBD3640281C2E57CCC9E8C3546E0621D17438003A2F07B2F21F0A13B"
+    },
+    {
+      "Path": "snapshot.json",
+      "SHA256": "EADA1069D9896B39013955A8E60F6C8A6CAB35B816A5FD163A4A889A54F70468"
+    },
+    {
+      "Path": "hidden-idle.json",
+      "SHA256": "427503DF491C41A04D48393E28C68483C0F30A7012B7177ED5A46BE60CCDDB06"
+    }
+  ],
+  "Limitations": "Historical qualification only for the recorded DLL/source. The subsequent timer-sound candidate requires requalification. Observed on the stated laptop using a fresh acceptance profile and the exact verified candidate. Raw window and process snapshots remain local. Readiness is an uncontrolled-cache observation, not installed cold-start qualification. Physical pointer/keyboard, shell/lifecycle/display transitions, desktop dragging, screen reader, frame presentation, hidden rendering trace, battery impact and clean-account distribution remain open.",
+  "EvidenceStatus": "historical"
+}

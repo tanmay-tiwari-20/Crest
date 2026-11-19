@@ -35,6 +35,8 @@ public sealed class DesktopPolicy : IDisposable
         get; private set;
     }
     public double DpiScale { get; private set; } = 1;
+    public string DisplayDeviceName { get; private set; } = "";
+    public int NativeHookCount => _hooks.Count;
     public event EventHandler? Changed;
 
     public DesktopPolicy(Func<AppSettings> settings)
@@ -155,6 +157,7 @@ public sealed class DesktopPolicy : IDisposable
         bool eligible = false;
         Rectangle oldBounds = DisplayBounds;
         double oldDpi = DpiScale;
+        string oldDisplay = DisplayDeviceName;
         try
         {
             var settings = _settings();
@@ -187,7 +190,7 @@ public sealed class DesktopPolicy : IDisposable
             }
         }
         catch { eligible = false; }
-        bool geometryChanged = oldBounds != DisplayBounds || Math.Abs(oldDpi - DpiScale) > 0.001;
+        bool geometryChanged = oldBounds != DisplayBounds || Math.Abs(oldDpi - DpiScale) > 0.001 || oldDisplay != DisplayDeviceName;
         if (geometryChanged && IsEligible)
             SetEligibility(false, true);
         SetEligibility(eligible, geometryChanged);
@@ -223,10 +226,12 @@ public sealed class DesktopPolicy : IDisposable
         var screens = Screen.AllScreens;
         if (screens.Length == 0)
         {
+            DisplayDeviceName = "";
             DisplayBounds = Rectangle.Empty;
             return;
         }
         var display = Array.Find(screens, screen => screen.DeviceName == _settings().SelectedDisplay) ?? Screen.PrimaryScreen ?? screens[0];
+        DisplayDeviceName = display.DeviceName;
         DisplayBounds = display.Bounds;
         var point = new NativeMethods.POINT { X = display.Bounds.Left + display.Bounds.Width / 2, Y = display.Bounds.Top + display.Bounds.Height / 2 };
         var monitor = NativeMethods.MonitorFromPoint(point, 2);

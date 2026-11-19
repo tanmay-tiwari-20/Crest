@@ -6,7 +6,10 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-if ([string]::IsNullOrWhiteSpace($InstallerPath)) { $InstallerPath = Join-Path $projectRoot 'artifacts\Crest-Setup-0.1.0-x64.exe' }
+if ([string]::IsNullOrWhiteSpace($InstallerPath)) {
+    [xml]$crestProject = Get-Content -LiteralPath (Join-Path $projectRoot 'src\Crest\Crest.csproj') -Raw
+    $InstallerPath = Join-Path $projectRoot ("artifacts\Crest-Setup-" + $crestProject.Project.PropertyGroup.Version + "-x64.exe")
+}
 $InstallerPath = [System.IO.Path]::GetFullPath($InstallerPath)
 if (-not (Test-Path -LiteralPath $InstallerPath)) { throw 'The compiled installer is missing.' }
 $artifactRoot = [System.IO.Path]::GetFullPath((Join-Path $projectRoot 'artifacts'))

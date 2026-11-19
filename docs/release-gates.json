@@ -1,87 +1,127 @@
 {
   "SchemaVersion": 1,
-  "ApplicationVersion": "0.1.0",
+  "ApplicationVersion": "0.2.0",
   "ReviewedDate": "2026-11-19",
-  "CandidateDllSHA256": "",
-  "SourceFingerprint": "",
+  "CandidateDllSHA256": "3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159",
+  "SourceFingerprint": "ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086",
   "VisibleOverAppIncidents": [],
-  "Scope": "Public P0/P1 desktop-only acceptance checklist (AllowOverApps=false). Automated outcomes and reviewed aggregate native observations are described in TEST_REPORT.md. Raw machine recordings stay local. Every native gate remains partial or pending until evidence is bound to the candidate under review; opt-in app access requires separate acceptance.",
+  "Scope": "Crest 0.2.0 P2 release candidate. Recorded pass rows and candidate hashes below belong to the historical 0.1.0 priority build and evaluate as stale for 0.2.0; no P1-qualified release is claimed. P2 automated verification is recorded in docs/p2-local-verification.json. Physical display, accessibility, performance and clean-account acceptance remain open; raw machine recordings stay local.",
   "Gates": [
     {
       "Id": "AC01",
       "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
-      "Status": "partial",
-      "Notes": "Fresh-entry state-machine outcomes pass; native lock/resume sequence pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Current startup hidden-state evidence and owner-operated stationary Win+D, actual sleep/wake and lock/unlock checks pass; every recovery waited for fresh entry.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC02",
       "Requirement": "One clear-desktop reveal after dwell without placeholder",
-      "Status": "pending",
-      "Notes": "Native clear-desktop hover and hidden hit-region acceptance pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner confirmed clear desktop stays hidden before fresh hover, reveals once after dwell and closes normally. Initial cursor-tool interference was removed before the passing retry.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC03",
       "Requirement": "Leaving trigger before dwell causes no flash or interception",
-      "Status": "partial",
-      "Notes": "Deterministic cancellation passes; actual pointer cycle capture pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner completed 25 quick trigger passes within the 100-cycle sequence with no flash, duplicate, jump or stuck state.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC04",
       "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
-      "Status": "partial",
-      "Notes": "Final exact-DLL native snapshot: Chrome-class foreground ineligible and all 12 actual candidate HWNDs hidden; five hooks installed in the diagnostic. Full Chrome/Explorer/input-interception matrix remains pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner tested both maximized and ordinary Chrome and File Explorer: top-edge reveal suppressed and app controls remained clickable.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC05",
       "Requirement": "Strict mode rejects visible apps and permits minimized apps",
-      "Status": "partial",
-      "Notes": "Policy source review and coverage diagnostic exist; native selected-display matrix pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner confirmed clicking wallpaper while small Chrome remained visible suppressed strict mode; clear desktop fresh hover was separately verified.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC06",
       "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
       "Status": "partial",
-      "Notes": "100 interrupted state-machine sequences pass; real transitions pending.",
+      "Notes": "Owner completed 25 app-switch interruptions during opening/expansion without issues within 100 cycles; complete independently distinguished dwell/reveal/expansion and off-screen/virtual-desktop matrix remains open.",
       "Evidence": []
     },
     {
       "Id": "AC07",
       "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
-      "Status": "pending",
-      "Notes": "Full shell-panel interaction matrix pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner confirmed Start, Search, Task View, Quick Settings and Widgets hide Crest and suspend edge reveal. Tooltip also disappeared when Chrome activated.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC08",
       "Requirement": "Audio/media controls and registered popups remain usable",
       "Status": "partial",
-      "Notes": "Hardware callbacks and control-edit outcomes exist; native popup/control focus pending.",
+      "Notes": "Current tooltip registration and suppression observed; active media controls, volume and preferred-player popup interaction remain open.",
       "Evidence": []
     },
     {
       "Id": "AC09",
       "Requirement": "Settings and launcher targets hide island as focus changes",
-      "Status": "partial",
-      "Notes": "Historical Settings HWND probe; native launcher target matrix pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner confirmed Settings hides Crest, valid test-folder launch opens Explorer and hides Crest, and absent target yields actionable in-island error.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC10",
       "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
-      "Status": "partial",
-      "Notes": "State-machine cancellation/reversal and static source review; native interrupted motion pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner completed 25 closing leave/return cycles in the 100-cycle sequence with no jump, duplicate island or stuck state.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC11",
       "Requirement": "Background timer completion/track change never reveals",
       "Status": "partial",
-      "Notes": "Local completion has no reveal path; native background event check pending.",
+      "Notes": "Current sleep/wake and pending completion were observed without automatic reveal; current active track-change/app-background media acceptance remains open.",
       "Evidence": []
     },
     {
@@ -109,50 +149,60 @@
       "Id": "AC15",
       "Requirement": "Charging and unavailable battery/brightness show actual capability",
       "Status": "partial",
-      "Notes": "Historical actual plugged-in battery and built-in brightness verified; edge states pending.",
+      "Notes": "Nine OS warning-state and four UI presentation outcomes cover retained low/critical information. Real charging, unavailable hardware and brightness edge transitions remain pending.",
       "Evidence": []
     },
     {
       "Id": "AC16",
       "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
       "Status": "partial",
-      "Notes": "Injected-clock/restart outcomes pass; real sleep and clock adjustment pending.",
+      "Notes": "Owner actual sleep/lock checks passed; root observed completed one-minute and paused five-minute timers and verified exact paused restart persistence (296.171 seconds). Native clock adjustment and future running UTC-deadline restart remain open.",
       "Evidence": []
     },
     {
       "Id": "AC17",
       "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
-      "Status": "partial",
-      "Notes": "Reference cap/source-preservation outcomes pass; required real desktop drag gate pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Current candidate owner-operated desktop drag reveal/import, drag-out, missing source, safe open error, reference removal and occupied shelf clearing on restart passed. Root independently matched source/copy bytes and retained only synthetic fixtures.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC20",
       "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
       "Status": "partial",
-      "Notes": "Final manifest-aware native snapshot reads actual 1920 x 1080 at 125% effective DPI; 16 static WPF theme/DPI renders exist. Physical 100/150/200%, mixed-display and disconnect acceptance remains pending.",
+      "Notes": "Prior shelf DLL snapshot: 1920 x 1080 at 125% effective DPI; 16 productivity plus four readable date/time static DPI renders. Physical 100/150/200%, mixed-display and disconnect acceptance remains pending.",
       "Evidence": []
     },
     {
       "Id": "AC21",
       "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
       "Status": "partial",
-      "Notes": "Historical UI Automation names inspected; complete native accessibility acceptance pending.",
+      "Notes": "45 UI outcomes include compact accessible activity actions and two Settings focus/tab-order regressions. Native Settings Tab/Enter/Shift+Tab and maximized restoration observed on current candidate (docs/priority-settings-evidence.json). Full island keyboard, screen reader, high contrast and Windows preference acceptance remains open.",
       "Evidence": []
     },
     {
       "Id": "AC22",
       "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
       "Status": "partial",
-      "Notes": "Final warm-core resident memory passes independently. Ten-minute all-hidden CPU, actual presented frames, suppression latency and repeatable battery impact remain open.",
+      "Notes": "Current ten-minute hidden CPU and warm resident memory qualify their independent budgets. Actual presented frames, suppression/control latency, installed cold readiness, hidden rendering trace and battery impact remain open.",
       "Evidence": []
     },
     {
       "Id": "AC23",
       "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
-      "Status": "partial",
-      "Notes": "Historical graceful IPC lifecycle and pause probe; shell restart/native recovery matrix pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Owner confirmed Explorer restart and tray Pause/Resume/fresh-entry recovery; root verified desktop shell PID changed 5988 to 23752 and both isolated test instances quit gracefully with no surviving candidate process.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-desktop-evidence.json",
+          "SHA256": "BA340F20AD685395A31690D5E7F60BBD8D809EC9DD02859F2CA3CA1B6B95F41F"
+        }
+      ]
     },
     {
       "Id": "AC24",
@@ -165,7 +215,7 @@
       "Id": "PER-readiness",
       "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
       "Status": "pending",
-      "Notes": "Historical warm launches near 2 seconds; initial cold exceeded 5 seconds. Changed candidate requires measurement.",
+      "Notes": "Current isolated launch-to-readiness observation was 3365.598 ms with uncontrolled cache and concurrent UI-profile launch. It exceeds 3000 ms in this observation; independently cold installed readiness remains unqualified.",
       "Evidence": []
     },
     {
@@ -199,16 +249,26 @@
     {
       "Id": "PER-idle",
       "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
-      "Status": "partial",
-      "Notes": "Final 30.169-second all-hidden capture is too short for the ten-minute CPU gate. Historical 600.212-second run on the previous DLL had three legitimate desktop-visible samples and was invalid for hidden CPU qualification despite 0.1786% measured average.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Current candidate: 600.336-second all-hidden capture, 121 samples, 0.0301% mean total-device CPU, healthy observer, zero visible samples/show events/enumeration failures and unchanged DLL.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-resource-evidence.json",
+          "SHA256": "6C11E1D87331EE584708C2459DA2002BF2073359D151A5681008470292FF0EEA"
+        }
+      ]
     },
     {
       "Id": "PER-memory",
       "Requirement": "Warm core resident working set <=200 MB with no AI model",
-      "Status": "partial",
-      "Notes": "The preceding candidate reached 151,633,920 resident bytes in a short warm capture. This historical observation does not qualify the current app-access DLL; a current candidate measurement remains pending.",
-      "Evidence": []
+      "Status": "pass",
+      "Notes": "Current candidate: maximum warm resident working set 152748032 bytes (145.67 MiB), below decimal 200 MB, all five core modules enabled and no AI model.",
+      "Evidence": [
+        {
+          "Path": "docs/priority-resource-evidence.json",
+          "SHA256": "6C11E1D87331EE584708C2459DA2002BF2073359D151A5681008470292FF0EEA"
+        }
+      ]
     },
     {
       "Id": "PER-hidden-rendering",

@@ -9,7 +9,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>../../assets/crest.ico</ApplicationIcon>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <AssemblyName>Crest</AssemblyName>
     <RootNamespace>Crest</RootNamespace>
@@ -17,4 +17,5 @@
   <ItemGroup><PackageReference Include="System.Management" Version="10.0.0" /></ItemGroup>
   <ItemGroup><Resource Include="../../assets/crest.png" Link="crest.png"/><Content Include="../../assets/crest.ico" Link="crest.ico" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
   <ItemGroup><Resource Include="../../assets/focus-orb.png" Link="focus-orb.png"/></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="../../assets/timer-complete.wav" LogicalName="Crest.TimerComplete.wav" /></ItemGroup>
 </Project>

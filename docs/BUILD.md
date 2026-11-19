@@ -8,6 +8,8 @@ Use Windows 11 x64, Git, PowerShell, and .NET SDK **10.0.404**, pinned by [globa
 
 Crest targets `net10.0-windows10.0.19041.0`, uses WPF and Windows APIs, and is distributed for Windows 11. Its direct NuGet dependency is `System.Management` 10.0.0. The self-contained `win-x64` publish includes the .NET and Windows Desktop 10.0.15 runtimes.
 
+Repository text uses LF line endings through `.gitattributes`; binary assets and license RTF bytes stay unchanged. This keeps the source fingerprint consistent between the maintainer checkout and GitHub's Windows checkout.
+
 ## Build and test
 
 ```powershell
@@ -16,7 +18,7 @@ cd Crest
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-The script restores committed app/test/UI-probe lockfiles in locked mode, compiles with deterministic settings and warnings treated as errors, runs domain outcomes, the isolated WPF productivity UI harness, and release-provenance checks, then publishes `artifacts/portable/Crest`. Fingerprints use ordinal input ordering across Windows PowerShell and PowerShell 7. The UI harness briefly opens a test window, uses temporary isolated data, exercises timer/stopwatch controls, and renders both themes at four DPI densities. It does not install or launch the Crest product. See the [test report](TEST_REPORT.md) for scope and release-gate evidence.
+The script restores committed app/test/UI-probe lockfiles in locked mode, compiles with deterministic settings and warnings treated as errors, runs **97 domain outcomes, 107 WPF/native UI outcomes, eight release-provenance checks, and three observer-lifecycle checks**, then publishes `artifacts/portable/Crest`. Fingerprints use ordinal input ordering across Windows PowerShell and PowerShell 7. The UI harness briefly opens test windows and uses isolated local profiles for productivity, clipboard, hardware, preferences and reference controls. Native clipboard checks temporarily use synthetic text and restore the original clipboard afterward. It also produces theme/DPI layout samples. It does not install or launch the Crest product. The observer checks cover clean/idempotent shutdown, unexpected event-loop exit, and rejection of failed-observer evidence. See the [test report](TEST_REPORT.md) for scope and release-gate evidence.
 
 For a focused test run or development launch:
 
@@ -29,21 +31,29 @@ Quit another Crest instance before launching a development copy.
 
 ## Create release assets
 
+For passive native resource acceptance of a tested publish, run:
+
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.1.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Measure-NativeAcceptance.ps1 -DurationSeconds 600
+```
+
+This creates a fresh local acceptance profile, launches the exact verified candidate with independent IPC names, records native hooks/hidden windows, measures ten-minute CPU and warm memory, and quits only that test instance. It leaves the user's existing Crest instance, saved activities and Windows startup entry intact. Raw evidence stays under `artifacts/native-acceptance/`; profile data stays under `tmp/`. A passive window-show hook catches transient reveals between resource samples and retains any observer failure after cleanup. The report and console summary include requested/actual duration, sample count, early exit, and qualification flags. An interrupted run cannot qualify resource budgets. One readiness observation does not qualify an independently cold start. Use the [acceptance runbook](P1_ACCEPTANCE_RUNBOOK.md) for physical interaction, accessibility, display, frame delivery, battery impact and clean-account distribution checks.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.2.0
 ```
 
 This runs the Release build/tests and creates a clean distribution containing the executable, runtime, public user/build/release documentation, the two reviewed fixture illustrations referenced by README, MIT license, and dependency notices. Raw local screenshots, diagnostic output, PDBs, and machine-specific test reports are excluded.
 
 | File under `artifacts/release` | Purpose |
 | --- | --- |
-| `Crest-Setup-0.1.0-x64.exe` | Per-user Windows installer |
-| `Crest-Portable-0.1.0-x64.zip` | Complete application in a `Crest` folder |
+| `Crest-Setup-0.2.0-x64.exe` | Per-user Windows installer |
+| `Crest-Portable-0.2.0-x64.zip` | Complete application in a `Crest` folder |
 | `SHA256SUMS.txt` | SHA-256 hashes of both application packages |
 | `release-notes.md` | Release-description text |
 | `release-gate-report.json` | Candidate-bound acceptance status for review |
 
-`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, runtime files, and its source/test-bound build record. `scripts/release.ps1 -SkipBuild -Tag v0.1.0` does not rerun tests; it requires the existing publish to match the current verified source and every file hash. Changed source, changed binaries, skipped tests, or Debug output require a fresh Release build.
+`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, runtime files, and its source/test-bound build record. `scripts/release.ps1 -SkipBuild -Tag v0.2.0` does not rerun tests; it requires the existing publish to match the current verified source and every file hash. Changed source, changed binaries, skipped tests, or Debug output require a fresh Release build.
 
 Default release packaging remains a release-candidate operation while native acceptance is open. Use `scripts/verify-release-gates.ps1` to inspect the candidate-bound report. Add `-RequireP1Gates` to `scripts/release.ps1` when preparing a P1-qualified release; it refuses to package if any applicable gate is incomplete, failed, or stale. The [gate record](release-gates.json) must link hashed observed evidence to the current candidate before a gate can pass. CI compilation cannot certify physical desktop, accessibility, hardware, or presentation behavior.
 

@@ -15,29 +15,31 @@ These are maintainer choices; the documentation does not imply they have already
 
 ## Prepare a version
 
-Use a clean, reviewed commit with passing checks. The current version is `0.1.0`, matching tag `v0.1.0`. Scripts reject a tag that disagrees with `src/Crest/Crest.csproj`.
+Use a clean, reviewed commit with passing checks. The current version is `0.2.0`, matching tag `v0.2.0`. Scripts reject a tag that disagrees with `src/Crest/Crest.csproj`.
 
 For a new version, update project `<Version>`, app/tray/Settings version strings, user-facing download names, `CHANGELOG.md`, and `docs/RELEASE_NOTES.md`. The installer/package scripts read their version from the project. Review dependency lockfile changes before committing.
 
 Run from the source you intend to tag:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.1.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.2.0
 ```
 
-Inspect `artifacts/release`, included licenses, and documentation. Leave local diagnostic output, SDK/compiler folders, and reference crops out of releases. Keep native acceptance claims accurate. Version 0.1.0 is a **prerelease** until its recorded release gates are complete.
+Inspect `artifacts/release`, included licenses, and documentation. Leave local diagnostic output, SDK/compiler folders, and reference crops out of releases. Keep native acceptance claims accurate. Version 0.2.0 is a **prerelease** until its recorded release gates are complete.
 
 Inspect `artifacts/release/release-gate-report.json` with the packages. Builds/tests and binary provenance are checked automatically; desktop, accessibility, device, clean-account distribution, and measured quality gates require recorded observations. `docs/release-gates.json` contains the complete P0/P1 checklist. Passing evidence must match the candidate DLL and source fingerprint and include hashes of the evidence files.
 
-When preparing a P1-qualified release, run `scripts/release.ps1 -Tag v0.1.0 -RequireP1Gates`. This refuses packaging while any gate remains open, failed, or stale, or any visible-over-app incident is recorded. Default packaging permits a release candidate and prefixes release notes with its open acceptance status.
+When preparing a P1-qualified release, run `scripts/release.ps1 -Tag v0.2.0 -RequireP1Gates`. This refuses packaging while any gate remains open, failed, or stale, or any visible-over-app incident is recorded. Default packaging permits a release candidate and prefixes release notes with its open acceptance status.
 
 ## Preferred: tag workflow
 
-After committing and pushing reviewed source:
+Commit the release source with the intended maintainer Git identity and inspect the author, committer and trailers using `git log -1 --format=fuller`. For an authorized direct-main release, use a normal fast-forward `git push origin main`; do not force-push or move another maintainer's work. Wait for the pushed commit's Windows CI results before publishing.
+
+After the reviewed commit is on GitHub:
 
 ```powershell
-git tag -a v0.1.0 -m "Crest 0.1.0 release candidate"
-git push origin v0.1.0
+git tag -a v0.2.0 -m "Crest 0.2.0 release candidate"
+git push origin v0.2.0
 ```
 
 The release workflow checks out the existing tag, builds/tests/packages it, and creates an **unpublished prerelease draft** with three assets. Follow the run in [Actions](https://github.com/tanmay-tiwari-20/Crest/actions).
@@ -48,11 +50,11 @@ Before pressing **Publish release**, check the tagged commit, passing job, attac
 
 ## Manual fallback: GitHub website
 
-1. Build the three assets with `scripts/release.ps1 -Tag v0.1.0`.
+1. Build the three assets with `scripts/release.ps1 -Tag v0.2.0`.
 2. Open [Releases](https://github.com/tanmay-tiwari-20/Crest/releases) and choose **Draft a new release**.
-3. Select the existing `v0.1.0` tag at the reviewed commit.
-4. Title it **Crest 0.1.0 release candidate** and paste `artifacts/release/release-notes.md`.
-5. Attach `Crest-Setup-0.1.0-x64.exe`, `Crest-Portable-0.1.0-x64.zip`, and `SHA256SUMS.txt`.
+3. Select the existing `v0.2.0` tag at the reviewed commit.
+4. Title it **Crest 0.2.0 release candidate** and paste `artifacts/release/release-notes.md`.
+5. Attach `Crest-Setup-0.2.0-x64.exe`, `Crest-Portable-0.2.0-x64.zip`, and `SHA256SUMS.txt`.
 6. Check **Set as a pre-release**, save/inspect the draft, then publish when ready.
 
 ## Manual fallback: GitHub CLI
@@ -61,19 +63,19 @@ Install GitHub CLI and sign in, then run:
 
 ```powershell
 gh auth login
-gh release create v0.1.0 `
-  artifacts/release/Crest-Setup-0.1.0-x64.exe `
-  artifacts/release/Crest-Portable-0.1.0-x64.zip `
+gh release create v0.2.0 `
+  artifacts/release/Crest-Setup-0.2.0-x64.exe `
+  artifacts/release/Crest-Portable-0.2.0-x64.zip `
   artifacts/release/SHA256SUMS.txt `
   --repo tanmay-tiwari-20/Crest --verify-tag --draft --prerelease --latest=false `
-  --title "Crest 0.1.0 release candidate" `
+  --title "Crest 0.2.0 release candidate" `
   --notes-file artifacts/release/release-notes.md
 ```
 
 After reviewing the draft:
 
 ```powershell
-gh release edit v0.1.0 --repo tanmay-tiwari-20/Crest --draft=false --prerelease --latest=false
+gh release edit v0.2.0 --repo tanmay-tiwari-20/Crest --draft=false --prerelease --latest=false
 ```
 
 Do not overwrite published binaries for a tag. Issue a new version for changed source. If signing is added, sign before final checksums and upload the signed files and matching list together.

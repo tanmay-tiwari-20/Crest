@@ -68,6 +68,19 @@ public static class Design
         for (int i = 0; i < islandKeys.Length; i++)
             Application.Current.Resources[islandKeys[i]] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(islandColors[i]));
         Application.Current.Resources["IslandCard"] = light ? new LinearGradientBrush(Color.FromRgb(255, 255, 255), Color.FromRgb(242, 245, 250), 135) : new LinearGradientBrush(Color.FromRgb(23, 27, 35), Color.FromRgb(15, 18, 23), 135);
+        if (settings.Theme is "Ocean" or "Forest" or "Rose")
+        {
+            string[] palette = settings.Theme switch
+            {
+                "Ocean" => new[] { "#101E2C", "#1B3043", "#88DAFF", "#62C9F5", "#071421" },
+                "Forest" => new[] { "#14251C", "#223C2D", "#A2E2B4", "#8DD3A4", "#0B1911" },
+                _ => new[] { "#291A26", "#432C3E", "#FFB7D6", "#F59BC5", "#1B0E19" }
+            };
+            string[] themedKeys = { "Surface", "Raised", "Accent", "AccentFill", "IslandShell" };
+            for (int i = 0; i < themedKeys.Length; i++) Application.Current.Resources[themedKeys[i]] = new SolidColorBrush((Color)ColorConverter.ConvertFromString(palette[i]));
+            Application.Current.Resources["IslandCard"] = Application.Current.Resources["Raised"];
+            Application.Current.Resources["IslandAccent"] = Application.Current.Resources["Accent"];
+        }
         if (SystemParameters.HighContrast)
         {
             Application.Current.Resources["Surface"] = SystemColors.WindowBrush;

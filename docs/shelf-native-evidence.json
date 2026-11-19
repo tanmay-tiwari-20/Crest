@@ -1,0 +1,58 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedDate": "2026-11-19",
+  "CandidateDllSHA256": "4C822F23A46C6B01021ACC0AD156A302227183796B74359E078499DAF0074B16",
+  "SourceFingerprint": "4FFC29422662CC099A7ACD38320860146A98ED20B022A6AEBA584D78D65ACF1B",
+  "Conditions": {
+    "Platform": "Windows 11 build 26300, x64",
+    "Display": "1920 x 1080 at 125% DPI",
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "IsolatedAcceptanceProfile": true,
+    "ExistingCrestPausedByOwner": true
+  },
+  "OwnerObserved": {
+    "DesktopDragRevealAndDrop": true,
+    "OriginalRemainsAfterImport": true,
+    "DistinctDestinationDragOut": true,
+    "SameDesktopDestinationRefusal": true,
+    "MissingSourceIndication": true,
+    "MissingSourceOpenRejected": true,
+    "ReferenceRemovalPreservesOriginal": true,
+    "ExplorerHoverSuppressed": true,
+    "OccupiedShelfClearedAfterRestart": true,
+    "OriginalRemainsAfterRestart": true
+  },
+  "ComponentVerification": {
+    "DomainOutcomes": 61,
+    "UiOutcomes": 29,
+    "NativeOleTargetOutcomes": 4,
+    "SourceBytesPreservedInIsolatedTests": true,
+    "DropReturnsOnlySupportedCopyOrLink": true,
+    "MoveOnlyRejected": true,
+    "ResetAndDisposeCancelOutstandingImports": true,
+    "ReentrantProvidersRejectedAfterResetOrSuppression": true
+  },
+  "PassiveObservations": {
+    "Samples": 360,
+    "VisibleCrestSamples": 43,
+    "VisibleWithUnrelatedForegroundSamples": 0,
+    "GracefulTestQuit": true,
+    "ShelfPersistenceFileAbsent": true
+  },
+  "QualifiedGates": [
+    "AC17"
+  ],
+  "RawEvidenceDigests": [
+    {
+      "Path": "owner-feedback.json",
+      "SHA256": "4967AFCC957FADD1DB400876238E0F98AFE766AAC764522599A1B935921917A7"
+    },
+    {
+      "Path": "watch-summary.json",
+      "SHA256": "F6C1C99454F31C65F9F3E99C82C6A72A8E2E6B24F7FBD3C5CB5E5650916ACD30"
+    }
+  ],
+  "Limitations": "Historical qualification only for the recorded DLL/source. The subsequent timer-sound candidate requires requalification. Real desktop gestures were performed and reported by the owner. The owner used another file for part of the drag-out/missing-source tests; no hash of that personal file was recorded. Byte-for-byte preservation is independently verified by isolated domain/routed/native OLE cases, not inferred from the scratch destination folder. Passive snapshots run at 500ms and the separate policy cannot reproduce the actual app registered-HWND map; all observed visible Crest samples had the verified desktop foreground. This does not qualify full app/shell transitions, suppression latency, presentation, mixed DPI or screen-reader acceptance.",
+  "EvidenceStatus": "historical"
+}

@@ -1,0 +1,327 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedDate": "2026-11-19",
+  "CandidateDllSHA256": "3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159",
+  "SourceFingerprint": "ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086",
+  "Conditions": {
+    "IsolatedProfile": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "NormalInstancePausedByOwner": true,
+    "SoundEnabled": false,
+    "KeyboardRevealEnabled": false
+  },
+  "OwnerReports": [
+    {
+      "Scenario": "Clear-desktop fresh hover and normal dismissal",
+      "RecordedAtUtc": "2026-11-19T18:33:33.4507678+05:30",
+      "OwnerOutcome": "Yes—all three worked",
+      "Details": "Owner confirmed hidden with pointer away after Win+D, one fresh top-center hover reveal and normal close after moving away",
+      "GateIds": [
+        "AC02"
+      ]
+    },
+    {
+      "Scenario": "Chrome/Explorer foreground, strict visible-window coverage and app activation",
+      "RecordedAtUtc": "2026-11-19T18:35:53.6757049+05:30",
+      "OwnerOutcome": "All cases passed",
+      "Details": "Both maximized and ordinary Chrome/Explorer top edges suppressed reveal with clickable app controls; clicking wallpaper while small Chrome remained visible suppressed strict mode; activating Chrome after desktop reveal hid Crest promptly",
+      "GateIds": [
+        "AC04",
+        "AC05"
+      ],
+      "PartialGateIds": [
+        "AC06"
+      ]
+    },
+    {
+      "Scenario": "Stationary Win+D recovery and 100 interrupted desktop transitions",
+      "RecordedAtUtc": "2026-11-19T18:39:32.3127559+05:30",
+      "OwnerOutcome": "Completed 100—no issues; stationary recovery passed",
+      "Cycles": {
+        "QuickTriggerPasses": 25,
+        "NormalRevealClose": 25,
+        "ClosingLeaveReturn": 25,
+        "AppSwitchDuringOpeningOrExpansion": 25
+      },
+      "Details": "No flash, duplicate island, jump or stuck state reported. Stationary pointer after Win+D did not reveal until fresh entry",
+      "GateIds": [
+        "AC03",
+        "AC10"
+      ],
+      "PartialGateIds": [
+        "AC01",
+        "AC06"
+      ]
+    },
+    {
+      "Scenario": "Shell panels, tooltip suppression, launcher and Settings focus",
+      "RecordedAtUtc": "2026-11-19T18:43:53.5887335+05:30",
+      "OwnerOutcome": "All cases passed",
+      "Details": "Start, Search, Task View, Quick Settings and Widgets suppressed Crest/trigger; activating Chrome dismissed both tooltip and island; missing target showed actionable error; Acceptance folder opened Explorer and hid Crest; Settings hid Crest",
+      "GateIds": [
+        "AC07",
+        "AC09"
+      ],
+      "PartialGateIds": [
+        "AC08"
+      ]
+    },
+    {
+      "Scenario": "Desktop shelf reveal/import and drag-out",
+      "RecordedAtUtc": "2026-11-19T18:46:39.6570414+05:30",
+      "OwnerOutcome": "Both worked; original remains",
+      "SourceSHA256": "57F7780B0DDDE01E76C78661FF233973454335A90BDAA8C38CA5C28B9091C532",
+      "DragOutCopySHA256": "57F7780B0DDDE01E76C78661FF233973454335A90BDAA8C38CA5C28B9091C532",
+      "SourceAndCopyMatchOriginal": true,
+      "Details": "Root verified byte-for-byte original preservation and a matching copy in the distinct desktop destination folder, then moved only the owned synthetic original into the isolated profile for missing-source testing",
+      "PartialGateIds": [
+        "AC17"
+      ]
+    },
+    {
+      "Scenario": "Shelf missing source, reference removal and occupied restart setup",
+      "RecordedAtUtc": "2026-11-19T18:48:59.6009778+05:30",
+      "OwnerOutcome": "Missing handled, reference removed, folder added",
+      "Details": "Owner confirmed missing-source display and safe opening explanation after synthetic source was moved, removed the reference without deleting the copy, and imported the destination folder to leave Shelf occupied for restart",
+      "PartialGateIds": [
+        "AC17"
+      ]
+    },
+    {
+      "Scenario": "Sleep/lock recovery and intentional timer cleanup",
+      "RecordedAtUtc": "2026-11-19T18:59:48.440546+05:30",
+      "OwnerOutcome": "Sleep, lock, fresh entry, and timer states passed; owner subsequently confirmed intentional timer cleanup",
+      "ObservedCompletedSeconds": 60,
+      "ObservedPausedTotalSeconds": 300,
+      "ObservedPausedRemainingSeconds": 289.219,
+      "Details": "Root read saved Completed/Paused phases after sleep before the owner cleared them. Fresh entry after wake/lock passed. A new paused fixture is being prepared for restart; native clock adjustment remains untested",
+      "GateIds": [
+        "AC01"
+      ],
+      "PartialGateIds": [
+        "AC16"
+      ]
+    },
+    {
+      "Scenario": "Occupied shelf clears, paused timer persists, Explorer and tray recovery",
+      "RecordedAtUtc": "2026-11-19T19:14:23.5360234+05:30",
+      "OwnerOutcome": "All cases passed",
+      "PausedTimerExactlyRetained": true,
+      "PausedRemainingSeconds": 296.171,
+      "PreviousShellPid": 5988,
+      "CurrentShellPid": 23752,
+      "ExplorerShellPidChanged": true,
+      "FinalQuitGraceful": true,
+      "CandidateProcessGone": true,
+      "OriginalUserInstancePreserved": true,
+      "Details": "Owner confirmed occupied folder shelf became empty on restart, paused timer retained its remaining time, Explorer restart recovered with fresh entry, and tray Pause/Resume suppressed and freshly rearmed. Root verified exact paused timer state, changed desktop shell PID, zero visible candidate windows after recovery and graceful process exit",
+      "GateIds": [
+        "AC17",
+        "AC23"
+      ],
+      "PartialGateIds": [
+        "AC16"
+      ]
+    }
+  ],
+  "InconclusiveAttempts": [
+    {
+      "Scenario": "Clear-desktop hover",
+      "OwnerOutcome": "Crest did not open",
+      "Reason": "Two full-screen visible computer-use cursor overlays were present and counted as strict-mode blockers; later foreground snapshot also reflects return to chat",
+      "Resolution": "Reset the computer-use session, then stopped the observed idle tool helper; subsequent snapshot had no cursor-overlay blockers",
+      "CandidateFailureEstablished": false
+    }
+  ],
+  "QualifiedGates": [
+    "AC01",
+    "AC02",
+    "AC03",
+    "AC04",
+    "AC05",
+    "AC07",
+    "AC09",
+    "AC10",
+    "AC17",
+    "AC23"
+  ],
+  "RawEvidenceDigests": [
+    {
+      "Path": "cycles-watch-01.json",
+      "SHA256": "F8AB48E3A14423F80FF230488FFFEAB841DE2AACC7FCBC54256B0DFAADF23D2A"
+    },
+    {
+      "Path": "cycles-watch-02.json",
+      "SHA256": "7DA0E4F675D338A26BDD70AB45DDD536911B274F8447A9C649E60B736D129F1D"
+    },
+    {
+      "Path": "cycles-watch-03.json",
+      "SHA256": "952B447B078F009A6D78C9A56C61B766E8B5652329608AE14DECB960884ADF8C"
+    },
+    {
+      "Path": "cycles-watch-04.json",
+      "SHA256": "DA8D2B4D228465FDF132A7E9F91C30D55EA3BE50BC1E2067157A5CEBAA2E58E7"
+    },
+    {
+      "Path": "cycles-watch-05.json",
+      "SHA256": "2C43EC029D8EE47E2944DADEA0F8CAF1A35BDC9F4B2BDFA17AA53CEA2D66448B"
+    },
+    {
+      "Path": "cycles-watch-06.json",
+      "SHA256": "FE7ADACA8700FF3AB5195D24A0DA72122F93963B04E14564DE817EADCD9E0E44"
+    },
+    {
+      "Path": "no-reveal-snapshot.json",
+      "SHA256": "D358CCBDA5EC67E6D970A634CD26DAEAB3796DE5120D18689596C6B3F162D678"
+    },
+    {
+      "Path": "observed-after-sleep.json",
+      "SHA256": "972F912A241F86EB1D8BD0A7EC9C43C4B04B468E1B499D946A1FE0C007FA77F3"
+    },
+    {
+      "Path": "post-recovery-snapshot.json",
+      "SHA256": "FD741C3EF6E1BF0A165270E87F2C70757A482563DE53C724198760F6B7BA8D27"
+    },
+    {
+      "Path": "recovery-watch-01.json",
+      "SHA256": "27DD7195EA684D8E9B80F589743E9E9E559EDBFCB0DE76AD9A975AD353BA0669"
+    },
+    {
+      "Path": "recovery-watch-02.json",
+      "SHA256": "23F3CD2A59E53220825E172DBD2090E861D3C3ECEB85864D2E8C1986B9868FA7"
+    },
+    {
+      "Path": "recovery-watch-03.json",
+      "SHA256": "FC5A91E055428DC432BFEBB4BC6175AFF6EEE252D3E2B033FE7C41B632A984F6"
+    },
+    {
+      "Path": "recovery-watch-04.json",
+      "SHA256": "DE3ADF74F004650F664A5549CA74CEB428EC6F47BAFEB1BFDA174FB10BEC8EF3"
+    },
+    {
+      "Path": "recovery-watch-05.json",
+      "SHA256": "B47562C4D872670E1997DE4945B854775D06C103B9029EC07735D65FCE3EF739"
+    },
+    {
+      "Path": "recovery-watch-06.json",
+      "SHA256": "FAB813107029B331200B75D2AD29D0BF27EF385B69E422E5F61884764C3EBFD0"
+    },
+    {
+      "Path": "restart-observation.json",
+      "SHA256": "F35C24F478F2864D543DAD34E162328A2D04B5404A9D53D6678DCC65FC5FD386"
+    },
+    {
+      "Path": "retry-watch-01.json",
+      "SHA256": "AA7321EEBE705544C05868244B014ACF0C0CA059594EF7AFE0F12E80D0EE9274"
+    },
+    {
+      "Path": "retry-watch-02.json",
+      "SHA256": "D4C9C2D312D212493D93BBE511969DDDF6B1AD7A2A652498D7628C27425645BF"
+    },
+    {
+      "Path": "retry-watch-03.json",
+      "SHA256": "4C4EB3A2D5479EB2DD22DDB86E9E1C5618B9FADD9EC6540140ECB9BE40461363"
+    },
+    {
+      "Path": "retry-watch-04.json",
+      "SHA256": "B9C377B03AC45E8311249E0E5BB370EB98CB893E450EA700751B5226139F8EE7"
+    },
+    {
+      "Path": "retry-watch-05.json",
+      "SHA256": "519DD583AECEFA2DF55530188B9205E31E9EC5F25819AEA66F1932B7A591D2D1"
+    },
+    {
+      "Path": "retry-watch-06.json",
+      "SHA256": "6EC6F5B8C5F7772DD5D1EF425E46F0E980DAF3B0557217CAE2A558DB854DD6B8"
+    },
+    {
+      "Path": "shelf-watch-01.json",
+      "SHA256": "86D9936D783CA52027CAAD55D5E877A927C070705FFBFB69806769DCAA084E8F"
+    },
+    {
+      "Path": "shelf-watch-02.json",
+      "SHA256": "D93752B3020B4401DF29D3641F7EAA0FD1072D0971D85A2E2382DA163767D2CA"
+    },
+    {
+      "Path": "shelf-watch-03.json",
+      "SHA256": "943ECCCE8937C4AA59C10E13C476E610C5C8BC21FF09CEA01D55B82873926796"
+    },
+    {
+      "Path": "shelf-watch-04.json",
+      "SHA256": "0CB2AC8AA0105D10F66483278F727AE1809A7A0D67662B744FB22EA35BF4D4D5"
+    },
+    {
+      "Path": "shelf-watch-05.json",
+      "SHA256": "BE232B0988CBE5306C79B2681FC7046B9F7E1598BEE07F26540DC29B5F2BF52F"
+    },
+    {
+      "Path": "shelf-watch-06.json",
+      "SHA256": "21364DE27D2C1101C46EB52B58D8996BF614C2D55860C4B939AE691D16B8BDEE"
+    },
+    {
+      "Path": "shell-focus-watch-01.json",
+      "SHA256": "56F0B814E717AF2AD9B1D6B773AD7D8D394697F84ACD748F354A0B495A02D41B"
+    },
+    {
+      "Path": "shell-focus-watch-02.json",
+      "SHA256": "588187C8EF8F2F73A7F691FECBAB13A048F55F1D68811E25E89201EF5FE258F0"
+    },
+    {
+      "Path": "shell-focus-watch-03.json",
+      "SHA256": "D58573ECBC3950F1FE3EFF6C911B3C860D87AEF15AD0059379BACEEDCBC2D860"
+    },
+    {
+      "Path": "shell-focus-watch-04.json",
+      "SHA256": "AD2708ED22E2E2315D9AC830B226D6D70F5B4B980DBB96E084D137C2FC1D842A"
+    },
+    {
+      "Path": "shell-focus-watch-05.json",
+      "SHA256": "2A3669883E22B2355B606B76ADC75738BCFAF42E483DC8B2563348F4A9FCA9E1"
+    },
+    {
+      "Path": "shell-focus-watch-06.json",
+      "SHA256": "E13AA5932A4A0770DFEACD84CA53879F1E754DF796C01FD2E677BAD54702E74C"
+    },
+    {
+      "Path": "suppression-watch-01.json",
+      "SHA256": "61C05DE66E65F46C225BBAC47F9CFD39E34007763165DBA64C7E29EB0E9296BD"
+    },
+    {
+      "Path": "suppression-watch-02.json",
+      "SHA256": "2E786F262539CBD7FC5B404593D2D63737D5ECA22EC8DB6CE1C5A4E480BA9644"
+    },
+    {
+      "Path": "suppression-watch-03.json",
+      "SHA256": "47C98EE042F88EA7112BB5C7FA07FD2B15D9BCED170B80882C3CCF3788B95EDA"
+    },
+    {
+      "Path": "suppression-watch-04.json",
+      "SHA256": "E6B957E8456160F80D6688E0A3FBE778663C1AB060D212111A689344C1C6AA7D"
+    },
+    {
+      "Path": "suppression-watch-05.json",
+      "SHA256": "0F7D6ABC34166B5B070929F2EA7E11C1DCB2E5F37D43B70FD7D80B11FA9F47DA"
+    },
+    {
+      "Path": "suppression-watch-06.json",
+      "SHA256": "2EDB6FE7F9336FDF4901813E79B3A8FC0DC2CCA23E4463D091C1D5F040944D74"
+    },
+    {
+      "Path": "timer-after-restart.json",
+      "SHA256": "F46B2092605CCF99CBCFF5B3430CB64A5E0CDAD25DE97EC184F6A06A3AB10335"
+    },
+    {
+      "Path": "timer-before-restart.json",
+      "SHA256": "F46B2092605CCF99CBCFF5B3430CB64A5E0CDAD25DE97EC184F6A06A3AB10335"
+    },
+    {
+      "Path": "without-cursor-snapshot.json",
+      "SHA256": "BB69BEAFD71356402B74D3661EA48C7C0CCA873E3F786C8486E55EDD4AD24E0B"
+    }
+  ],
+  "Limitations": "Owner-operated observations qualify only explicitly exercised outcomes. Passive 500 ms snapshots supplement owner reports and omit transient input/presentation timing. Separate diagnostic policy does not reproduce actual product HWND registration; its eligibility field cannot label legitimate visible islands as overlay incidents. Complete shell/lifecycle/display/accessibility and performance matrices remain separate.",
+  "ExternalQualificationDeferredByOwner": "Second display, clean-account/VM and administrator graphics recording deferred; finish this test pass",
+  "TestPassFinishedAtUtc": "2026-11-19T13:50:07.0630031+00:00",
+  "SyntheticFixtureCleanupComplete": true
+}

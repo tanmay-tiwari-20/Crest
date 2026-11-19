@@ -77,9 +77,16 @@ public static class Program
         int appPid=args.Length>0&&int.TryParse(args[0],out int selected)?selected:0;
         var settings=new AppSettings();
         string settingsRead="safe-defaults";
+        int settingsIndex=Array.IndexOf(args,"--settings-file");
+        if(settingsIndex>=0&&(settingsIndex+1>=args.Length||string.IsNullOrWhiteSpace(args[settingsIndex+1])))
+            throw new ArgumentException("--settings-file requires an explicit settings file.");
+        string settingsFile=settingsIndex>=0?Path.GetFullPath(args[settingsIndex+1]):Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Crest","settings.json");
+        string appDllHash=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(DesktopPolicy).Assembly.Location)));
         try
         {
-            string file=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"Crest","settings.json");
+            string file=settingsFile;
+            if(settingsIndex>=0&&(!File.Exists(file)||new FileInfo(file).Length>1024*1024))
+                throw new IOException("The explicit settings file is absent or exceeds the limit.");
             if(File.Exists(file)&&new FileInfo(file).Length<=1024*1024)
             {
                 using var document=JsonDocument.Parse(File.ReadAllText(file));var root=document.RootElement;
@@ -90,10 +97,10 @@ public static class Program
                 if(root.TryGetProperty("TriggerDepth",out var depth))settings.TriggerDepth=depth.GetInt32();
                 if(root.TryGetProperty("FullWidthTrigger",out var full))settings.FullWidthTrigger=full.GetBoolean();
                 if(root.TryGetProperty("DwellMs",out var dwell))settings.DwellMs=dwell.GetInt32();
-                settingsRead="read-only-selected-settings";
+                settingsRead=settingsIndex>=0?"read-only-explicit-settings":"read-only-selected-settings";
             }
         }
-        catch {settingsRead="settings-unreadable-safe-defaults";}
+        catch when(settingsIndex<0) {settingsRead="settings-unreadable-safe-defaults";}
         // Diagnostic overrides are in-memory only; never write the user's selected mode.
         if(args.Contains("--allow-over-apps"))settings.AllowOverApps=true;
         if(args.Contains("--desktop-only"))settings.AllowOverApps=false;
@@ -112,7 +119,7 @@ public static class Program
             bool stableScene=scene==GetForegroundWindow();
             Console.WriteLine(JsonSerializer.Serialize(new {
                 TimestampUtc=DateTimeOffset.UtcNow,
-                AppDllSHA256=Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(DesktopPolicy).Assembly.Location))),
+                AppDllSHA256=appDllHash, SettingsRead=settingsRead,
                 ForegroundClass=ClassName(scene), ForegroundOwner=foregroundOwner,
                 StableForeground=stableScene, InputDesktop=InputDesktopName(), policy.DpiScale,
                 NativeHookCount=(Field(policy,"_hooks") as System.Collections.ICollection)?.Count,
@@ -121,7 +128,7 @@ public static class Program
             },new JsonSerializerOptions{WriteIndented=true}));
             return;
         }
-        if (args.Contains("--watch")) { Watch(policy, settings, appPid, 20); return; }
+        if (args.Contains("--watch")) { Watch(policy, settings, appPid, 20, appDllHash, settingsRead); return; }
         bool currentEligible=policy.IsEligible;
         var desktopRoots=Field(policy,"_desktopRoots") as HashSet<IntPtr>??new();
         uint shellPid=Field(policy,"_shellProcess") is uint pid?pid:0;
@@ -153,7 +160,7 @@ public static class Program
         var trigger=new Rectangle(policy.DisplayBounds.Left+(policy.DisplayBounds.Width-triggerWidth)/2,policy.DisplayBounds.Top,triggerWidth,Math.Max(1,(int)Math.Round(Math.Clamp(settings.TriggerDepth,1,12)*policy.DpiScale)));
         var recheckTimes=new List<double>();for(int i=0;i<100;i++){var clock=Stopwatch.StartNew();policy.Recheck();clock.Stop();recheckTimes.Add(clock.Elapsed.TotalMilliseconds);}recheckTimes.Sort();
         Console.WriteLine(JsonSerializer.Serialize(new {
-            TimestampUtc=DateTimeOffset.UtcNow,SelectedCrestProcessId=appPid,SettingsRead=settingsRead,settings.AllowOverApps,settings.StrictDesktop,settings.SelectedDisplay,settings.DwellMs,
+            TimestampUtc=DateTimeOffset.UtcNow,AppDllSHA256=appDllHash,SelectedCrestProcessId=appPid,SettingsRead=settingsRead,settings.AllowOverApps,settings.StrictDesktop,settings.SelectedDisplay,settings.DwellMs,
             CurrentForegroundEligible=currentEligible,DiagnosticReason=reason,InputDesktop=inputDesktop,ForegroundHandle=Handle(foreground),ForegroundRoot=foregroundInfo,
             ShellHandle=Handle(GetShellWindow()),ShellPid=shellPid,VerifiedDesktopRoots=desktopRoots.Select(Handle),DesktopCandidates=candidates,VirtualDesktopManagerAvailable=virtualDesktop!=null,
             NativeHookCount=(Field(policy,"_hooks") as System.Collections.ICollection)?.Count,
@@ -164,7 +171,7 @@ public static class Program
         },new JsonSerializerOptions{WriteIndented=true}));
     }
 
-    private static void Watch(DesktopPolicy policy, AppSettings settings, int appPid, int seconds)
+    private static void Watch(DesktopPolicy policy, AppSettings settings, int appPid, int seconds, string appDllHash, string settingsRead)
     {
         var samples = new List<object>();
         var clock = Stopwatch.StartNew();
@@ -208,6 +215,8 @@ public static class Program
         } while (clock.Elapsed.TotalSeconds < seconds);
         Console.WriteLine(JsonSerializer.Serialize(new {
             StartedUtc = DateTimeOffset.UtcNow.AddMilliseconds(-clock.Elapsed.TotalMilliseconds),
+            AppDllSHA256 = appDllHash,
+            SettingsRead = settingsRead,
             DurationSeconds = Math.Round(clock.Elapsed.TotalSeconds,3),
             settings.StrictDesktop,
             settings.AllowOverApps,

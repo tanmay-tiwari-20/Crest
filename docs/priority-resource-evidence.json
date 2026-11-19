@@ -1,0 +1,83 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedDate": "2026-11-19",
+  "EvidenceStatus": "current",
+  "CandidateDllSHA256": "3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159",
+  "SourceFingerprint": "ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086",
+  "Baseline": {
+    "WindowsVersion": "Microsoft Windows 11 Home Single Language 10.0.26300",
+    "Architecture": "x64",
+    "Cpu": "AMD Ryzen 5 5600H with Radeon Graphics",
+    "LogicalProcessors": 12,
+    "RamGiB": 7.34,
+    "Gpu": [
+      "AMD Radeon(TM) RX 6500M",
+      "AMD Radeon(TM) Graphics"
+    ],
+    "DisplayMode": [
+      "1920 x 1080"
+    ],
+    "DpiPercent": 125.0,
+    "RefreshRateAtCapture": "Not recorded",
+    "PowerModeAtCapture": "Not recorded"
+  },
+  "Conditions": {
+    "IsolatedProfile": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "CoreModulesEnabled": [
+      "Music",
+      "Controls",
+      "Timer",
+      "Launch",
+      "Shelf"
+    ],
+    "AiModelIncluded": false,
+    "SeparateSettingsProfileUsedDuringCapture": true
+  },
+  "NativeChecks": {
+    "ExactCandidateDllLoaded": true,
+    "ActualCandidateInstalledFiveHooksAtReadiness": true,
+    "ActualCandidateHiddenAtReadiness": true,
+    "SeparateDiagnosticInstalledFiveHooks": true,
+    "NormalInputDesktop": true,
+    "DesktopShellIdentityRecovered": true,
+    "ActualCandidateWindowsHidden": true,
+    "CurrentForegroundRejectedByDesktopPolicy": true
+  },
+  "Measurements": {
+    "DurationSeconds": 600.336,
+    "CpuMeasurementDurationSeconds": 600.327,
+    "SampleCount": 121,
+    "MeanTotalDeviceCpuPercent": 0.0301,
+    "MaximumWorkingSetBytes": 152748032,
+    "MaximumWorkingSetMiB": 145.67,
+    "AllWindowsHidden": true,
+    "VisibleSamples": 0,
+    "WindowShowEvents": 0,
+    "WindowShowObservationHealthy": true,
+    "WindowEnumerationFailures": 0,
+    "CandidateDllUnchanged": true,
+    "ProcessExitedEarly": false,
+    "ExternalLaunchToReadinessMilliseconds": 3365.598
+  },
+  "QualifiedGates": [
+    "PER-idle",
+    "PER-memory"
+  ],
+  "RawEvidenceDigests": [
+    {
+      "Path": "readiness.json",
+      "SHA256": "9CF1EAF64903C8143CB56ACE7B9668C1CE86197A0B7991310B0CCBFB919E32AF"
+    },
+    {
+      "Path": "snapshot.json",
+      "SHA256": "C0A4DE19BFB428E8B0068531BCECE5E37236BB1F221526C04F7347FF6E6C0994"
+    },
+    {
+      "Path": "hidden-idle.json",
+      "SHA256": "1EE56FFAB1E4D400B5A1B989362E64144967576C419A663C60269ACB3275A2E3"
+    }
+  ],
+  "Limitations": "Observed on the stated laptop using a fresh all-core acceptance profile. A separate isolated Settings instance was exercised during part of capture; the measured candidate remained hidden. Raw process/window snapshots remain local. Startup observation exceeded 3000 ms with uncontrolled cache and concurrent launch and does not qualify installed cold readiness. Physical pointer/keyboard, shell/lifecycle/display transitions, shelf, screen reader, actual presented frames, latency, hidden rendering and battery impact require separate acceptance. DPI comes from the current native snapshot; refresh rate and power scheme were not recorded for this capture. Full Section 11 baseline/presentation qualification remains open."
+}

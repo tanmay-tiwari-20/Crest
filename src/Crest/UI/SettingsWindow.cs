@@ -11,12 +11,13 @@ using Microsoft.Win32;
 using Forms = System.Windows.Forms;
 namespace Crest.UI;
 
-public sealed class SettingsWindow : Window
+public sealed partial class SettingsWindow : Window
 {
     private readonly App _app; private readonly StackPanel _page = new(); private readonly StackPanel _nav = new(); private string _section = "Overview";
     private readonly TextBlock _message = Design.Text("", 11, "Muted"); private TextBlock? _hardwareStatus;
     private WindowState _restoreState = WindowState.Normal;
-    private static readonly string[] Sections = { "Overview", "Appearance", "Behavior", "Modules", "Shortcuts", "About" };
+    private static readonly string[] Sections = { "Overview", "Appearance", "Behavior", "Modules", "Shortcuts", "Workspaces", "Privacy", "Activities", "About" };
+    private TimerToolsPanel? _activities;
     public SettingsWindow(App app)
     {
         _app = app;
@@ -63,7 +64,7 @@ public sealed class SettingsWindow : Window
         content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(34) });
         content.RowDefinitions.Add(new RowDefinition());
         content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(54) });
-        var eyebrow = Design.Text("PERSONAL DESKTOP UTILITY  /  0.1.0", 10, "Muted", true);
+        var eyebrow = Design.Text("PERSONAL DESKTOP UTILITY  /  " + App.AppVersion, 10, "Muted", true);
         content.Children.Add(eyebrow);
         var scroll = new ScrollViewer { Content = _page };
         Grid.SetRow(scroll, 1);
@@ -113,21 +114,30 @@ public sealed class SettingsWindow : Window
     }
     private void BuildNav()
     {
-        _nav.Children.Clear();
-        foreach (var section in Sections)
+        // Keep navigation controls alive when changing pages so keyboard focus
+        // and the user's position in the tab order survive activation.
+        if (_nav.Children.Count == 0)
         {
-            var b = Design.Button(section, () => { _section = section; BuildNav(); BuildPage(); });
-            b.HorizontalContentAlignment = HorizontalAlignment.Left;
-            b.Margin = new Thickness(0, 0, 0, 7);
-            b.Padding = new Thickness(14, 11, 14, 11);
-            b.SetResourceReference(Control.BackgroundProperty, section == _section ? "Raised" : "Surface");
-            if (section == _section)
-                b.SetResourceReference(Control.ForegroundProperty, "Accent");
-            _nav.Children.Add(b);
+            foreach (var section in Sections)
+            {
+                var button = Design.Button(section, () => { _section = section; BuildNav(); BuildPage(); });
+                button.HorizontalContentAlignment = HorizontalAlignment.Left;
+                button.Margin = new Thickness(0, 0, 0, 7);
+                button.Padding = new Thickness(14, 11, 14, 11);
+                _nav.Children.Add(button);
+            }
+        }
+        for (int index = 0; index < Sections.Length; index++)
+        {
+            var button = (Button)_nav.Children[index];
+            bool selected = Sections[index] == _section;
+            button.SetResourceReference(Control.BackgroundProperty, selected ? "Raised" : "Surface");
+            button.SetResourceReference(Control.ForegroundProperty, selected ? "Accent" : "Text");
         }
     }
     private void BuildPage()
     {
+        _activities = null;
         _page.Children.Clear();
         _message.Text = "Changes are saved automatically.";
         switch (_section)
@@ -150,6 +160,12 @@ public sealed class SettingsWindow : Window
             case "About":
                 About();
                 break;
+            case "Workspaces": Workspaces(); break;
+            case "Privacy": Privacy(); break;
+            case "Activities":
+                Heading("A little room to focus.", "Timers, focus sessions, and local reminders. Due notices stay here until you continue, snooze, or dismiss them.");
+                _activities = new TimerToolsPanel(_app.Local, message => _message.Text = message);
+                _page.Children.Add(_activities); break;
         }
     }
     private void Heading(string title, string description)
@@ -246,13 +262,21 @@ public sealed class SettingsWindow : Window
         if (_hardwareStatus != null)
             _hardwareStatus.Text = HardwareStatus();
     }
+    public void RefreshActivities() => _activities?.Refresh();
+    public void ShowSection(string section)
+    {
+        if (!Sections.Contains(section)) return;
+        _section = section; BuildNav(); BuildPage();
+    }
     private void Appearance()
     {
         Heading("Make yourself at home.", "A quiet surface, in the style that feels right to you.");
-        Section("Color theme", "Follow Windows, or choose a light or dark surface.", Choice("Color theme", new[] { "System", "Dark", "Light" }, _app.Preferences.Theme, s => _app.Preferences.Theme = s));
-        Section("Motion", "Follow Windows animation preferences. Reduced motion uses a short fade.", Choice("Motion preference", new[] { "System", "Normal", "Reduced" }, _app.Preferences.Motion, s => _app.Preferences.Motion = s));
-        Range("Island size", "Keep controls comfortable at your display's scaling.", 90, 115, _app.Preferences.SizeScale * 100, v => _app.Preferences.SizeScale = v / 100, "%");
-        Range("Motion speed", "Adjust reveal and dismissal together.", 50, 160, _app.Preferences.MotionSpeed * 100, v => _app.Preferences.MotionSpeed = v / 100, "%");
+        PreferenceScope();
+        Section("Color theme", "Follow Windows, or choose Dark, Light, Ocean, Forest, or Rose.", Choice("Color theme", ModuleCatalog.Themes, Scoped.Theme, value => ChangeScoped(s => s.Theme = value)));
+        Section("Motion", "Follow Windows animation preferences. Reduced motion uses a short fade.", Choice("Motion preference", new[] { "System", "Normal", "Reduced" }, Scoped.Motion, value => ChangeScoped(s => s.Motion = value)));
+        Section("Size preset", "Choose a starting size or adjust it below.", Choice("Island size preset", new[] { "Compact", "Comfortable", "Large" }, Scoped.SizeScale < .98 ? "Compact" : Scoped.SizeScale > 1.1 ? "Large" : "Comfortable", value => { ChangeScoped(s => s.SizeScale = value == "Compact" ? .9 : value == "Large" ? 1.2 : 1); BuildPage(); }));
+        Range("Island size", "Keep controls comfortable at your display's scaling.", 85, 130, Scoped.SizeScale * 100, v => ChangeScoped(s => s.SizeScale = v / 100), "%");
+        Range("Motion speed", "Adjust reveal and dismissal together.", 50, 200, Scoped.MotionSpeed * 100, v => ChangeScoped(s => s.MotionSpeed = v / 100), "%");
     }
     private void Range(string title, string detail, double min, double max, double value, Action<double> change, string unit)
     {
@@ -284,11 +308,15 @@ public sealed class SettingsWindow : Window
         AutomationProperties.SetName(displayChoice, "Selected display");
         displayChoice.SelectionChanged += (_, _) => { if (displayChoice.SelectedItem is Forms.Screen screen) { _app.Preferences.SelectedDisplay = screen.DeviceName; Save(); } };
         Section("Display", "Crest uses one display. If it disconnects, Crest returns to the primary display and waits for a fresh hover.", displayChoice);
-        Section("Trigger coverage", "By default, the trigger is a small area at the top-center edge.", Toggle("Use the full-width top edge", _app.Preferences.FullWidthTrigger, v => _app.Preferences.FullWidthTrigger = v));
-        Range("Hover delay", "How long your pointer stays at the edge before Crest opens.", 80, 500, _app.Preferences.DwellMs, v => _app.Preferences.DwellMs = (int)v, " ms");
-        Range("Pointer grace", "A little time to return before the island closes.", 100, 750, _app.Preferences.GraceMs, v => _app.Preferences.GraceMs = (int)v, " ms");
-        Range("Trigger width", "Width of the centered top-edge trigger.", 120, 640, _app.Preferences.TriggerWidth, v => _app.Preferences.TriggerWidth = (int)v, " DIP");
-        Range("Trigger depth", "Depth measured down from the top edge.", 2, 12, _app.Preferences.TriggerDepth, v => _app.Preferences.TriggerDepth = (int)v, " DIP");
+        PreferenceScope();
+        Section("Trigger coverage", "By default, the trigger is a small area at the top-center edge.", Toggle("Use the full-width top edge", Scoped.FullWidthTrigger, v => ChangeScoped(s => s.FullWidthTrigger = v)));
+        Range("Hover delay", "How long your pointer stays at the edge before Crest opens.", 80, 500, Scoped.DwellMs, v => ChangeScoped(s => s.DwellMs = (int)v), " ms");
+        Range("Pointer grace", "A little time to return before the island closes.", 100, 750, Scoped.GraceMs, v => ChangeScoped(s => s.GraceMs = (int)v), " ms");
+        Range("Trigger width", "Width of the centered top-edge trigger.", 80, 800, Scoped.TriggerWidth, v => ChangeScoped(s => s.TriggerWidth = (int)v), " DIP");
+        Range("Trigger depth", "Depth measured down from the top edge.", 1, 12, Scoped.TriggerDepth, v => ChangeScoped(s => s.TriggerDepth = (int)v), " DIP");
+        Section("Double-click gesture", "Double-click an empty island surface to perform this action.", Choice("Double-click gesture", ModuleCatalog.Gestures, _app.Preferences.DoubleClickGesture, value => _app.Preferences.DoubleClickGesture = value));
+        Section("Middle-click gesture", "Middle-click an empty island surface to perform this action.", Choice("Middle-click gesture", ModuleCatalog.Gestures, _app.Preferences.MiddleClickGesture, value => _app.Preferences.MiddleClickGesture = value));
+        Section("Pointer wheel", "Use the wheel on the empty island surface to move through your enabled modules.", Choice("Pointer wheel gesture", new[] { "None", "Switch modules" }, _app.Preferences.WheelGesture, value => _app.Preferences.WheelGesture = value));
         var startup = new CheckBox { Content = "Start Crest with Windows", IsChecked = _app.Preferences.StartWithWindows };
         startup.Click += (_, _) => { try { _app.SetStartup(startup.IsChecked == true); _message.Text = "Startup preference saved."; } catch { startup.IsChecked = _app.Preferences.StartWithWindows; _message.Text = "Windows could not change this startup preference."; } };
         Section("Startup", "Start quietly in your system tray. This is off by default.", startup);
@@ -297,11 +325,18 @@ public sealed class SettingsWindow : Window
     private void Modules()
     {
         Heading("Your everyday essentials.", "Choose what appears in the island. Everything works locally.");
-        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "System volume, mute, OS battery status, and supported laptop brightness."), ("Timer", "Multiple named timers and a stopwatch with pause, resume, and restart recovery."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 file references for this session. Original files are untouched.") };
+        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "Audio outputs, volume, battery, brightness, CPU, memory, network activity, Wi-Fi and Bluetooth."), ("Timer", "Timers, stopwatch, focus sessions, and local reminders with snooze and dismissal."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 references. Pin chosen references to retain them after quitting."), ("Capture", "Launch Windows capture and retain only the recent image references you select."), ("Workspaces", "Launch a saved group of apps, folders, and websites."), ("Clipboard", "Search and manage text history after opting in from Privacy settings.") };
         foreach (var (name, detail) in details)
             Section(name, detail, Toggle("Show " + name, _app.Preferences.EnabledModules.Contains(name), v => { if (v && !_app.Preferences.EnabledModules.Contains(name)) _app.Preferences.EnabledModules.Add(name); if (!v) _app.Preferences.EnabledModules.Remove(name); }));
-        Section("Timer sound", "Completions wait for your next hover. An optional Windows sound can play when a timer finishes.", Toggle("Play a sound for timer completion", _app.Preferences.TimerSound, v => _app.Preferences.TimerSound = v));
-        Section("Future modules", "Clipboard capture, system statistics, and account integrations belong to later phases. They are not enabled or collecting data in this build.");
+        ModuleOrdering();
+        var timerSound = new StackPanel();
+        timerSound.Children.Add(Toggle("Play a sound for timer completion", _app.Preferences.TimerSound, v => _app.Preferences.TimerSound = v));
+        var testSound = Design.Button("Test timer sound", () => { _app.PreviewTimerSound(); _message.Text = "Playing Crest's timer chime. If it is silent, check your output and Crest volume in Windows Volume Mixer."; });
+        testSound.HorizontalAlignment = HorizontalAlignment.Left;
+        testSound.Margin = new Thickness(0, 10, 0, 0);
+        timerSound.Children.Add(testSound);
+        Section("Timer sound", "A short Crest chime can play when a timer finishes, even while Crest is hidden. This is off by default. Completed timers wait for your next reveal.", timerSound);
+        Section("Online integrations", "Weather, calendars, accounts, and AI integrations belong to later phases. These services are absent from this local build.");
     }
     private void Shortcuts()
     {
@@ -366,9 +401,9 @@ public sealed class SettingsWindow : Window
     }
     private void About()
     {
-        Heading("Small by design.", "Crest 0.1.0 · Windows 11 · x64\nA local first release candidate.");
-        Section("Your data stays here", "No account, analytics, or required internet connection. Preferences and shortcuts live in your Windows user profile. The file shelf clears when you quit. Clipboard capture and online integrations are absent from this build.");
-        Section("Clear Crest data", "Reset preferences and shortcuts, cancel all timers, reset the stopwatch, clear shelf references, and turn off Windows startup. Your original files are untouched.", Design.Button("Reset Crest data", () => { if (MessageBox.Show(this, "Reset all Crest preferences, shortcuts, timers, stopwatch, and shelf references? Your original files will stay in place.", "Reset Crest data", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes) { try { _app.ResetData(); BuildPage(); _message.Text = "Crest data was reset."; } catch { _message.Text = "Some data could not be reset. Please try again."; } } }));
+        Heading("Small by design.", "Crest " + App.AppVersion + " · Windows 11 · x64\nA local release candidate.");
+        Section("Your data stays here", "No account, analytics, or required internet connection. Preferences, activities, pinned shelf references and selected capture references live in your Windows user profile. Text clipboard history is collected only after you opt in from Privacy settings.");
+        Section("Clear Crest data", "Reset preferences, shortcuts, workspaces, all activities, clipboard history, shelf and capture references, and Windows startup. Your original files are untouched.", Design.Button("Reset Crest data", () => { if (MessageBox.Show(this, "Reset all Crest preferences, workspaces, timers, focus sessions, reminders, stopwatch, clipboard history, and saved references? Your original files will stay in place.", "Reset Crest data", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes) { try { _app.ResetData(); BuildPage(); _message.Text = "Crest data was reset."; } catch { _message.Text = "Some data could not be reset. Please try again."; } } }));
         Section("Capability status", $"Audio: {_app.Hardware.AudioStatus}\nBrightness: {_app.Hardware.BrightnessStatus}\nBattery: {_app.Hardware.Battery.Status}\nMusic: {_app.Hardware.Music.Status}");
         Section("Using the tray", "Double-click the Crest tray icon to open Settings. Right-click it for Settings, Pause / Resume, and Quit. Pause disables the hover trigger. Quit releases the island and native subscriptions.");
         Section("Release verification", "Automated checks cover desktop interaction transitions, timer recovery, settings recovery, and file reference limits. The source includes a compatibility report identifying hardware checks and remaining acceptance tests.");
