@@ -746,5 +746,14 @@
     "Optional Allow Crest over other apps mode remains separate and unexecuted on this candidate.",
     "Hardware/API media outcomes use owned synthetic sessions and actual endpoint writes/readback; audible external players, hardware keys/device/radio/charging transitions and settings fallback remain unexecuted.",
     "Historical 0.2.0 and older installed preview observations retain original identities; neither qualify a changed candidate."
-  ]
+  ],
+  "Publication": {
+    "Published": true,
+    "PublishedAtUtc": "2026-11-19T21:51:47.0000000+00:00",
+    "PublishedLocalTime": "2026-11-20T03:21:47.0000000+05:30",
+    "Draft": false,
+    "Prerelease": true,
+    "PostPublicationAssetDigestsMatched": true,
+    "Published020AssetsUnchanged": true
+  }
 }

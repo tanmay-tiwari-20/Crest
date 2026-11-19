@@ -2,7 +2,7 @@
 
 ## Final 0.2.1 candidate
 
-Reviewed 20 November 2026, Asia/Calcutta. The [final sanitized verification](p2-windows-verification-0.2.1.json) records commit [950b8df7f63f3f17c4a45709ab36300ca9d16211](https://github.com/tanmay-tiwari-20/Crest/commit/950b8df7f63f3f17c4a45709ab36300ca9d16211), the exact downloaded GitHub 0.2.1 assets, and fresh candidate-bound observations. The assets were verified while the release was a draft; publication is handled separately. **Two gates pass, 14 have partial coverage and 15 remain pending. Crest remains a prerelease.**
+Reviewed 20 November 2026, Asia/Calcutta. The [final sanitized verification](p2-windows-verification-0.2.1.json) records commit [950b8df7f63f3f17c4a45709ab36300ca9d16211](https://github.com/tanmay-tiwari-20/Crest/commit/950b8df7f63f3f17c4a45709ab36300ca9d16211), the exact downloaded GitHub 0.2.1 assets, and fresh candidate-bound observations. The assets were verified while the release was a draft, then published as the [0.2.1 prerelease](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.1) on 20 November 2026 at 03:21 IST. Post-publication asset digests match the tested downloads. **Two gates pass, 14 have partial coverage and 15 remain pending. Crest remains a prerelease.**
 
 | Identity | SHA-256 |
 |---|---|

@@ -14,7 +14,7 @@
       "Notes": "Hidden startup and real restart observed; stationary Win+D/unlock/resume recovery pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -38,7 +38,7 @@
       "Notes": "Chrome foreground rejection and hidden windows observed; full Chrome/Explorer pointer/input matrix pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -69,7 +69,7 @@
       "Notes": "Exact DLL control/native OLE/audio/compact fixtures pass; full registered popups and physical product interaction pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -79,7 +79,7 @@
       "Notes": "Actual Settings focus/keyboard and hidden island observed; external launcher target matrix pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -96,7 +96,7 @@
       "Notes": "Real countdown/focus/reminder deadlines remained hidden under Chrome in healthy 50-sample observation; background track-change matrix pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -113,7 +113,7 @@
       "Notes": "Eight actual Windows SMTC outcomes with two owned muted sessions pass; external audible players/product UI pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -123,7 +123,7 @@
       "Notes": "Real API volume/mute/alternate-output switching and independent all-role restoration pass; hardware keys/disconnect/reconnect pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -133,7 +133,7 @@
       "Notes": "Actual battery/brightness providers and Settings ready states observed; physical transitions/unavailable hardware pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -143,7 +143,7 @@
       "Notes": "Running deadline retained through real restart, paused 90 seconds exact, completed timer/focus/due reminder/elapsed stopwatch retained; lock/sleep/clock changes pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -153,7 +153,7 @@
       "Notes": "Exact DLL native OLE and persistent-reference fixtures pass; physical desktop drag/drop-out and full relink/missing-folder matrix pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -163,7 +163,7 @@
       "Notes": "Actual single 1920x1080 display at 125 percent and static layout fixtures; physical 100/150/200 percent/mixed-DPI/fallback pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -173,7 +173,7 @@
       "Notes": "Six actual Settings keyboard/focus observations and named control fixtures pass; island keyboard/Escape/Narrator/high contrast/live reduced motion pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -183,7 +183,7 @@
       "Notes": "Current ten-minute CPU and warm memory gates pass; other measured budgets pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -193,7 +193,7 @@
       "Notes": "Quiet same-profile single instance, real graceful quit/restart pass; Explorer restart/Pause-Resume/invisible input regions pending",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -245,7 +245,7 @@
       "Notes": "600.136 seconds entirely hidden;121 samples;0.0456 percent total-device CPU",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
@@ -255,7 +255,7 @@
       "Notes": "Maximum 157081600 bytes;149.80 MiB;below decimal 200 MB",
       "Evidence": {
         "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "791F529C7D0EEDDEA5BD911275A1E06257BCA23BC1EEC9A2E7645B465912A001"
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
       }
     },
     {
