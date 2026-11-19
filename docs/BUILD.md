@@ -33,7 +33,7 @@ Quit another Crest instance before launching a development copy.
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.1.0
 ```
 
-This runs the Release build/tests and creates a clean distribution containing the executable, runtime, public user/build/release documentation, MIT license, and dependency notices. Local screenshots, diagnostic output, PDBs, and machine-specific test reports are excluded.
+This runs the Release build/tests and creates a clean distribution containing the executable, runtime, public user/build/release documentation, the two reviewed fixture illustrations referenced by README, MIT license, and dependency notices. Raw local screenshots, diagnostic output, PDBs, and machine-specific test reports are excluded.
 
 | File under `artifacts/release` | Purpose |
 | --- | --- |

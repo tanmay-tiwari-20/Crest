@@ -38,6 +38,13 @@ foreach ($doc in @('README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md')) {
         Copy-CrestReleaseDocument (Join-Path $script:CrestRoot $doc) (Join-Path $distributionDir $doc) $repository $documentationTag
     } else { Copy-Item -LiteralPath (Join-Path $script:CrestRoot $doc) -Destination (Join-Path $distributionDir $doc) -Force }
 }
+# Include only the reviewed public fixture illustrations referenced by README.
+# Raw native captures and diagnostic recordings remain excluded.
+foreach ($image in @('timers-dark.png', 'stopwatch-light.png')) {
+    $destination = Join-Path $distributionDir ('docs\images\' + $image)
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $script:CrestRoot ('docs\images\' + $image)) -Destination $destination -Force
+}
 $licenseDir = Join-Path $distributionDir 'licenses'
 New-Item -ItemType Directory -Path $licenseDir -Force | Out-Null
 $assets = Get-Content -LiteralPath (Join-Path $script:CrestRoot 'src\Crest\obj\project.assets.json') -Raw | ConvertFrom-Json

@@ -10,6 +10,7 @@
 - Completed high-contrast control colors/boundaries and live repaint; clarified fresh-hover onboarding.
 - Bounded optional asynchronous technical diagnostics to 5 MiB, 128 queued codes, and 72-hour retention.
 - Added source/binary-bound packaging verification and 31 explicit P1 acceptance gates. Strict P1 release verification refuses open, failed, or stale evidence.
+- Bundled the reviewed README timer/stopwatch illustrations with installer and portable documentation.
 - Current verification: 46 domain outcomes, eight WPF productivity UI outcomes, eight provenance checks, and dark/light renders at four DPI densities. A native Chrome-foreground comparison rejects/allows/rejects access as the option is switched off/on/off. Native P1 acceptance remains open; see the test report.
 
 ## 0.1.0 - prerelease candidate

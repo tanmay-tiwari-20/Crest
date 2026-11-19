@@ -80,6 +80,6 @@ Do not overwrite published binaries for a tag. Issue a new version for changed s
 
 ## Package contents
 
-The installer supplies per-user Start-menu entries and Windows uninstall support. The ZIP contains a complete `Crest` folder. Both include the runtime, public user/build/release documentation, MIT license, and dependency notices.
+The installer supplies per-user Start-menu entries and Windows uninstall support. The ZIP contains a complete `Crest` folder. Both include the runtime, public user/build/release documentation, the reviewed timer and stopwatch fixture images used by README, MIT license, and dependency notices. Raw local captures and diagnostics are excluded.
 
 GitHub automatically adds source ZIP/tar archives. They are for developers, not substitutes for application packages.
