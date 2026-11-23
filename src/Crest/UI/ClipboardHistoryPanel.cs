@@ -61,8 +61,9 @@ public sealed class ClipboardHistoryPanel : StackPanel
               + $"{items.Count} matching / {ClipboardHistoryHub.MaxItems} maximum · {_history.RetentionDays}-day retention. Pins stay until removed or cleared.";
         if (enabled && !_history.Paused && _captureStatus?.Invoke() is { } status
             && status != "Capturing new text copied on this PC.") _status.Text += " " + status;
+        if (enabled && _history.LastError is { } storageError) _status.Text += " " + storageError;
         string signature = enabled + ":" + _busy + ":" + _search.Text + ":"
-            + string.Join("|", items.Select(x => x.Id + ":" + x.Pinned + ":" + x.CapturedUtc.UtcTicks));
+            + string.Join("|", items.Select(x => x.Id + ":" + x.Pinned + ":" + x.Truncated + ":" + x.CapturedUtc.UtcTicks));
         if (_signature == signature) return;
         _signature = signature;
         _rows.Children.Clear();
@@ -92,14 +93,15 @@ public sealed class ClipboardHistoryPanel : StackPanel
             bottom.ColumnDefinitions.Add(new ColumnDefinition());
             bottom.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             bottom.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            bottom.Children.Add(Design.Text(item.CapturedUtc.ToLocalTime().ToString("g") + (item.Pinned ? " · pinned" : ""), 10, "Muted"));
+            bottom.Children.Add(Design.Text(item.CapturedUtc.ToLocalTime().ToString("g") + (item.Pinned ? " · pinned" : "")
+                + (item.Truncated ? $" · shortened to {item.Text.Length:N0} characters" : ""), 10, "Muted"));
             var pin = Design.Button(item.Pinned ? "Unpin" : "Pin", () => Execute(() => _history.SetPinned(item.Id, !item.Pinned)));
             var remove = Design.IconButton("\uE711", "Remove saved text: " + preview, () => Execute(() => _history.Remove(item.Id)));
             pin.Padding = new Thickness(7, 2, 7, 2);
-            pin.MinHeight = 24;
+            pin.MinHeight = 32;
             remove.Padding = new Thickness(4);
-            remove.MinHeight = 24;
-            remove.MinWidth = 24;
+            remove.MinHeight = 32;
+            remove.MinWidth = 32;
             pin.IsEnabled = remove.IsEnabled = !_busy;
             AutomationProperties.SetName(pin, (item.Pinned ? "Unpin saved text: " : "Pin saved text: ") + preview);
             Grid.SetColumn(pin, 1);

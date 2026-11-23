@@ -133,8 +133,7 @@ public sealed class ClipboardHistoryListener : IDisposable
                 if (terminator >= 0) text = text![..terminator];
                 if (text?.Length > ClipboardHistoryHub.MaxTextCharacters)
                 {
-                    Status = $"Text longer than {ClipboardHistoryHub.MaxTextCharacters:N0} characters is skipped.";
-                    text = null;
+                    Status = $"Long clipboard text is shortened to {ClipboardHistoryHub.MaxTextCharacters:N0} characters.";
                 }
             }
             finally { GlobalUnlock(data); }
@@ -152,7 +151,10 @@ public sealed class ClipboardHistoryListener : IDisposable
                 if (!_dispatcher.HasShutdownStarted) _dispatcher.BeginInvoke(() =>
                 {
                     if (!_disposed && generation == _history.CaptureGeneration && _history.Capturing)
-                        Status = stored ? "Capturing new text copied on this PC." : "Text was skipped because history is full of pinned items or contains no text.";
+                        Status = stored ? copiedText.Length > ClipboardHistoryHub.MaxTextCharacters
+                            ? $"Long clipboard text was shortened to {ClipboardHistoryHub.MaxTextCharacters:N0} characters."
+                            : "Capturing new text copied on this PC."
+                            : "Text was skipped because history is full of pinned items or contains no text.";
                 });
             }, TaskScheduler.Default);
         }

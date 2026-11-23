@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using Crest.Features;
 
 namespace Crest.Core;
 
@@ -73,7 +74,7 @@ public sealed class SettingsStore
     {
         lock (_gate)
         {
-            foreach (string name in new[] { "settings.json", "settings.json.recovered", "timer.json", "stopwatch.json", "focus.json", "reminders.json", "shelf.json", "clipboard.json", "captures.json", "settings.json.tmp", "timer.json.tmp", "stopwatch.json.tmp", "focus.json.tmp", "reminders.json.tmp", "shelf.json.tmp", "clipboard.json.tmp", "captures.json.tmp" })
+            foreach (string name in new[] { "settings.json", "settings.json.recovered", "timer.json", "stopwatch.json", "focus.json", "reminders.json", "shelf.json", "clipboard.json", "captures.json", "weather.json", "weather.json.tmp", "settings.json.tmp", "timer.json.tmp", "stopwatch.json.tmp", "focus.json.tmp", "reminders.json.tmp", "shelf.json.tmp", "clipboard.json.tmp", "captures.json.tmp" })
             {
                 try
                 {
@@ -145,6 +146,9 @@ public sealed class SettingsStore
         s.Motion = s.Motion is "Reduced" or "Normal" or "System" ? s.Motion : "System";
         s.SelectedDisplay ??= "";
         s.PreferredPlayer ??= "";
+        s.Weather ??= new(); s.Calendar ??= new(); s.Downloads ??= new(); s.Ai ??= new(); s.WindowsIntegrations ??= new();
+        WeatherPreferences.Normalize(s.Weather); CalendarPreferences.Normalize(s.Calendar);
+        DownloadService.Normalize(s.Downloads); AiAssistantService.Normalize(s.Ai);
         s.TriggerWidth = Math.Clamp(s.TriggerWidth, 80, 800);
         s.TriggerDepth = Math.Clamp(s.TriggerDepth, 1, 12);
         s.DwellMs = Math.Clamp(s.DwellMs, 80, 500);

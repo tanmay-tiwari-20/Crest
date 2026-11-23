@@ -18,12 +18,15 @@ $gates = Get-Content -LiteralPath $GatePath -Raw | ConvertFrom-Json
 if ($gates.SchemaVersion -ne 1 -or $gates.ApplicationVersion -ne $metadata.Version) { throw 'Release gate schema/version does not match the candidate.' }
 $evaluated = @(Get-CrestEvaluatedGates $gates $dllHash $build.SourceFingerprint $script:CrestRoot)
 $open = @($evaluated | Where-Object { $_.Status -ne 'pass' })
-$passed = $open.Count -eq 0 -and @($gates.VisibleOverAppIncidents).Count -eq 0
+$fullSuite = $null -eq $build.PSObject.Properties['FullAutomatedSuiteVerified'] -or $build.FullAutomatedSuiteVerified -eq $true
+$skippedChecks = @(); if ($null -ne $build.PSObject.Properties['SkippedChecks']) { $skippedChecks = @($build.SkippedChecks) }
+$passed = $fullSuite -and $open.Count -eq 0 -and @($gates.VisibleOverAppIncidents).Count -eq 0
 $OutputPath = Resolve-CrestArtifactPath $OutputPath
 New-Item -ItemType Directory -Path (Split-Path -Parent $OutputPath) -Force | Out-Null
 $report = [ordered]@{
     SchemaVersion = 1; GeneratedUtc = [DateTimeOffset]::UtcNow.ToString('O'); ApplicationVersion = $metadata.Version
     CandidateDllSHA256 = $dllHash; SourceFingerprint = $build.SourceFingerprint; BuildTestsVerified = $true
+    FullAutomatedSuiteVerified = $fullSuite; SkippedChecks = $skippedChecks
     P1GatesPassed = $passed; ReleaseStatus = $(if ($passed) { 'P1 acceptance recorded' } else { 'Release candidate; P1 gates open' })
     OpenGateCount = $open.Count; VisibleOverAppIncidents = @($gates.VisibleOverAppIncidents); Gates = $evaluated
     Limitations = 'A passing source-bound build is automatic evidence only. Native acceptance must be observed and recorded. Passing JSON evidence must identify this DLL/source and explicitly declare a satisfied GateOutcomes entry for each linked gate. Historical pass, partial and fail observations remain stale for changed candidates. AC18 clipboard and AC19 optional integrations remain outside the P1 gate set; P2 local functionality has separate domain/UI verification.'

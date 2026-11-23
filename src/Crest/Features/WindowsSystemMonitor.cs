@@ -14,7 +14,7 @@ internal sealed class WindowsSystemMonitor : IDisposable
 {
     private readonly object _gate = new();
     private Timer? _timer;
-    private bool _visible, _disposed;
+    private bool _visible, _disposed, _enabled = true;
     private int _sampling;
     private long _generation, _lastConnectivity;
     private Sample? _previous;
@@ -22,35 +22,53 @@ internal sealed class WindowsSystemMonitor : IDisposable
     public ConnectivitySnapshot Connectivity { get; private set; } = new();
     public event EventHandler? Changed;
 
+    public void SetEnabled(bool enabled)
+    {
+        lock (_gate)
+        {
+            if (_disposed || _enabled == enabled) return;
+            _enabled = enabled;
+            UpdateSampling();
+        }
+    }
+
     public void SetVisible(bool visible)
     {
         lock (_gate)
         {
             if (_disposed || _visible == visible) return;
             _visible = visible;
-            _generation++;
-            _previous = null;
-            _lastConnectivity = 0;
-            if (visible)
-            {
-                Statistics = new(Status: "Waiting for Windows samples");
-                _timer ??= new Timer(_ => _ = RefreshAsync(), null, Timeout.Infinite, Timeout.Infinite);
-                _timer.Change(0, 1000);
-            }
-            else _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+            UpdateSampling();
+        }
+    }
+    private void UpdateSampling()
+    {
+        _generation++;
+        _previous = null;
+        _lastConnectivity = 0;
+        if (_visible && _enabled)
+        {
+            Statistics = new(Status: "Waiting for Windows samples");
+            _timer ??= new Timer(_ => _ = RefreshAsync(), null, Timeout.Infinite, Timeout.Infinite);
+            _timer.Change(0, 1000);
+        }
+        else
+        {
+            _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+            if (!_enabled) Statistics = new(Status: "System activity is disabled in Settings");
         }
     }
     public async Task RefreshAsync()
     {
         if (Interlocked.Exchange(ref _sampling, 1) != 0) return;
+        long generation = -1;
         try
         {
-            long generation;
-            lock (_gate) { if (_disposed || !_visible) return; generation = _generation; }
+            lock (_gate) { if (_disposed || !_visible || !_enabled) return; generation = _generation; }
             Sample current = ReadSample();
             lock (_gate)
             {
-                if (_disposed || !_visible || _generation != generation) return;
+                if (_disposed || !_visible || !_enabled || _generation != generation) return;
                 var previous = _previous;
                 double seconds = previous is null ? 0 : (current.Timestamp - previous.Timestamp) / (double)Stopwatch.Frequency;
                 Statistics = new(
@@ -70,7 +88,7 @@ internal sealed class WindowsSystemMonitor : IDisposable
                 ConnectivitySnapshot connectivity = await ReadConnectivityAsync().ConfigureAwait(false);
                 lock (_gate)
                 {
-                    if (_disposed || !_visible || _generation != generation) return;
+                    if (_disposed || !_visible || !_enabled || _generation != generation) return;
                     Connectivity = connectivity;
                 }
             }
@@ -78,7 +96,7 @@ internal sealed class WindowsSystemMonitor : IDisposable
         }
         catch
         {
-            lock (_gate) { if (_disposed || !_visible) return; Statistics = new(Status: "Windows statistics are unavailable. Refresh or open Task Manager."); }
+            lock (_gate) { if (_disposed || !_visible || !_enabled || _generation != generation) return; Statistics = new(Status: "Windows statistics are unavailable. Refresh or open Task Manager."); }
             Changed?.Invoke(this, EventArgs.Empty);
         }
         finally { Interlocked.Exchange(ref _sampling, 0); }

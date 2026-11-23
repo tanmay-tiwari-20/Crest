@@ -12,7 +12,13 @@
     <Compile Include="../../src/Crest/Features/LocalHub.Productivity.cs" Link="LocalHub.Productivity.cs" />
     <Compile Include="../../src/Crest/Features/LocalHub.Shelf.cs" Link="LocalHub.Shelf.cs" />
     <Compile Include="../../src/Crest/Features/ClipboardHistoryHub.cs" Link="ClipboardHistoryHub.cs" />
+    <Compile Include="../../src/Crest/Features/ClipboardHistoryProtection.cs" Link="ClipboardHistoryProtection.cs" />
     <Compile Include="../../src/Crest/Features/SystemStatistics.cs" Link="SystemStatistics.cs" />
     <Compile Include="../../src/Crest/Features/LocalWorkflowHub.cs" Link="LocalWorkflowHub.cs" />
+    <Compile Include="../../src/Crest/Features/WeatherService.cs" Link="WeatherService.cs" />
+    <Compile Include="../../src/Crest/Features/CalendarService.cs" Link="CalendarService.cs" />
+    <Compile Include="../../src/Crest/Features/DownloadService.cs" Link="DownloadService.cs" />
+    <Compile Include="../../src/Crest/Features/AiAssistantService.cs" Link="AiAssistantService.cs" />
+    <Compile Include="../../src/Crest/Features/WindowsIntegrationModels.cs" Link="WindowsIntegrationModels.cs" />
   </ItemGroup>
 </Project>

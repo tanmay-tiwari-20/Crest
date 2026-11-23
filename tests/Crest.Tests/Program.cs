@@ -18,6 +18,9 @@ try
     passed += ClipboardHistoryTests.Run();
     passed += SystemStatisticsTests.Run();
     passed += LocalWorkflowTests.Run();
+    passed += WeatherCalendarTests.Run();
+    passed += DownloadAiTests.Run();
+    passed += WindowsIntegrationTests.Run();
     Test("Live clock changes do not affect running countdown", () =>
     {
         var env = Create("clock");

@@ -28,10 +28,11 @@ function Assert-CrestTag([string]$Tag, $Metadata) {
     }
 }
 
-function Resolve-CrestArtifactPath([string]$Path) {
+function Resolve-CrestArtifactPath([string]$Path, [switch]$AllowRoot) {
     $resolved = [IO.Path]::GetFullPath($Path)
     $artifactRoot = [IO.Path]::GetFullPath((Join-Path $script:CrestRoot 'artifacts'))
-    if (-not $resolved.StartsWith($artifactRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+    $isRoot = [string]::Equals($resolved.TrimEnd([IO.Path]::DirectorySeparatorChar), $artifactRoot.TrimEnd([IO.Path]::DirectorySeparatorChar), [StringComparison]::OrdinalIgnoreCase)
+    if (($isRoot -and -not $AllowRoot) -or (-not $resolved.StartsWith($artifactRoot + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase) -and -not ($AllowRoot -and $isRoot))) {
         throw "Artifact target must be inside this repository's artifacts directory: $resolved"
     }
     # Validate existing ancestors even when the requested output has not been created.
@@ -105,7 +106,7 @@ function Write-CrestUtf8([string]$Path, [string]$Content) {
 function Get-CrestSourceFingerprint {
     # Include all build inputs, but never generated binaries or local machine data.
     $inputs = [Collections.Generic.List[string]]::new()
-    foreach ($directory in @('src', 'tests', 'assets', 'scripts')) {
+    foreach ($directory in @('src', 'tests', 'assets', 'scripts', 'installer')) {
         foreach ($file in Get-ChildItem -LiteralPath (Join-Path $script:CrestRoot $directory) -File -Recurse) {
             $relative = $file.FullName.Substring($script:CrestRoot.Length + 1).Replace('\', '/')
             if ($relative -match '(^|/)(bin|obj)/' -or $relative -match '^tests/Crest.PlatformProbe/(latest|watch)\.json$') { continue }
@@ -126,7 +127,7 @@ function Get-CrestSourceFingerprint {
     finally { $sha.Dispose() }
 }
 
-function Write-CrestBuildVerification([string]$Directory, $Metadata, [string]$Configuration, [bool]$TestsPassed, [string]$SourceFingerprint) {
+function Write-CrestBuildVerification([string]$Directory, $Metadata, [string]$Configuration, [bool]$TestsPassed, [string]$SourceFingerprint, [string[]]$SkippedChecks = @()) {
     if ((Get-CrestSourceFingerprint) -ne $SourceFingerprint) { throw 'Build inputs changed during verification. Rebuild before packaging.' }
     $recordPath = Join-Path $Directory '.crest-build-verification.json'
     $files = @(Get-ChildItem -LiteralPath $Directory -File -Recurse | Where-Object { $_.FullName -ne $recordPath } | Sort-Object FullName | ForEach-Object {
@@ -138,6 +139,7 @@ function Write-CrestBuildVerification([string]$Directory, $Metadata, [string]$Co
     $record = [ordered]@{
         SchemaVersion = 1; ApplicationVersion = $Metadata.Version; Configuration = $Configuration
         VerifiedUtc = [DateTimeOffset]::UtcNow.ToString('O'); TestsPassed = $TestsPassed
+        FullAutomatedSuiteVerified = ($TestsPassed -and $SkippedChecks.Count -eq 0); SkippedChecks = @($SkippedChecks)
         SourceFingerprint = $SourceFingerprint; Files = $files
     }
     Write-CrestUtf8 $recordPath (($record | ConvertTo-Json -Depth 5) + "`n")
@@ -151,6 +153,11 @@ function Assert-CrestBuildVerification([string]$Directory, $Metadata) {
         throw 'Packaging requires a verified Release publish with passing outcome tests.'
     }
     if ($record.SourceFingerprint -ne (Get-CrestSourceFingerprint)) { throw 'Publish does not match the current source and test inputs. Rebuild before packaging.' }
+    if ($null -ne $record.PSObject.Properties['SkippedChecks'] -and @($record.SkippedChecks).Count -gt 0 -and $null -eq $record.PSObject.Properties['FullAutomatedSuiteVerified']) { throw 'Verification exclusions require an explicit full-suite status.' }
+    if ($null -ne $record.PSObject.Properties['FullAutomatedSuiteVerified']) {
+        $skipped = @(); if ($null -ne $record.PSObject.Properties['SkippedChecks']) { $skipped = @($record.SkippedChecks) }
+        if ($record.FullAutomatedSuiteVerified -isnot [bool] -or $record.FullAutomatedSuiteVerified -ne ($skipped.Count -eq 0)) { throw 'Automated verification scope contradicts its skipped-check record.' }
+    }
     $actualFiles = @(Get-ChildItem -LiteralPath $Directory -File -Recurse | Where-Object { $_.FullName -ne $recordPath })
     if ($actualFiles.Count -ne @($record.Files).Count) { throw 'Publish file set changed after build verification.' }
     foreach ($file in $actualFiles) {
@@ -168,7 +175,8 @@ function Write-CrestPackagedVerification([string]$Directory, $Metadata, $Verifie
     if ($VerifiedBuild.Configuration -ne 'Release' -or $VerifiedBuild.TestsPassed -ne $true) {
         throw 'Packaged provenance requires the verified Release build.'
     }
-    Write-CrestBuildVerification $Directory $Metadata 'Release' $true $VerifiedBuild.SourceFingerprint
+    $skipped = @(); if ($null -ne $VerifiedBuild.PSObject.Properties['SkippedChecks']) { $skipped = @($VerifiedBuild.SkippedChecks) }
+    Write-CrestBuildVerification $Directory $Metadata 'Release' $true $VerifiedBuild.SourceFingerprint $skipped
     $path = Join-Path $Directory '.crest-build-verification.json'
     $record = Get-Content -LiteralPath $path -Raw | ConvertFrom-Json
     # Retain the build timestamp so repackaging identical inputs keeps identical metadata.

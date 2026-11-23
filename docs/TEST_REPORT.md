@@ -1,8 +1,46 @@
 # Compatibility and test report
 
-Reviewed: 20 November 2026. Source candidate: Crest 0.2.1 with P0/P1 acceptance corrections and requested P2 local features F08–F14 and F16–F18. Strict desktop is the default; app access and clipboard history are opt-in. Account, notification-access, weather, calendar and AI integrations remain absent. Local reminder/focus tray notices never reveal the island.
+## Crest 0.3.0 release preparation — 24 November 2026
+
+The release pipeline verifies **139 domain outcomes and 147 WPF/UI outcomes against the final published ReadyToRun DLL**, plus 18 provenance checks, 16 evidence-validation checks, 21 GitHub documents, 10 geometry checks and three observer-lifecycle checks. Eleven native clipboard-writing outcomes are explicitly omitted in the local candidate to preserve the user's clipboard; the omission is retained in the packaged provenance, release manifest and generated release body. GitHub's fresh Windows workflows run the full suite, including those eleven outcomes, before creating the draft.
+
+The prepared assets are the 0.3.0 x64 installer, portable ZIP, SHA256SUMS.txt, release-manifest.json and release-gate-report.json. [Release preparation evidence](release-preparation-0.3.0.json) records final source/DLL and artifact identities after packaging. The installer is unsigned and MSIX is not included. No package was installed over the owner's existing instance.
+
+All 31 current P0/P1 native gates remain pending, and no prior owner approval is inherited. Publication is a separate review step; successful automated builds and a GitHub draft do not establish physical notification/device, accessibility/display, performance/battery or clean-account installation acceptance.
+
+## Crest 0.3.0 implementation snapshot — 24 November 2026
+
+Crest 0.3.0 adds initial optional F19–F26 adapters and completes protected clipboard persistence and disabled-module statistics sampling. Strict desktop remains the default. App access, clipboard capture, notification access, weather, local calendar, accessory reads, owned downloads, local AI and Phone Link are opt-in. The exact scopes, privacy behavior and compatibility limits are in [PRD_COMPLETION.md](PRD_COMPLETION.md).
+
+The implementation snapshot passed **139 domain outcomes and 147 WPF/UI outcomes**, with zero build warnings/errors. It also passed 11 release-provenance, 16 evidence-verification, 10 geometry and three observer-lifecycle checks. Eleven native clipboard-writing outcomes were explicitly omitted to preserve the user's clipboard and are not included in the passing count. Current-user DPAPI migration, ciphertext recovery and truncation were tested with isolated synthetic retained history. Twelve new dark/light panel renders were generated and inspected.
+
+[Snapshot evidence](prd-completion-verification.json) identifies packaged DLL `F56F067E5D4FD53177052FD9D4EA01BE7B2F4B084823118FB0F19CEEFA00780D` and source fingerprint `DB67E63BBDFE604B5405EBDD18488EDEAC8E374F2053E0C8C9BD9C87A161B6D5`. That candidate started hidden and quit with exit code 0 in an isolated profile. Subsequent release-pipeline edits require a final source-bound build/package record; this snapshot does not qualify a changed DLL or source fingerprint.
+
+The current [0.3.0 gate record](release-gates.json) has **31 pending P0/P1 acceptance and performance rows**, with no inherited owner approval. The exact [0.2.1 gate record](release-gates-0.2.1.json), historical owner decision and all dated evidence are preserved. No current physical notification permission, BLE/Phone Link operation, complete screen-reader/display matrix, measured frame/battery budget or clean-account installation is claimed. Optional MSIX XML and script syntax checks pass; Windows SDK MakeAppx is absent, so no signed-package permission compatibility was established.
+
+## Historical Crest 0.2.1 records
+
+Reviewed: 24 November 2026. Source candidate: Crest 0.2.1 with P0/P1 acceptance corrections and requested P2 local features F08–F14 and F16–F18. Strict desktop is the default; app access and clipboard history are opt-in. Account, notification-access, weather, calendar and AI integrations remain absent. Local reminder/focus tray notices never reveal the island.
 
 The previous priority DLL was `3810FBA3EBFC813E15C28EA1D1946C6E86702E1E2C7447D22A8644483072D159`, with source fingerprint `ACEF535FD408A1632156315E46FF1F5478C78F3BC7A7A4F8152A1445D855E086`. This P2 change invalidates its binary-bound acceptance evidence. Earlier installed, audible-timer, shelf and resource observations retain their original candidate identities. The final local build identity and automated results are recorded below.
+
+## 24 November owner approval and testing closure
+
+**All 31 gate reviews are closed as approved by the owner**, who requested stopping further tests and will report subsequent issues. [Approval record](RELEASE_APPROVAL_2026-11-24.md) and [candidate-bound evidence](owner-release-approval-0.2.1-2026-11-24.json) preserve that decision separately from technical verification. AC02 and AC03 now pass; current technical coverage is **4 passed, 18 partial and 9 pending, with 27 incompletely verified gates**. Complete P1 qualification remains unestablished.
+
+The unchanged exact candidate passed fresh **97 domain, 11 release-provenance, 16 evidence-validation and 3 observer outcomes**. Human-assisted desktop captures corroborate clean fresh reveals and 25 eligible early controller cancellations below 120 ms in the retry. Reported app/shell and phase-interruption results are retained alongside narrower native observations, including the phase-count discrepancy; no complete 100-cycle, performance or remaining hardware/distribution qualification is claimed. The test candidate exited and left zero native windows. Normal settings, startup and process were preserved; the normal instance remains paused.
+
+## Earlier 24 November desktop/recovery observations
+
+Late-23-November captures and the 24 November automated closeout used the unchanged **C5B5…2195 DLL / FECD…E7B source**. [Current dated report](WINDOWS_ACCEPTANCE_2026-11-24.md) and [candidate-bound evidence](desktop-acceptance-0.2.1-2026-11-24.json) add limited current coverage. AC02 and AC10 move from pending to partial; overall status is **two passed, 16 partial and 13 pending gates, with 29 open**. No new gate passes were recorded; the release remains a prerelease. The 20 November record below retains its results at that date.
+
+The owner reported **“All passed”** for five quick cancellations, five reversals and Pause/Resume. Capture 04's controller log records 18 Open states and 12 Closing → Revealing transitions; Pause remained hidden and a later fresh entry revealed Crest. Full stationary recovery was not independently qualified. Eligible cancellation before the 120 ms dwell was not verified, so AC03 stays pending. Closing Settings returned foreground focus to FxSound until Win+D restored the desktop, identifying a Settings-to-desktop focus usability gap rather than a stuck controller. The full 100-cycle sequence, timed phase interruptions and complete Chrome/Explorer input matrix remain open.
+
+One captured foreground-to-shell transition retained a visible island sample before the next sample, about 22 ms later, was hidden. This bounded observation does not establish sustained overlay failure, zero non-desktop visible samples or passing suppression percentiles. WindowFromPoint ownership in hidden samples remains a diagnostic observation rather than proof of click delivery.
+
+Fresh automated results pass **97 domain outcomes, 100 adapted UI outcomes, 11 release-provenance checks, 16 evidence-validation checks, three observer checks and 10 diagnostic geometry checks**. Two guarded full-UI attempts aborted on an unsupported original clipboard format before native clipboard writes; listener restoration and unchanged history were verified. **No fresh 111-outcome UI pass is claimed.** The temporary fixture loaded the exact candidate DLL, built with zero warnings/errors and excluded 11 native clipboard checks while retaining two in-memory snapshot checks. Canonical inputs stayed unchanged.
+
+The candidate process exited and its post-quit native window count was zero. Quit signalling exited with code 0; the candidate's own exit code is unavailable. The normal instance, settings and startup value were preserved. The regular instance remains paused because available automation exposes neither tray Resume nor a Pause/Resume IPC command. The user requested automated execution only; unavailable strict-desktop hover APIs and tool-created cursor overlays limit the remaining physical cases. No physical display matrix or elevated trace was run.
 
 ## 20 November Windows acceptance update
 

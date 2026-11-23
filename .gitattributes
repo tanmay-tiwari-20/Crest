@@ -1,5 +1,8 @@
 * text=auto eol=lf
 
+# Preserve recorded evidence bytes; their SHA-256 digests include line endings.
+docs/*.json -text
+
 *.png binary
 *.ico binary
 *.wav binary

@@ -4,7 +4,7 @@
 
 Use the repository's **Security > Advisories > Report a vulnerability** flow when private vulnerability reporting is enabled:
 
-https://github.com/tanmay-tiwari-20/Crest/security/advisories
+[Crest security advisories](https://github.com/tanmay-tiwari-20/Crest/security/advisories)
 
 If that option is unavailable, open an issue requesting a private reporting channel without including exploit details, credentials, personal files, or sensitive diagnostic output. The maintainer can then enable private reporting or arrange a channel. No response-time guarantee is currently published.
 
@@ -12,10 +12,18 @@ Please include the affected version, Windows version, reproduction steps, impact
 
 ## Current support
 
-Version 0.1.0 is a prerelease candidate. This project currently has no long-term support branch or established security-response schedule. Fixes will target the current development version and should be described in its release notes.
+Version 0.3.0 is the current release candidate. This project has no long-term support branch or established security-response schedule. Fixes target the current development version and should be described in its release notes.
 
 ## Data and distribution
 
-Crest uses local settings and timer state. The shelf holds session-only file references. This build has no analytics, account login, clipboard history, notification access, or background network requests. Optional future integrations require separate review.
+Crest has no analytics or required account. Settings, activities, selected launcher/capture/calendar paths, pinned shelf references, and chosen-city weather cache stay in the local Windows profile. Unpinned shelf references are session-only. Source-file references never authorize deleting or changing the originals.
+
+Clipboard collection starts off, captures new text only after opt-in, and supports pause, bounded retention, pinning, clear, and disable erasure. Retained clipboard data uses Windows DPAPI for the current Windows user; readable text exists in memory while Crest is running. This protection does not prevent another process running as the same user from accessing the data, and automatic secret detection is not guaranteed.
+
+Every optional source starts off. City weather contacts Open-Meteo with the chosen city/coordinates; device location is not collected. Local .ics calendars are read-only. Windows notification previews and accessory batteries depend on supported, granted access; previews stay in memory with bounded retention. Phone Link owns its pairing, account, and phone-data permissions. Disconnect and clear actions stay inside Crest's normal Settings or island surface.
+
+Crest-owned downloads contact the explicit HTTP(S) URL and save to a selected new filename. They never overwrite an existing destination or open downloaded content automatically. AI sends the user's question and bounded in-memory conversation only to a selected loopback Ollama service; Crest supplies no command, file, clipboard, or external-action tools. Treat downloaded content and model answers according to their source and verify them before use.
 
 Download binaries from this repository's [Releases](https://github.com/tanmay-tiwari-20/Crest/releases) page and compare their hashes with the accompanying `SHA256SUMS.txt`. Checksums detect a changed download; they do not replace publisher signing. The current Windows installer is unsigned.
+
+Keep public reports free of clipboard content, notification bodies, calendar details, private download URLs, model conversations, credentials, and full local paths. Report technical codes and synthetic reproduction data instead of attaching the Crest data directory.

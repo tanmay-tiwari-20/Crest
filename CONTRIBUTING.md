@@ -12,7 +12,9 @@ cd Crest
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build.ps1
 ```
 
-The build restores locked dependencies, compiles Release, runs domain outcomes, the isolated WPF productivity UI harness, and packaging-provenance checks, then publishes a self-contained application. The harness briefly opens a test window with temporary data; the build does not install or launch the Crest product. Run `artifacts/portable/Crest/Crest.exe` when you want to exercise it. Quit an existing Crest instance before testing another build; the app uses one instance per Windows session.
+The build restores locked dependencies, compiles Release, runs domain outcomes, the isolated WPF UI harness, native clipboard verification, release-provenance and evidence checks, native geometry checks, and observer self-tests, then publishes a self-contained application. The harness briefly opens test windows with temporary data; optional-service tests use fixture transports and do not contact weather servers, models, or download sources. The build does not install or launch the Crest product. Run `artifacts/portable/Crest/Crest.exe` when you want to exercise it. Quit an existing Crest instance before testing another build; the app uses one instance per Windows session.
+
+Native clipboard verification preserves the original clipboard and aborts before writes if its formats cannot be safely restored. A developer may explicitly use the documented local-only `-SkipNativeClipboardVerification` switch when that guard prevents a run; report the omitted scope and preserve its verification record. GitHub CI and the release workflow always use the full suite on fresh Windows runners.
 
 For a focused test run:
 
@@ -36,7 +38,7 @@ Source layout:
 | --- | --- |
 | `src/Crest/Core` | Settings, interaction state, and pending control writes |
 | `src/Crest/Platform` | Windows desktop eligibility and native APIs |
-| `src/Crest/Features` | Media/audio/hardware, productivity, clipboard history, workspaces/capture references, and shelf |
+| `src/Crest/Features` | Media/audio/hardware, productivity, clipboard history, workspaces/capture references, shelf, and optional-source adapters |
 | `src/Crest/UI` | Island, activity deck, Settings, and theme controls |
 | `tests` | Outcome tests and optional read-only Windows probes |
 | `scripts` and `installer` | Build, distribution, and per-user setup |
@@ -49,8 +51,11 @@ GitHub Actions checks builds; it does not certify physical desktop dragging, scr
 
 - Check actual Windows capabilities and expose useful unavailable states. Do not fill disconnected media or hardware with invented data.
 - Preserve timer recovery and original files referenced by the shelf.
-- Clipboard capture must remain off by default and collect only new text changes after explicit opt-in. Preserve durable pause, bounded retention, pin limits, clear/disable erasure and privacy-exclusion markers. Account and future integrations require separate behavior and permission specifications.
+- Clipboard capture must remain off by default and collect only new text changes after explicit opt-in. Preserve durable pause, bounded retention, pin limits, clear/disable erasure, Windows protected persistence, and privacy-exclusion markers.
+- Optional integrations start off and require named sources, clear permission/data/cost descriptions, bounded data, stale/offline states, and independent disconnect. Weather uses chosen-city Open-Meteo access; calendars use selected local .ics files; meeting actions open validated provider pages; downloads belong to Crest; AI is read-only chat with an existing loopback Ollama service. Windows notification/device/phone capability must be established before exposing an action. Do not add implicit accounts, remote AI, universal meeting controls, or background screen capture.
 - Keep desktop suppression immediate in the default mode, even when an animation is running. In opt-in app access, preserve the shared controller, secure-desktop and lifecycle guards, and registered popup rules. Changing access mode must cancel pending motion and require a fresh entry.
 - Respect the Windows reduced-motion and high-contrast preferences.
 
 Original project code is available under the [MIT license](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependency and artwork provenance. Do not add assets that you cannot redistribute.
+
+The tag workflow builds an existing tag matching the project version and creates a draft prerelease with a manual publication step. It never marks a candidate as the latest stable release and refuses to replace a draft or published release already using that tag. CI artifacts retain the exact packages, outcome reports, and static renders for review; successful CI does not qualify unmeasured Windows acceptance gates.

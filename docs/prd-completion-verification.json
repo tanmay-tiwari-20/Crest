@@ -1,0 +1,60 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedLocalDate": "2026-11-24",
+  "Timezone": "Asia/Calcutta",
+  "ApplicationVersion": "0.3.0",
+  "CandidateDllSHA256": "F56F067E5D4FD53177052FD9D4EA01BE7B2F4B084823118FB0F19CEEFA00780D",
+  "SourceFingerprint": "DB67E63BBDFE604B5405EBDD18488EDEAC8E374F2053E0C8C9BD9C87A161B6D5",
+  "ArchiveSHA256": "8CB6FFC8EE7B088695ABFF09EB44D80445848715B814195FC32AF40955FB34B3",
+  "Build": {
+    "SDK": "10.0.404",
+    "Configuration": "Release",
+    "RuntimeIdentifier": "win-x64",
+    "SelfContained": true,
+    "ReadyToRun": true,
+    "Warnings": 0,
+    "Errors": 0
+  },
+  "Automated": {
+    "DomainOutcomes": 139,
+    "PackagedWpfUiOutcomes": 147,
+    "NativeClipboardWritesSkipped": true,
+    "SkippedNativeClipboardOutcomes": 11,
+    "ReleaseProvenance": 11,
+    "EvidenceVerification": 16,
+    "ObserverLifecycle": 3,
+    "Geometry": 10,
+    "PackagedStartupHidden": true,
+    "PackagedQuitExitCode": 0,
+    "NewPanelThemeRenders": 12
+  },
+  "Evidence": [
+    {
+      "Path": "artifacts/prd-completion-packaged-ui-0.3.0/ui-outcomes.json",
+      "SHA256": "244D5A1D4B6770FEA55AC2732B65BD484664EB9744544121712AD6229664A5ED"
+    },
+    {
+      "Path": "artifacts/prd-completion-0.3.0/startup-smoke.json",
+      "SHA256": "43A89C6DD35DF377A871B1926BFD70FEECA9422811D2769D33139877F6BACC6F"
+    }
+  ],
+  "IntegrationScope": [
+    "Windows notification previews subject to package capability and permission",
+    "Open-Meteo city weather",
+    "Local iCalendar and validated Teams/Zoom/Google Meet joins",
+    "Standard Bluetooth LE accessory batteries on request",
+    "Crest-owned downloads",
+    "Read-only local Ollama conversation",
+    "Microsoft Phone Link handoff"
+  ],
+  "AllOptionalSourcesDefaultOff": true,
+  "InstalledOwnerInstanceReplaced": false,
+  "NativeAcceptanceComplete": false,
+  "MSIX": "Manifest and script parsed; MakeAppx SDK is absent, so no MSIX package or signed-package runtime permission verification was performed.",
+  "Limitations": [
+    "Original 0.2.1 owner approval remains binary-bound and is not promoted to this changed candidate.",
+    "Native clipboard writes were skipped to preserve the user clipboard; retained-history DPAPI was covered by domain and isolated UI fixtures.",
+    "No complete physical notification, BLE/Phone Link, mixed-DPI, screen-reader, performance/battery or clean-account installation acceptance is claimed.",
+    "Meeting mute/hang-up and direct phone-data access are outside the implemented initial integration scopes."
+  ]
+}

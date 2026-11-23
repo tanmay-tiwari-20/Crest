@@ -1,6 +1,9 @@
+param([string]$ArtifactRoot = '')
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 $metadata = Get-CrestBuildMetadata
-$directory = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\release-verification-tests\publish')
+if ([string]::IsNullOrWhiteSpace($ArtifactRoot)) { $ArtifactRoot = Join-Path $script:CrestRoot 'artifacts' }
+$ArtifactRoot = Resolve-CrestArtifactPath ([IO.Path]::GetFullPath($ArtifactRoot)) -AllowRoot
+$directory = Reset-CrestArtifactDirectory (Join-Path $ArtifactRoot 'release-verification-tests\publish')
 $file = Join-Path $directory 'Crest.dll'
 $recordPath = Join-Path $directory '.crest-build-verification.json'
 Write-CrestUtf8 $file 'isolated hash-verification fixture; never launched'
@@ -39,12 +42,33 @@ Write-CrestPackagedVerification $directory $metadata $verifiedBuild
 $packaged = Assert-CrestBuildVerification $directory $metadata
 if ($packaged.Files.Count -ne 2 -or $packaged.VerifiedUtc -ne $verifiedBuild.VerifiedUtc) { throw 'Packaged provenance lost documentation hashes or the verified build timestamp.' }
 $outcomes.Add([ordered]@{ Test = 'Packaged provenance binds runtime and reviewed documents while retaining build identity'; Passed = $true })
+Write-CrestBuildVerification $directory $metadata 'Release' $true $fingerprint @('Native clipboard listener and write verification (11 outcomes)')
+$scopedBuild = Assert-CrestBuildVerification $directory $metadata
+Write-CrestPackagedVerification $directory $metadata $scopedBuild
+$scopedPackage = Assert-CrestBuildVerification $directory $metadata
+if ($scopedPackage.FullAutomatedSuiteVerified -ne $false -or @($scopedPackage.SkippedChecks).Count -ne 1) { throw 'Packaged verification discarded its explicitly skipped checks.' }
+$outcomes.Add([ordered]@{ Test = 'Candidate packages retain explicit automated verification exclusions without claiming a complete suite'; Passed = $true })
+$scopedPackage.FullAutomatedSuiteVerified = $true
+Write-CrestUtf8 $recordPath ($scopedPackage | ConvertTo-Json -Depth 5)
+Assert-Rejected 'Contradictory full-suite claims with skipped checks' { Assert-CrestBuildVerification $directory $metadata }
+$scopedPackage.PSObject.Properties.Remove('FullAutomatedSuiteVerified')
+Write-CrestUtf8 $recordPath ($scopedPackage | ConvertTo-Json -Depth 5)
+Assert-Rejected 'Skipped checks without an explicit full-suite status' { Assert-CrestBuildVerification $directory $metadata }
+Write-CrestBuildVerification $directory $metadata 'Release' $true $fingerprint
+$verifiedBuild = Assert-CrestBuildVerification $directory $metadata
+$defaultRoot = Join-Path $script:CrestRoot 'artifacts'
+Assert-Rejected 'Artifact reset validation still rejects the entire artifacts root' { Resolve-CrestArtifactPath $defaultRoot }
+Assert-Rejected 'A trailing separator cannot bypass artifact-root reset protection' { Resolve-CrestArtifactPath ($defaultRoot + [IO.Path]::DirectorySeparatorChar) }
+if ((Resolve-CrestArtifactPath $defaultRoot -AllowRoot) -ne $defaultRoot) { throw 'Default artifact-root validation did not retain the exact repository root.' }
+$outcomes.Add([ordered]@{ Test = 'Default artifact-root configuration is permitted without relaxing recursive-reset validation'; Passed = $true })
+Assert-Rejected 'Artifact root opt-in cannot admit paths outside artifacts' { Resolve-CrestArtifactPath (Join-Path $script:CrestRoot 'tmp') -AllowRoot }
 Write-CrestUtf8 $documentation 'tampered packaged documentation'
 Assert-Rejected 'Changed packaged documentation is rejected' { Assert-CrestBuildVerification $directory $metadata }
 $verifiedBuild.TestsPassed = $false
 Assert-Rejected 'Packaged provenance cannot promote a build with skipped tests' { Write-CrestPackagedVerification $directory $metadata $verifiedBuild }
 $fingerprintProbe = Join-Path (Split-Path -Parent $directory) 'source-fingerprint.ps1'
-Write-CrestUtf8 $fingerprintProbe ". (Join-Path `$PSScriptRoot '..\..\scripts\release-common.ps1')`nGet-CrestSourceFingerprint`n"
+$helperPath = (Join-Path $script:CrestRoot 'scripts\release-common.ps1').Replace("'", "''")
+Write-CrestUtf8 $fingerprintProbe (". '" + $helperPath + "'`nGet-CrestSourceFingerprint`n")
 $windowsPowerShell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
 $legacyFingerprint = & $windowsPowerShell -NoProfile -ExecutionPolicy Bypass -File $fingerprintProbe
 if ($LASTEXITCODE -ne 0 -or $legacyFingerprint.Trim() -ne $fingerprint) { throw 'Windows PowerShell source fingerprint differs from the verification host.' }

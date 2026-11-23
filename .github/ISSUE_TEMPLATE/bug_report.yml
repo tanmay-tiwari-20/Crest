@@ -6,9 +6,30 @@ body:
     id: version
     attributes:
       label: Crest version and installation type
-      placeholder: "0.2.1, installer or portable"
+      placeholder: "0.3.0, installer or portable"
     validations:
       required: true
+  - type: dropdown
+    id: access_mode
+    attributes:
+      label: Crest access mode
+      options:
+        - Strict desktop (default)
+        - Desktop active
+        - Allow Crest over other apps
+        - Not sure
+    validations:
+      required: true
+  - type: input
+    id: module
+    attributes:
+      label: Affected module or integration
+      placeholder: "Desktop hover, clipboard, weather, calendar, downloads, AI, notifications, accessory battery, Phone Link..."
+  - type: textarea
+    id: source_state
+    attributes:
+      label: Optional source and capability state
+      description: If an integration is affected, name the provider/app and whether you enabled it, granted access, or saw an offline/unavailable message. For AI, include the model name and whether local Ollama is running. Use a synthetic calendar/download example; omit private URLs, event details, notification text, prompts, and credentials.
   - type: input
     id: windows
     attributes:
@@ -33,4 +54,4 @@ body:
     id: evidence
     attributes:
       label: Relevant evidence
-      description: Optional screenshots or diagnostic excerpts. Remove personal paths, file contents, credentials, and unrelated app information before posting.
+      description: Optional screenshots or technical diagnostic codes. Remove personal paths, clipboard content, notification/calendar details, AI prompts/answers, private download URLs, credentials, and unrelated app information before posting. Do not attach your Crest data directory.

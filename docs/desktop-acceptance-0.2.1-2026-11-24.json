@@ -1,0 +1,476 @@
+{
+  "SchemaVersion": 1,
+  "ReviewedLocalDate": "2026-11-24",
+  "CaptureLocalDate": "2026-11-23",
+  "CompletionLocalDate": "2026-11-24",
+  "Timezone": "Asia/Calcutta",
+  "GeneratedUtc": "2026-11-24T00:22:17.2260018+05:30",
+  "ApplicationVersion": "0.2.1",
+  "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+  "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+  "CandidateOrigin": "Exact downloaded published 0.2.1 candidate; frozen source and DLL unchanged during this run",
+  "Prerelease": true,
+  "P1Qualified": false,
+  "Scope": "Limited current-candidate desktop/recovery observations plus guarded automated reruns. No new passing acceptance gate.",
+  "GateCounts": {
+    "Pass": 2,
+    "Partial": 16,
+    "Pending": 13,
+    "Open": 29
+  },
+  "GateOutcomes": [],
+  "NewlyQualifiedGateIds": [],
+  "PartialCoverageGateIds": [
+    "AC01",
+    "AC02",
+    "AC09",
+    "AC10",
+    "AC23"
+  ],
+  "SameCandidatePriorEvidence": {
+    "Path": "docs/p2-windows-verification-0.2.1.json",
+    "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1",
+    "RecordedLocalDate": "2026-11-20",
+    "PassingGatesRetained": [
+      "PER-idle",
+      "PER-memory"
+    ],
+    "PriorPassesNotRepeatedByThisRun": true
+  },
+  "Baseline": {
+    "RecordedAtUtc": "2026-11-24T00:04:25.1594926+05:30",
+    "WindowsVersion": "10.0.26300",
+    "WindowsBuild": "26300",
+    "Cpu": "AMD Ryzen 5 5600H",
+    "LogicalProcessors": 12,
+    "PhysicalMemoryBytes": 7883554816,
+    "PhysicalDisplayCountObserved": 1,
+    "ResolutionPixels": [
+      1920,
+      1080
+    ],
+    "ScalingPercent": 125,
+    "ActiveGraphics": "AMD Radeon(TM) Graphics",
+    "SecondaryGraphics": "AMD Radeon(TM) RX 6500M",
+    "SecondaryActiveDisplayCountersAvailable": false,
+    "OsReportedRefreshHz": 144,
+    "PowerScheme": "Balanced",
+    "RefreshIsPresentedFrameEvidence": false
+  },
+  "Conditions": {
+    "IsolatedAcceptanceProfile": true,
+    "SeparateIpcIdentity": true,
+    "StrictDesktop": true,
+    "AllowOverApps": false,
+    "TriggerWidthDip": 240,
+    "TriggerDepthDip": 3,
+    "DwellMs": 120,
+    "GraceMs": 250,
+    "PhysicalTriggerRectangle": {
+      "X": 810,
+      "Y": 0,
+      "Width": 300,
+      "Height": 4
+    },
+    "RegularInstancePausedByOwner": true
+  },
+  "Setup": {
+    "ActualSettingsCloseAndTryButtonUsed": true,
+    "SecondaryQuietLaunchExitCode": 0,
+    "PrimaryCandidateRetained": true,
+    "NativeHookCount": 5,
+    "InitialReadyIslandHidden": true,
+    "InitialSettingsVisible": true,
+    "DpiVirtualizedInitialDiagnosticExcluded": true,
+    "CorrectedManifestedProbeUsed": true,
+    "ComputerUseCursorOverlayBlockersRemovedBeforePreHover": true,
+    "PreHoverDesktopEligible": true,
+    "PreHoverVisibleCandidateWindows": 0
+  },
+  "OwnerReports": [
+    {
+      "Scenario": "Regular instance pause before isolated tests",
+      "ExactOwnerQuote": "Paused",
+      "Source": "Direct human response in primary chat, relayed by primary agent",
+      "FullGateSatisfied": false
+    },
+    {
+      "Scenario": "Closing Settings returned to FxSound",
+      "ExactOwnerQuote": null,
+      "Source": "Owner observation relayed by primary agent; paraphrase",
+      "ReportedOutcome": "Settings closed, then FxSound regained foreground focus rather than the desktop",
+      "FullGateSatisfied": false
+    },
+    {
+      "Scenario": "Initial hover did not appear",
+      "ExactOwnerQuote": null,
+      "Source": "Owner observation relayed by primary agent; paraphrase",
+      "ReportedOutcome": "No island appeared during initial attempt",
+      "FullGateSatisfied": false
+    },
+    {
+      "Scenario": "Final small manual batch",
+      "ExactOwnerQuote": "All passed",
+      "Source": "Direct human response in primary chat, relayed by primary agent",
+      "RequestedBatch": {
+        "EarlyCancellationAttempts": 5,
+        "ClosingReversalAttempts": 5,
+        "PauseResume": true
+      },
+      "Full100CycleSequenceReported": false,
+      "FullGateSatisfied": false
+    }
+  ],
+  "Analyses": {
+    "Source": "Primary agent analysis of native captures and independent foreground-process inspection, corroborated here by time-filtered controller-state log counts",
+    "SettingsFocus": {
+      "ActualFxSoundForegroundConfirmedInCapture03": true,
+      "WinDReturnedForegroundToDesktop": true,
+      "FreshEntryThenRevealed": true,
+      "KnownSettingsToDesktopUxGap": true,
+      "FixedInThisRun": false
+    },
+    "InitialNoReveal": {
+      "DesktopEligibilityNotEstablished": true,
+      "StrictPolicySuppressionExpected": true,
+      "StuckControllerFailureEstablished": false
+    },
+    "Capture03": {
+      "StartedUtc": "2026-11-23T23:32:25.3447271+05:30",
+      "ActualDurationSeconds": 120.011,
+      "SampleCount": 5536,
+      "MaximumSampleGapMilliseconds": 64.023,
+      "VisibleSamples": 442,
+      "CandidateTopLevelShowEvents": 6,
+      "ObserverHealthy": true,
+      "WindowEnumerationFailures": 0,
+      "CandidateDllUnchanged": true,
+      "Limitations": "Sampled visibility and controller observations do not establish delivered frames, hidden input interception or complete acceptance."
+    },
+    "Capture04": {
+      "StartedUtc": "2026-11-23T23:40:41.3129807+05:30",
+      "ActualDurationSeconds": 180.017,
+      "SampleCount": 8282,
+      "MaximumSampleGapMilliseconds": 77.194,
+      "VisibleSamples": 985,
+      "CandidateTopLevelShowEvents": 10,
+      "ObserverHealthy": true,
+      "WindowEnumerationFailures": 0,
+      "CandidateDllUnchanged": true,
+      "ControllerOpenStates": 18,
+      "ClosingToRevealingTransitions": 12,
+      "EligibleSub120MillisecondCancellationsVerified": 0,
+      "PauseHiddenObserved": true,
+      "Full100CycleSequenceExecuted": false,
+      "ContinuousVisualSmoothnessOrNoDuplicateFrameCertified": false,
+      "Limitations": "The owner reported quick flicks, but available timing does not verify eligible pre-dwell cancellation; twelve state reversals are partial motion evidence.",
+      "LaterFreshEntryRevealObserved": true,
+      "StationaryPointerResumeIndependentlyVerified": false,
+      "SuppressionTransition": {
+        "NonDesktopVisibleSamples": 1,
+        "VisibleIslandSampleJustAfterForegroundChangedToShell": true,
+        "NextSampleHidden": true,
+        "ApproximateNextHiddenSampleIntervalMilliseconds": 22,
+        "SustainedOverlayFailureEstablished": false,
+        "ZeroNonDesktopVisibleSamplesClaimed": false,
+        "SuppressionPercentilesQualified": false,
+        "ExactInputDisableLatencyQualified": false
+      },
+      "HiddenInputDiagnostic": {
+        "CrestOwnedWindowFromPointTargetsInCompletelyHiddenSamples": 0,
+        "ActualClickDeliveryEstablished": false,
+        "HiddenInputInterceptionGateQualified": false
+      }
+    }
+  },
+  "AutomatedResults": {
+    "DomainOutcomesPassed": 97,
+    "DomainSourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+    "ReleaseProvenanceChecksPassed": 11,
+    "EvidenceValidationChecksPassed": 16,
+    "ObserverLifecycleChecksPassed": 3,
+    "DiagnosticGeometryChecksPassed": 10,
+    "CanonicalFixtureLogicReusedWithRoutingOnlyCopies": true,
+    "HistoricalFixtureFilesPreserved": 7,
+    "GuardedFullUiAttempts": [
+      {
+        "RecordedAtUtc": "2026-11-23T23:57:26.5004256+05:30",
+        "Status": "Aborted on unsupported original clipboard format before native clipboard writes",
+        "ExpectedFullUiOutcomes": 111,
+        "FullUiPass": false,
+        "CompletedFullUiOutcomeCount": null,
+        "ChildExitCode": 1,
+        "ListenerRestored": true,
+        "ClipboardHistoryUnchanged": true,
+        "OriginalCapturePreferenceRestored": true,
+        "SyntheticClipboardWritesPerformed": false,
+        "RawEvidence": "tmp/desktop-acceptance-20261123-76922f80/clipboard-guard-ui-run.json"
+      },
+      {
+        "RecordedAtUtc": "2026-11-23T23:59:41.141961+05:30",
+        "Status": "Aborted on unsupported original clipboard format before native clipboard writes",
+        "ExpectedFullUiOutcomes": 111,
+        "FullUiPass": false,
+        "CompletedFullUiOutcomeCount": null,
+        "ChildExitCode": 1,
+        "ListenerRestored": true,
+        "ClipboardHistoryUnchanged": true,
+        "OriginalCapturePreferenceRestored": true,
+        "SyntheticClipboardWritesPerformed": false,
+        "RawEvidence": "tmp/desktop-acceptance-20261123-76922f80/clipboard-guard-ui-retry.json"
+      }
+    ],
+    "FreshFull111UiPassClaimed": false,
+    "ClipboardFreeAdaptedUi": {
+      "Status": "passed",
+      "ExpectedOutcomes": 100,
+      "OutcomeCount": 100,
+      "Passed": true,
+      "BuildPassed": true,
+      "BuildExitCode": 0,
+      "CompilationWarnings": 0,
+      "CompilationErrors": 0,
+      "RunExitCode": 0,
+      "LoadedCandidateDllVerified": true,
+      "LoadedCandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+      "CanonicalSourceFilesUnchanged": true,
+      "SourceFingerprintBefore": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+      "SourceFingerprintAfter": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+      "ExcludedNativeClipboardOutcomes": 11,
+      "ExcludedChecks": [
+        "Native clipboard listener remains unregistered and stores no text before opt-in",
+        "Enabling clipboard history does not import existing Windows clipboard content",
+        "Native clipboard-update events capture Unicode text and expose searchable local history",
+        "Pause unregisters clipboard capture and resume excludes text copied during pause",
+        "Clearing clipboard history does not reimport the current clipboard value",
+        "Native capture honors the Windows exclusion marker for protected clipboard content",
+        "Clipboard panel search and pin controls operate on saved text with accessible names",
+        "Explicit clipboard history Copy restores the selected text through Windows",
+        "Clipboard panel clear removes pinned history as well as ordinary entries",
+        "Turning clipboard history off unregisters native capture and erases its saved text",
+        "Native clipboard regression restores detached user formats and exact Unicode text after disposing capture"
+      ],
+      "InMemoryClipboardSnapshotChecksRetained": 2,
+      "NativeClipboardHistoryChecksInvoked": false,
+      "CanonicalFull111Pass": false,
+      "Scope": "Temporary adapted fixture retains two in-memory snapshot checks and excludes eleven Windows clipboard listener/search/copy/clear/restoration checks. Its 100 checks do not qualify those excluded cases or the full 111-outcome suite."
+    },
+    "Prior20November111UiPassRetainsOwnDateAndEvidence": true
+  },
+  "Cleanup": {
+    "RecordedAtUtc": "2026-11-23T23:55:10.852069+05:30",
+    "QuitSignalExitCode": 0,
+    "CandidateExitCode": null,
+    "CandidateExited": true,
+    "CandidateProcessAbsent": true,
+    "PostQuitCandidateTopLevelWindowCount": 0,
+    "PostQuitNativeSnapshotRecorded": true,
+    "NoCandidateExit0Claimed": true
+  },
+  "Preservation": {
+    "NormalInstanceStillAlive": true,
+    "NormalSettingsUnchanged": true,
+    "WindowsStartupUnchanged": true,
+    "ClipboardListenerRestoredAfterBothGuardedRuns": true,
+    "ClipboardHistoryUnchangedAfterBothGuardedRuns": true,
+    "RegularTrayPauseState": "paused",
+    "RegularTrayResumeClaimed": false,
+    "NoPauseResumeIpcOrExposedTrayAutomationAvailable": true,
+    "PrivateContentPublished": false,
+    "RawEvidenceIgnoredLocally": true,
+    "FinalPreservationRecordedAtUtc": "2026-11-24T00:09:01.1146467+05:30",
+    "CandidateAndUiProbeProcessesRemaining": 0,
+    "GuardedNativeClipboardWriteOccurred": false
+  },
+  "FutureExecution": {
+    "OwnerRequestedAutomatedTestingOnly": true,
+    "FurtherManualTestingRequested": false,
+    "UnpressedPointerMoveAvailableInSupportedUiApi": false,
+    "DefaultDesktopTargetingAvailableInSupportedUiApi": false,
+    "ComputerUseCursorOverlaysBlockStrictDesktop": true,
+    "DependentRemainingPhysicalCasesAutomated": false,
+    "PhysicalDisplayMatrixExecuted": false,
+    "ElevatedPresentationTracingExecuted": false
+  },
+  "RemainingRequirements": [
+    "Verified eligible pre-dwell cancellation and input delivery",
+    "Complete 100 native cycles and continuous motion assessment",
+    "Chrome/Explorer ordinary/maximized input matrix",
+    "Distinct timed app switches during dwell,reveal and expansion",
+    "Explorer restart,lock/sleep/unlock and secure transitions",
+    "Physical display/DPI matrix and full island accessibility",
+    "Cold installed readiness,presentation/latency/hidden graphics/battery measurements",
+    "Clean-account distribution lifecycle",
+    "Excluded native clipboard checks and complete fresh111 UI suite"
+  ],
+  "RawEvidenceDigests": [
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/baseline.json",
+      "SHA256": "6E7961D484B87A917FED6BDD01188CD7EC3566A0D4A35FB9ED9DCB354A3DABC3",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/machine-baseline.json",
+      "SHA256": "AFB20228B6C01D37C224BDE6D5E65CF5B473A91959A61C3FD10BFF1167B45A6C",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/setup-outcomes.json",
+      "SHA256": "858AA7C829EFF9D367F5B1A60A891A3D8F1664994544518EDA38645C5B4D1290",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/acceptance-ready.json",
+      "SHA256": "3A03492A5131A814C84A8B2D9A164CE641CD776914814D7597FAC1DA42EC5834",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/physical-native-snapshot.json",
+      "SHA256": "FD7409D4C81F2BBFA2DF6BDACEBF970B450F19CD1426139BA5639263F182B71D",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/pre-hover-native-snapshot.json",
+      "SHA256": "D38A13A082977B4773655E11AE5D875D2CE44975E33322E1D4EE59C889193F9F",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/hover-failure-native-snapshot.json",
+      "SHA256": "67589CEAE765783921C9C3D3DAE30A7054BE08E6F94AA1A3DFD484976510D6EA",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/hover-recovery-01.json",
+      "SHA256": "FA313E879FA365C0748D71403A8BBFEB54939703F220A31BEF824026448EAC7E",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/hover-recovery-02.json",
+      "SHA256": "3D467CA4F4AACF8151C4BF6CB74B255C2F44F31F31ED90D6A2346E87CE52A2B7",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/hover-retry-03.json",
+      "SHA256": "C9D72EEA3499450104C749B4ACBF1C78ECEA851C418C3F3E49E882D32612B13B",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/cancellation-recovery-04.json",
+      "SHA256": "9BC5BBAFBAE0D199BAF0BC36FDA9EBC3C8A420D9C0D7131692D660DE4ADEBBA3",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/diagnostic.log",
+      "SHA256": "77A1566F589D5706263DBA358CA72484DF47CA40801DB5B4F9346F0A93A9CAAC",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/candidate-quit.json",
+      "SHA256": "744AE8890DAC3AA716F4F7C4CDBCB283EA936018951DDAEEB7C5C272AEC77CF5",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/post-quit-native-snapshot.json",
+      "SHA256": "CC316A35A014ED42E3293F53B43DD63D4C89404692ABDE299881BB23A4F73DB6",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/preservation-before-ui.json",
+      "SHA256": "106A492FDA5C176E781B0A3D5282831C3D84C5F563046EC30DBC6A3AEC77A490",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/clipboard-guard-ui-run.json",
+      "SHA256": "7147E1A55F5AB63DBD1B0B47132DE6648C64CDBA8AAD1FC9B748CD52C72ADF26",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/clipboard-guard-ui-retry.json",
+      "SHA256": "0324236536A018B49F36BCAA60C1441794A032F1E4001B4FEC2758CCC8BF145A",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/clipboard-guard-ui-retry.json.stderr.log",
+      "SHA256": "C77AF7F57CF0A6ACA2D532EBF8EC8810AAD0076831661AEBC26C1974BA974526",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/domain-tests.log",
+      "SHA256": "A7040B2381E4A0D3044EBA9EA1BB6298A0AEA73AC3A3A15A785FA7AA14E73296",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/automated-reruns-summary.json",
+      "SHA256": "4677A382AAE0E9B36CD0731C5DDFED368C98F192B6028EA1421DC5C9F0DE8B25",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/fixture-rerun-routing.json",
+      "SHA256": "AF5EA263DF4EB408512EFD92534716678007B857BD3F4DD07CDF6A284A539921",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/release-verification-rerun-results.json",
+      "SHA256": "5A34D7DBB86B9336D57DAEE9F44F83443695018C26B69CC3505A3673385C0A79",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/gate-verification-rerun-results.json",
+      "SHA256": "4E0B5945B9F724E51476E5B64E521A12A2F8AA8E9E7EE7EFC0D5FE0257C7910A",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/observer-selftest-rerun-results.json",
+      "SHA256": "63E79BE6EE10DBDCFB6A374D417A7F575FFEB10F21FDCEEC222C45B8309F3D26",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/geometry-selftest-rerun-results.json",
+      "SHA256": "99F00742B2F4640470EB26033ED477CCA25377E023614B5143D12B63DB278B51",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/trace-capability.json",
+      "SHA256": "F2D4CE9E879E25392B18020E91E05D3CF1A1430B840790F7F388E57C1808FCA5",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/final-preservation.json",
+      "SHA256": "CC07A0D0057487935A8D1EB7F0F561B6B34C4BA3618D8BE012DCEECA76DD71D8",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/ui-probe-no-clipboard/verification-report.json",
+      "SHA256": "30D62B7822A07DBC480B670D0CEF4F65212B24678769480FADEC0F6544CD52EC",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/ui-probe-no-clipboard/outcomes/ui-outcomes.json",
+      "SHA256": "DF1FF780ECEE5712EEEB50B4C4D719F6E7990B1830F2CEB762AB7FA183557E76",
+      "Availability": "Ignored local evidence; not distributed"
+    },
+    {
+      "Path": "tmp/desktop-acceptance-20261123-76922f80/ui-probe-no-clipboard/adaptation-inputs.json",
+      "SHA256": "21EBD4BD1802FF4228289CC057B5E5C9734CD0B817BA69F06F44F36494D61065",
+      "Availability": "Ignored local evidence; not distributed"
+    }
+  ],
+  "Limitations": [
+    "Two prior CPU/memory gates remain passed for this unchanged candidate; no new gate passes were recorded.",
+    "Owner aggregate reports are separate from native analysis and do not certify unobserved subcases.",
+    "WindowFromPoint ownership,sampled rectangles and controller clocks do not prove click delivery or presented-frame timing.",
+    "Full 111 UI attempts aborted on unsupported original clipboard format before native clipboard writes; listener state/history were restored.",
+    "The adapted 100-check UI run passed and excludes 11 native clipboard checks; no fresh full 111 pass is claimed.",
+    "Regular owner instance remains paused; settings/startup/history were preserved, but no tray Resume is claimed.",
+    "Supported UI APIs cannot currently execute the remaining strict-desktop hover matrix without tool-created blockers.",
+    "Private user paths,window titles,clipboard content and settings/history hashes are omitted; only sanitized summaries and raw-file digests are published.",
+    "One non-desktop visible sample occurred during a bounded foreground suppression transition; the next sample about 22 ms later was hidden. No zero-sample claim or suppression percentile qualification is made."
+  ],
+  "TraceCapability": {
+    "RecordedAtUtc": "2026-11-24T00:06:51.0472987+05:30",
+    "ElevatedAdministrator": false,
+    "PerformanceLogUsersMember": false,
+    "NoRecordingStarted": true,
+    "PhysicalDisplayOrBatteryAcceptanceQualified": false
+  }
+}

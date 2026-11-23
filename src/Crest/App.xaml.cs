@@ -20,7 +20,7 @@ namespace Crest;
 
 public partial class App : Application
 {
-    public static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "0.2.1";
+    public static string AppVersion => typeof(App).Assembly.GetName().Version?.ToString(3) ?? "0.3.0";
     private static DiagnosticLog? Diagnostics;
     private string _instancePrefix = @"Local\Crest";
     private string? _acceptanceDirectory;
@@ -99,6 +99,8 @@ public partial class App : Application
         Hardware = new HardwareHub(Preferences.PreferredPlayer);
         Local = new LocalHub(Store, () => Preferences);
         Workflows = new LocalWorkflowHub(Store);
+        InitializeIntegrations();
+        Hardware.SetControlsEnabled(Preferences.EnabledModules.Contains("Controls"));
         ClipboardHistory = new ClipboardHistoryHub(Store, () => new ClipboardHistoryOptions(Preferences.ClipboardHistoryEnabled, Preferences.ClipboardRetentionDays));
         ClipboardListener = new ClipboardHistoryListener(ClipboardHistory);
         ClipboardListener.Start();
@@ -214,7 +216,9 @@ public partial class App : Application
     }
     public void SavePreferences()
     {
+        ApplyIntegrationPreferences();
         Store.Save(Preferences);
+        Hardware?.SetControlsEnabled(Preferences.EnabledModules.Contains("Controls"));
         ClipboardHistory?.ApplyPreferences();
         if (!Preferences.TimerSound) _timerAlertPlayer?.CancelCompletionAlerts();
         Design.Apply(EffectivePreferences);
@@ -247,6 +251,7 @@ public partial class App : Application
         Local.ClearShelf();
         ClipboardHistory.Reset();
         Workflows.ClearCaptures();
+        ClearIntegrations();
         Store.Clear();
         Preferences = new AppSettings();
         SavePreferences();
@@ -306,7 +311,7 @@ public partial class App : Application
         _quitting = true;
         SystemEvents.UserPreferenceChanged -= OnThemeChanged;
         SystemParameters.StaticPropertyChanged -= OnSystemPreferenceChanged;
-        foreach (Action release in new Action[] { () => _timerAlertPlayer?.Dispose(), () => ClipboardListener?.Dispose(), () => ClipboardHistory?.Dispose(), () => _island?.Suppress(), () => Controller?.Dispose(), () => Policy?.Dispose(), () => Hardware?.Dispose(), () => Local?.Dispose(), () => _tray?.Dispose(), () => _settings?.Close(), () => _island?.Close(), () => _settingsSignal?.Dispose(), () => _quitSignal?.Dispose(), () => _single?.ReleaseMutex(), () => _single?.Dispose(), () => Diagnostics?.Dispose() })
+        foreach (Action release in new Action[] { () => _island?.Suppress(), () => Controller?.Dispose(), () => Policy?.Dispose(), DisposeIntegrations, () => _timerAlertPlayer?.Dispose(), () => ClipboardListener?.Dispose(), () => ClipboardHistory?.Dispose(), () => Hardware?.Dispose(), () => Local?.Dispose(), () => _tray?.Dispose(), () => _settings?.Close(), () => _island?.Close(), () => _settingsSignal?.Dispose(), () => _quitSignal?.Dispose(), () => _single?.ReleaseMutex(), () => _single?.Dispose(), () => Diagnostics?.Dispose() })
         {
             try
             {

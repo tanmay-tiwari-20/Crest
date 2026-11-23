@@ -117,6 +117,7 @@ public sealed class HardwareHub : IDisposable
     public ConnectivitySnapshot Connectivity => _systemMonitor.Connectivity;
     public Task<string?> SwitchAudioOutputAsync(string id) => Task.Run(() => _audio.SwitchOutputAsync(id));
     public Task RefreshAudioOutputsAsync() => Task.Run(() => _audio.RefreshAsync(true));
+    public void SetControlsEnabled(bool enabled) => _systemMonitor.SetEnabled(enabled);
     public BatterySnapshot Battery { get; private set; } = new();
     public BatteryNoticeSnapshot? PendingBatteryNotice => _batteryNotices.Pending;
     public bool AcknowledgeBatteryNotice(long id) => _batteryNotices.Acknowledge(id);

@@ -30,6 +30,14 @@ Inno Setup is used to create the Windows installer. Its compiler and tool files 
 
 - [Inno Setup license](https://jrsoftware.org/files/is/license.txt)
 
+## Optional services and installed applications
+
+The opt-in weather module uses Open-Meteo's city search and weather APIs. Weather data is attributed to **Open-Meteo**, under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); the panel displays this attribution. API access is subject to the provider's [terms](https://open-meteo.com/en/terms), including the free non-commercial service limits. No Open-Meteo server code is bundled in Crest.
+
+Read-only AI assistance connects to an existing local [Ollama](https://ollama.com/) installation and an explicitly selected model. Crest does not distribute Ollama or model weights. Those installations and models retain their own licenses and resource requirements.
+
+Microsoft Phone Link, Windows capture tools, and the selected meeting provider's browser page are existing applications or services opened through Windows. Crest does not distribute their code or claim universal call controls. Local calendar input remains a user-selected file; no calendar account or library is bundled for this feature.
+
 ## Development-only tools
 
 Image rendering tools used to export project artwork are not required to run Crest and are not bundled in the application. GitHub Actions referenced by the workflows retain their own licenses. Package checksums describe specific built files; they do not change dependency licensing.

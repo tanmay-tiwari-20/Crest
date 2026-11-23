@@ -79,7 +79,7 @@ public static class WindowsTools
 {
     public static string? Open(string uri)
     {
-        if (uri is not ("ms-settings:sound" or "ms-settings:network-wifi" or "ms-settings:bluetooth" or "ms-screenclip:"))
+        if (uri is not ("ms-settings:sound" or "ms-settings:network-wifi" or "ms-settings:bluetooth" or "ms-screenclip:" or "ms-phone:"))
             return "This Windows tool is not supported.";
         try { using var process = Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true }); return null; }
         catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)

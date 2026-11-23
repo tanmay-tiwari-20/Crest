@@ -16,7 +16,7 @@ public sealed partial class SettingsWindow : Window
     private readonly App _app; private readonly StackPanel _page = new(); private readonly StackPanel _nav = new(); private string _section = "Overview";
     private readonly TextBlock _message = Design.Text("", 11, "Muted"); private TextBlock? _hardwareStatus;
     private WindowState _restoreState = WindowState.Normal;
-    private static readonly string[] Sections = { "Overview", "Appearance", "Behavior", "Modules", "Shortcuts", "Workspaces", "Privacy", "Activities", "About" };
+    private static readonly string[] Sections = { "Overview", "Appearance", "Behavior", "Modules", "Shortcuts", "Workspaces", "Privacy", "Activities", "Integrations", "About" };
     private TimerToolsPanel? _activities;
     public SettingsWindow(App app)
     {
@@ -162,6 +162,7 @@ public sealed partial class SettingsWindow : Window
                 break;
             case "Workspaces": Workspaces(); break;
             case "Privacy": Privacy(); break;
+            case "Integrations": Integrations(); break;
             case "Activities":
                 Heading("A little room to focus.", "Timers, focus sessions, and local reminders. Due notices stay here until you continue, snooze, or dismiss them.");
                 _activities = new TimerToolsPanel(_app.Local, message => _message.Text = message);
@@ -324,8 +325,8 @@ public sealed partial class SettingsWindow : Window
     }
     private void Modules()
     {
-        Heading("Your everyday essentials.", "Choose what appears in the island. Everything works locally.");
-        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "Audio outputs, volume, battery, brightness, CPU, memory, network activity, Wi-Fi and Bluetooth."), ("Timer", "Timers, stopwatch, focus sessions, and local reminders with snooze and dismissal."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 references. Pin chosen references to retain them after quitting."), ("Capture", "Launch Windows capture and retain only the recent image references you select."), ("Workspaces", "Launch a saved group of apps, folders, and websites."), ("Clipboard", "Search and manage text history after opting in from Privacy settings.") };
+        Heading("Your everyday essentials.", "Choose what appears in the island. Optional sources are configured separately in Integrations.");
+        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "Audio outputs, volume, battery, brightness, CPU, memory, network activity, Wi-Fi and Bluetooth."), ("Timer", "Timers, stopwatch, focus sessions, and local reminders with snooze and dismissal."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 references. Pin chosen references to retain them after quitting."), ("Capture", "Launch Windows capture and retain only the recent image references you select."), ("Workspaces", "Launch a saved group of apps, folders, and websites."), ("Clipboard", "Search and manage text history after opting in from Privacy settings."), ("Integrations", "Optional weather, calendar, downloads, local AI, and Windows integrations.") };
         foreach (var (name, detail) in details)
             Section(name, detail, Toggle("Show " + name, _app.Preferences.EnabledModules.Contains(name), v => { if (v && !_app.Preferences.EnabledModules.Contains(name)) _app.Preferences.EnabledModules.Add(name); if (!v) _app.Preferences.EnabledModules.Remove(name); }));
         ModuleOrdering();
@@ -336,7 +337,7 @@ public sealed partial class SettingsWindow : Window
         testSound.Margin = new Thickness(0, 10, 0, 0);
         timerSound.Children.Add(testSound);
         Section("Timer sound", "A short Crest chime can play when a timer finishes, even while Crest is hidden. This is off by default. Completed timers wait for your next reveal.", timerSound);
-        Section("Online integrations", "Weather, calendars, accounts, and AI integrations belong to later phases. These services are absent from this local build.");
+        Section("Optional integrations", "Weather, local calendars, meeting links, Crest downloads, read-only Ollama assistance, notifications, and Windows device access start off. Configure sources and permissions in Integrations.", Design.Button("Configure integrations", () => ShowSection("Integrations")));
     }
     private void Shortcuts()
     {

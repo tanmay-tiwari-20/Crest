@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Crest.Features;
 namespace Crest.Core;
 
 public sealed class AppSettings
@@ -46,6 +47,11 @@ public sealed class AppSettings
     public Dictionary<string, DisplayPreferences> Displays { get; set; } = new();
     public List<LauncherEntry> Launchers { get; set; } = new();
     public string PreferredPlayer { get; set; } = "";
+    public WeatherPreferences Weather { get; set; } = new();
+    public CalendarPreferences Calendar { get; set; } = new();
+    public DownloadPreferences Downloads { get; set; } = new();
+    public AiPreferences Ai { get; set; } = new();
+    public WindowsIntegrationPreferences WindowsIntegrations { get; set; } = new();
 
     public AppSettings ForDisplay(string deviceName)
     {
@@ -74,7 +80,7 @@ public sealed class AppSettings
 
 public static class ModuleCatalog
 {
-    public static readonly string[] All = { "Music", "Controls", "Timer", "Launch", "Shelf", "Capture", "Workspaces", "Clipboard" };
+    public static readonly string[] All = { "Music", "Controls", "Timer", "Launch", "Shelf", "Capture", "Workspaces", "Clipboard", "Integrations" };
     public static readonly string[] Themes = { "System", "Dark", "Light", "Ocean", "Forest", "Rose" };
     public static readonly string[] Gestures = { "None", "Expand", "Collapse", "Dismiss", "Next module", "Previous module", "Settings" };
 }

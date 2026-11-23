@@ -112,12 +112,17 @@ internal static class Program
                     await CheckIslandPresentation(app, settings, hub, output, checks);
                     await NativeShelfDropChecks.Run(app, hub, settings, (passed, label) => Check(passed, label, checks));
                     await TimerSoundChecks.Run(app, settings, (passed, label) => Check(passed, label, checks));
-                    await ClipboardHistoryChecks.Run((passed, label) => Check(passed, label, checks));
+                    if (args.Contains("--skip-native-clipboard")) ClipboardSnapshotChecks.Run((passed, label) => Check(passed, label, checks));
+                    else await ClipboardHistoryChecks.Run((passed, label) => Check(passed, label, checks));
                     await HardwareP2Checks.Run((passed, label) => Check(passed, label, checks));
                     await LocalP2Checks.Run((passed, label) => Check(passed, label, checks));
                     await LocalPreferencesChecks.Run(app, (passed, label) => Check(passed, label, checks));
                     await LocalWorkflowUiChecks.Run(app, (passed, label) => Check(passed, label, checks), output);
-                    File.WriteAllText(Path.Combine(output, "ui-outcomes.json"), JsonSerializer.Serialize(new { recordedAtUtc = DateTimeOffset.UtcNow, assemblySha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(TimerToolsPanel).Assembly.Location))).ToLowerInvariant(), passed = checks.Count, checks, limits = "Rendered DPI samples and isolated presentation/drop/audio regressions do not qualify desktop visibility, physical desktop OLE dragging, audible hardware playback, physical mixed-DPI, frame timing, or screen-reader acceptance." }, new JsonSerializerOptions { WriteIndented = true }));
+                    await WeatherCalendarChecks.Run(app, (passed, label) => Check(passed, label, checks), output);
+                    await WindowsIntegrationChecks.Run((passed, label) => Check(passed, label, checks));
+                    await DownloadAiUiChecks.Run(app, (passed, label) => Check(passed, label, checks), output);
+                    await IntegrationWiringChecks.Run(app, (passed, label) => Check(passed, label, checks));
+                    File.WriteAllText(Path.Combine(output, "ui-outcomes.json"), JsonSerializer.Serialize(new { recordedAtUtc = DateTimeOffset.UtcNow, skippedNativeClipboard = args.Contains("--skip-native-clipboard"), assemblySha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(TimerToolsPanel).Assembly.Location))).ToLowerInvariant(), passed = checks.Count, checks, limits = "Rendered DPI samples and isolated presentation/drop/audio regressions do not qualify desktop visibility, physical desktop OLE dragging, audible hardware playback, physical mixed-DPI, frame timing, or screen-reader acceptance." }, new JsonSerializerOptions { WriteIndented = true }));
                     Console.WriteLine($"PASS {checks.Count} UI outcomes; 16 productivity and 4 date/time DPI renders in {output}");
                 }
                 catch (Exception error) { Console.Error.WriteLine(error); exitCode = 1; }

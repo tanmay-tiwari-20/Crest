@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.3.0 — Optional integrations prerelease candidate — 24 November 2026
+
+The 0.3.0 tag and application assets are being prepared for prerelease publication. These entries describe the current candidate; published 0.2.1 packages remain a separate historical release.
+
+### Added
+
+- Added opt-in Open-Meteo city weather, local iCalendar events and validated Teams/Zoom/Google Meet joins.
+- Added Crest-managed downloads, bounded read-only local Ollama assistance, Windows notification previews, standard BLE accessory battery reads, and Phone Link handoff.
+- Added source/permission controls, explicit clear/disconnect, offline states, cancellation and protection from late results; every panel uses the existing island controller.
+- Added Settings → Integrations and an Optional integrations dock entry when the first source is enabled. Sources start off; dock visibility remains independently configurable.
+- Added optional MSIX identity/capability packaging. Installable output requires a suitable signing certificate and separate package acceptance.
+
+### Fixed
+
+- Protected retained clipboard text with current-user Windows DPAPI, migrated legacy history, and identified truncated entries.
+- Stopped system-statistics sampling when Controls is disabled.
+- Preserved calendar-day dates and local recurring-event times, rejected unsupported recurrence rules, and kept clear/disconnect safe against late weather/calendar results.
+
+### Verification and limits
+
+- Passed 139 domain outcomes and 147 WPF/UI outcomes against the packaged DLL. Eleven native clipboard-writing outcomes were explicitly omitted and are not counted as passed.
+- Passed 11 release-provenance, 16 evidence-verification, 10 geometry, and three observer-lifecycle checks. Twelve new light/dark static panel renders were inspected; the isolated packaged candidate started hidden and exited with code 0.
+- Notifications depend on Windows permission and suitable package identity/capability. Accessory batteries require standard BLE values. Calendar meetings provide named HTTPS joins only; phone actions remain in Phone Link. AI requires an existing local Ollama model and remains read-only.
+- Physical device/permission operation, external provider/player compatibility, display/accessibility, clean-account installation/removal, and exact-candidate performance remain acceptance work. Historical 0.2.1 owner approval and measurements do not qualify 0.3.0.
+- Expanded the [release notes](docs/RELEASE_NOTES.md), [user guide](docs/USER_GUIDE.md), [implementation map](docs/PRD_COMPLETION.md), and [test report](docs/TEST_REPORT.md) with supported scopes, upgrade behavior, and candidate status.
+
 ## 0.2.1 — Windows acceptance fixes — 20 November 2026
 
 - Fixed completed-timer action/details opening Reminders when a countdown, due reminder and focus session coexist.

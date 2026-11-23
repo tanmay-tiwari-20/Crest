@@ -13,6 +13,11 @@ body:
     id: solution
     attributes:
       label: Proposed behavior
-      description: Include any Windows APIs, permissions, offline behavior, or data retention involved.
+      description: Include the exact user action and expected result, any Windows APIs or named provider/app, permissions, service cost, offline behavior, and data retention. Integrations must use Crest's existing visibility controller.
     validations:
       required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Integration compatibility, if applicable
+      description: Name the specific device/app/service and supported operation. Link public API documentation when available. Do not post account tokens, private calendar links, phone messages, or other personal content.

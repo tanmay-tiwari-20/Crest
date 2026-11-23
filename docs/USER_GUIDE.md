@@ -1,16 +1,18 @@
-# Using Crest 0.2.1
+# Using Crest
 
-Crest opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. This guide covers the **0.2.1 release candidate** for Windows 11 x64. The [test report](TEST_REPORT.md) records verified behavior and the native acceptance checks still pending.
+Crest 0.3.0 opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. This guide describes the **0.3.0 prerelease candidate** and its optional integrations. The [test report](TEST_REPORT.md) separates current verification from historical native checks; the [implementation map](PRD_COMPLETION.md) records each integration's supported scope.
 
 ## Install
 
-Get an application package from [GitHub Releases](https://github.com/tanmay-tiwari-20/Crest/releases). Expand the release's **Assets** list. GitHub's source-code ZIP and tarball contain source files; choose an installer or portable application package to run Crest.
+The [0.3.0 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.3.0) is being prepared as a prerelease. Its page and assets become publicly downloadable when published. In its **Assets** list, choose an installer or portable application package. GitHub's source-code ZIP and tarball contain source files and are intended for development.
+
+The previously published [0.2.1 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.1) remains available; it does not contain the optional integrations in this guide.
 
 Both packages include the .NET runtime. You do not need a separate runtime, an SDK, administrator access, or a Crest account. Windows 10 and ARM64 packages are not available. The current installer is unsigned.
 
 ### Installer
 
-1. Download `Crest-Setup-0.2.1-x64.exe`.
+1. Download `Crest-Setup-0.3.0-x64.exe` when the 0.3.0 assets are published.
 2. Run it and follow the setup steps. Crest installs for your current Windows user account.
 3. Choose an optional desktop shortcut if wanted. Setup adds Start-menu entries.
 4. Start Crest from the Start menu or the final setup step.
@@ -19,7 +21,7 @@ Startup with Windows is off by default. You can enable it later in **Settings �
 
 ### Portable package
 
-1. Download `Crest-Portable-0.2.1-x64.zip`.
+1. Download `Crest-Portable-0.3.0-x64.zip` when the 0.3.0 assets are published.
 2. Extract the entire archive into a folder you want to keep.
 3. Run `Crest.exe` from the extracted folder.
 
@@ -28,10 +30,10 @@ Keep the executable, runtime, and supporting files together. Portable Crest stil
 When a release supplies a SHA-256 checksum, compare it with your downloaded package:
 
 ```powershell
-Get-FileHash .\Crest-Setup-0.2.1-x64.exe -Algorithm SHA256
+Get-FileHash .\Crest-Setup-0.3.0-x64.exe -Algorithm SHA256
 ```
 
-Use the checksum for the same asset and release. The [build guide](BUILD.md) explains how the packages are produced.
+Compare the result with that filename's entry in `SHA256SUMS.txt` from the same release. The [build guide](BUILD.md) explains package creation and the optional signed MSIX path for Windows capabilities. An ordinary installer or portable package does not guarantee notification-listener access.
 
 ## Open Settings and use the tray
 
@@ -53,7 +55,7 @@ Closing Settings keeps Crest running. Starting Crest again reuses its existing i
 3. Move the pointer away from the top edge.
 4. Enter the top-center edge and pause for about 120 milliseconds.
 5. Click the chevron to open the horizontal activity deck. The focus, music, and battery cards show their current local state together.
-6. Select an icon below the deck to open Music, Controls, Timer, Launch, Shelf, Capture, Workspaces, or Clipboard. Settings → Modules controls visibility and icon order. The overview icon returns to the activity cards; album artwork also opens Music.
+6. Select an icon below the deck to open Music, Controls, Timer, Launch, Shelf, Capture, Workspaces, Clipboard, or Optional integrations when enabled. Settings → Modules controls visibility and icon order. The overview icon returns to the activity cards; album artwork also opens Music.
 7. Move away to dismiss after the pointer grace period. In desktop-only mode, opening another app suppresses Crest.
 
 The default centered trigger is **240 × 3 device-independent pixels**, which scale with Windows display scaling. Settings can change the delay, width, depth, and whether the trigger spans the full top edge.
@@ -110,7 +112,7 @@ Built-in brightness uses a supported Windows/WMI capability. An external monitor
 
 ## Timers, focus, and reminders (F09)
 
-The focus card starts a **25-minute** timer when none exists. It then controls the selected timer with Pause, Resume, or Done. Select the card's time to open the **Timer** module. Version 0.2.1 includes independent timers, stopwatch, focus sessions and reminders; the original 0.1.0 release had one timer.
+The focus card starts a **25-minute** timer when none exists. It then controls the selected timer with Pause, Resume, or Done. Select the card's time to open the **Timer** module, which includes independent timers, stopwatch, focus sessions, and reminders.
 
 The Timers tab offers **5, 15, and 25 minute** presets. Each adds a new timer. For a custom timer, enter an optional name and a duration in minutes, then select **Add**. The range is one second to seven days (10,080 minutes); fractional minutes are accepted using your Windows number format.
 
@@ -138,9 +140,11 @@ Clipboard text capture is **off by default**. Enable **Settings → Privacy → 
 
 Open **Clipboard** from the icon dock to search saved text, select a preview to copy its full text back to the clipboard, pin/unpin an entry, or remove it. Search ignores letter case. **Pause capture** keeps existing entries and survives restarts; **Resume capture** collects future changes again.
 
-Set **Clipboard retention** in Privacy to 1–30 days, with seven days as the default. Expired unpinned text is removed even while capture is paused. Pins remain until removed or cleared. History is limited to **100 entries**, **8,192 characters per entry**, and **120,000 stored characters**; oversized text is skipped. Old unpinned entries make room for new ones. If pins fill the limit, remove or unpin an entry before saving more text.
+Set **Clipboard retention** in Privacy to 1–30 days, with seven days as the default. Expired unpinned text is removed even while capture is paused. Pins remain until removed or cleared. History is limited to **100 entries**, **8,192 characters per entry**, and **120,000 stored characters**; oversized text is shortened and labeled. Old unpinned entries make room for new ones. If pins fill the limit, remove or unpin an entry before saving more text.
 
-**Clear history** removes all entries, including pins. Turning capture off also clears saved history. Clear does not change the current Windows clipboard; its existing text stays excluded until a new clipboard change. History is stored locally in your Windows user profile and is not encrypted by Crest.
+**Clear history** removes all entries, including pins. Turning capture off also clears saved history. Clear does not change the current Windows clipboard; its existing text stays excluded until a new clipboard change.
+
+Retained clipboard text is protected with Windows DPAPI for your current Windows user. Enabled legacy plaintext history migrates automatically. If protected storage cannot be read or written, Crest explains the problem and avoids leaving plaintext history on disk. This protection does not prevent applications running as your Windows user from accessing your clipboard or user data.
 
 ## Screen capture references (F13)
 
@@ -183,6 +187,64 @@ For a missing source, **Open nearby folder** opens the nearest existing parent l
 
 Quitting clears unpinned references and retains pinned ones. In desktop-only mode, a drag from an active File Explorer window cannot reveal Crest. Earlier owner-operated reveal/drop, drag-out, missing-source, removal, and restart observations qualify their recorded binaries. The P2 shelf changes require fresh native qualification; see the [test report](TEST_REPORT.md).
 
+## Optional integrations
+
+Open **Settings → Integrations** and choose **Weather**, **Calendar**, **Downloads**, **AI**, or **Windows**. Every optional source starts off. Enabling the first source adds **Optional integrations** to the island dock. **Settings → Modules** can hide that dock entry independently of a source's enablement. Background updates never reveal Crest.
+
+### Weather
+
+1. Enable **Enable city weather**.
+2. Enter a city, choose **Find city**, and select the matching result.
+3. Read the current temperature, conditions, wind, and last-refresh time. **Refresh weather** requests a fresh forecast.
+
+City search and selected coordinates are sent to [Open-Meteo](https://open-meteo.com/), a public online weather provider. Crest does not request your device location or a weather account. The provider's free non-commercial terms and service availability apply.
+
+Crest retains one forecast and uses a 30-minute cache. Opening the module refreshes when needed; a failed refresh identifies the age of saved data. **Clear saved weather** deletes the cache. **Disconnect weather** also disables requests and removes the selected city. Turning weather off stops requests and clears the forecast while keeping the city preference for later use.
+
+### Calendar and meeting links
+
+1. Enable **Enable local calendar** and choose **Select local calendar**.
+2. Select an available `.ics` file, up to 2 MiB. Crest reads it locally without changing the file.
+3. Use **Refresh calendar** to read changes. Up to 200 upcoming events over the next 90 days are shown.
+
+Event names and details are hidden by default. Enable **Show event titles and details** to see titles, locations, descriptions, and supported meeting links. Ordinary events, timezones, all-day dates, and common daily/weekly/monthly/yearly recurrence are supported, including exclusions and occurrence overrides. Complex recurrence or unknown timezone rules are reported and skipped.
+
+For a recognized meeting link, **Open Microsoft Teams meeting**, **Open Zoom meeting**, or **Open Google Meet meeting** opens the validated HTTPS provider page in your browser. Joining proceeds through that provider. Crest does not automatically join a call and provides no meeting mute or hang-up control.
+
+Event previews remain in memory. **Clear event previews** removes them; the selected path stays available for an explicit refresh. **Disconnect calendar** also disables reading and removes that path. Turning the source off clears previews while retaining its path preference. No calendar account is connected.
+
+### Crest-managed downloads
+
+Enable **Enable Crest-managed downloads**, enter an HTTP or HTTPS URL, and select **Choose destination and download**. Choose a new filename in an existing folder. Crest preserves existing files and refuses a destination already occupied by another transfer.
+
+The panel shows percentage when the server supplies a total size, or received bytes when it does not. Up to two transfers run at once, with a 4 GiB limit per transfer and 20 entries in the session list. Individual transfers provide **Cancel**, **Retry**, and **Remove download from list** when applicable. Choose **Open downloaded file** to launch a completed file explicitly.
+
+**Cancel transfers and clear list**, disabling downloads, or quitting cancels active transfers and cleans up Crest's temporary partial files. Completed files remain in their chosen folders. The list is memory-only and clears on restart. Crest tracks only transfers started here; downloads started in browsers or other apps are not monitored.
+
+### Read-only local AI
+
+Have [Ollama](https://ollama.com/) running on this PC with the model you want already installed. Crest does not install Ollama or download a model. In **AI**, enter its local endpoint, usually `http://127.0.0.1:11434/`, and the installed model name. Choose **Save local model selection**, then enable **Enable read-only local AI assistance**.
+
+Enter a question and choose **Ask local model**. Only your typed question and bounded conversation are sent to the selected loopback service. Remote endpoints are rejected. Crest gives the model no file, clipboard, system, execution, or external-action tools; suggestions remain text for you to review. Local model resource use is separate from Crest's core memory and CPU targets.
+
+Questions are limited to 4,000 characters. Responses and retained conversation have bounded size, and each request has a two-minute timeout. **Cancel response** stops the current request. **Clear conversation** removes the typed prompt and session conversation. Turning assistance off cancels requests and clears conversation while retaining the selected endpoint/model preferences. Conversation is not persisted across restarts.
+
+### Windows notification previews
+
+In **Settings → Integrations → Windows**, enable **Read Windows notification previews**, then choose **Request Windows notification access**. Windows decides whether to grant access. An ordinary installer or portable package may lack the required package identity and notification-listener capability. The optional MSIX build path declares that capability; installation requires suitable signing and trust, and package/device acceptance remains separate.
+
+After access is granted, use **Refresh notification previews**. App names and times are visible; enable **Show notification titles and bodies** to display notification text. Crest retains at most 50 previews in memory, with bounded text and 24-hour expiry. **Acknowledge Crest preview** removes an individual preview, and **Clear Crest notification previews** clears the inbox. These actions do not dismiss the original Windows notification or reproduce reply actions. Windows controls its own notification banners.
+
+Turning notification reading off stops collection and clears previews. Permission denial or revocation leaves local Crest modules available. Manage the operating system's permission separately in Windows Settings.
+
+### Accessory batteries and Phone Link
+
+Enable **Read paired accessory batteries**, then choose **Refresh accessory batteries** to read standard Bluetooth LE battery values from connected paired devices. Pair devices through **Open Bluetooth settings**. A device that exposes no usable standard value is shown as unavailable; Crest does not estimate it. Pairing and device support remain Windows responsibilities.
+
+Enable **Enable Phone Link access**, choose **Check Phone Link support**, then select **Open Microsoft Phone Link** when available. Microsoft Phone Link handles pairing and whichever calls/messages/actions your phone supports. Crest does not read or retain a phone account or messages, and does not provide in-island phone controls.
+
+**Disconnect Windows integrations** turns off all three Windows sources and clears their Crest previews and capability results. It does not unpair devices, uninstall Phone Link, or change Windows' own permission choices.
+
 ## Settings
 
 | Page | Options |
@@ -195,6 +257,7 @@ Quitting clears unpinned references and retains pinned ones. In desktop-only mod
 | Workspaces | Create, rename, edit, launch, and remove groups of selected targets. |
 | Privacy | Opt into clipboard history and set retention; explain saved references and history management. |
 | Activities | Use timers, stopwatch, focus sessions and reminders in a normal Settings window, including while other apps are active. |
+| Integrations | Opt into city weather, local calendars and meeting links, managed downloads, local Ollama assistance, notification previews, accessory batteries, and Phone Link access; manage source clear/disconnect controls. |
 | About | Local-data information, reset, tray instructions, and release-verification information. |
 
 In Appearance and Behavior, **Preference display** selects **All displays (default)** or a specific display. A display profile saves its own theme, motion, size/speed, trigger coverage, width/depth, dwell, and grace. Uncustomized displays use the defaults. **Use defaults for this display** removes that override. Crest still uses one selected display at a time; changing the preference-editing scope does not move the island. The selected display falls back to primary if disconnected, and a saved override can be reused when that display returns.
@@ -203,11 +266,13 @@ Double-click and middle-click actions on an empty island surface can expand, col
 
 ## Data, upgrades, and removal
 
-Preferences, shortcuts, workspaces, timers, stopwatch, focus sessions, reminders, pinned shelf paths, selected capture paths, and explicitly enabled clipboard history are stored in `%LOCALAPPDATA%\Crest`. Unpinned shelf references are held only in memory. Crest has no analytics, account access, notification access, or online account integrations. Core features do not require internet; a website or launched application may require its own connection.
+Preferences, shortcuts, workspaces, timers, stopwatch, focus sessions, reminders, pinned shelf paths, selected capture paths, and explicitly enabled clipboard history are stored in `%LOCALAPPDATA%\Crest`. Optional source choices and the weather cache also live there. Clipboard persistence is protected for the current Windows user. Unpinned shelf references, calendar/notification previews, download history, and AI conversation remain in memory.
+
+Crest has no analytics or required account. Core tools continue without internet. Enabled weather and explicit downloads contact their providers; AI contacts only the selected local service. Notification reading requires Windows permission. Optional sources explain their data access before enablement and can be turned off independently.
 
 ### Reset local data
 
-Choose **Settings → About → Reset Crest data**. Crest asks before resetting preferences, shortcuts and workspaces, clearing activities, clipboard history, shelf and capture references, and disabling startup. Original files are untouched. Clipboard capture returns to its off-by-default state.
+Choose **Settings → About → Reset Crest data**. Crest asks before resetting preferences, shortcuts and workspaces, clearing activities, clipboard history, shelf/capture references and optional-source data, cancelling transfers and model requests, and disabling startup. Original files and completed downloads are untouched. Clipboard capture and optional integrations return to their off-by-default state.
 
 ### Upgrade
 
@@ -216,6 +281,8 @@ Download the new package from [GitHub Releases](https://github.com/tanmay-tiwari
 For an installed copy, run the newer installer. It requests a graceful quit from a running Crest instance, reuses the installation location, and preserves local configuration.
 
 Upgrading preserves your enabled-module choices. To show Capture, Workspaces or Clipboard if they are not in your dock, enable them in **Settings → Modules**. Showing Clipboard does not opt into collection; enable text capture separately in **Settings → Privacy**. Existing timers recover their saved state. Unpinned shelf references clear when the old app quits; pin references that should survive future restarts.
+
+On upgrade to 0.3.0, optional integrations start off until selected. Enabled legacy clipboard history migrates to protected storage for the same Windows user. Protected clipboard data is not portable between Windows user accounts. Previous versions do not understand that new protected format, so do not expect clipboard-history downgrade compatibility. Earlier 0.2.1 installation/owner evidence does not establish 0.3.0 clean-account or upgrade acceptance.
 
 For portable use, choose **Quit**, extract the new package, and run its `Crest.exe`. Keep all files from a package together. The existing user-profile preferences are reused. Re-enable startup from the new location if you moved the portable folder.
 
@@ -260,6 +327,14 @@ Check whether the original target was moved, renamed, deleted, or disconnected. 
 ### Settings appears minimized or Crest is already running
 
 Double-click the tray icon or choose **Crest Settings** from Start to restore the existing Settings window. Crest runs as one instance. Use the tray's **Quit** before running a separate development build or replacing a portable folder.
+
+### Optional integrations are missing or unavailable
+
+Confirm **Settings → About** shows 0.3.0; 0.2.1 packages predate these sources. Open **Settings → Integrations** to enable the desired source. If its dock entry is hidden, enable **Optional integrations** in **Settings → Modules**.
+
+For weather, check your connection and city selection; saved data retains its last-refresh time. For calendars, select an available `.ics` file and refresh; unsupported rules are reported. For downloads, choose a new filename in an existing writable folder and check the source server. For AI, confirm the selected local Ollama service is running and the model name is installed; remote endpoints are rejected.
+
+For notification previews, request access from Settings and read the package/permission status. Standard portable or installer packages may lack the necessary Windows capability. For batteries, check that the paired device is connected and exposes a standard BLE value. For phone access, run **Check Phone Link support** before opening the installed Microsoft app. These capability failures leave local Crest tools available.
 
 ### Report a problem
 

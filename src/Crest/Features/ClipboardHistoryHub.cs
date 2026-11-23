@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text.Json;
 using Crest.Core;
 
 namespace Crest.Features;
 
 public sealed record ClipboardHistoryOptions(bool Enabled = false, int RetentionDays = 7);
-public sealed record ClipboardHistoryItem(string Id, string Text, DateTimeOffset CapturedUtc, bool Pinned);
+public sealed record ClipboardHistoryItem(string Id, string Text, DateTimeOffset CapturedUtc, bool Pinned, bool Truncated = false);
 
 /// <summary>Bounded opt-in text history. Collection belongs to the Windows listener, never this store.</summary>
 public sealed class ClipboardHistoryHub : IDisposable
@@ -18,6 +20,8 @@ public sealed class ClipboardHistoryHub : IDisposable
     private readonly SettingsStore _store;
     private readonly Func<ClipboardHistoryOptions> _options;
     private readonly Func<DateTimeOffset> _utcNow;
+    private readonly IClipboardHistoryProtection _protection;
+    private string? _protectionError;
     private readonly List<ClipboardHistoryItem> _items = new();
     private bool _enabled, _paused, _disposed;
     private int _retentionDays;
@@ -30,19 +34,38 @@ public sealed class ClipboardHistoryHub : IDisposable
     public bool Capturing { get { lock (_gate) return _enabled && !_paused && !_disposed; } }
     public int RetentionDays { get { lock (_gate) return _retentionDays; } }
     public long CaptureGeneration { get { lock (_gate) return _captureGeneration; } }
-    public string? LastError => _store.LastError;
+    public string? LastError => _protectionError ?? _store.LastError;
 
-    public ClipboardHistoryHub(SettingsStore store, Func<ClipboardHistoryOptions> options, Func<DateTimeOffset>? utcNow = null, bool automaticRetention = true)
+    public ClipboardHistoryHub(SettingsStore store, Func<ClipboardHistoryOptions> options, Func<DateTimeOffset>? utcNow = null, bool automaticRetention = true, IClipboardHistoryProtection? protection = null)
     {
         _store = store;
         _options = options;
         _utcNow = utcNow ?? (() => DateTimeOffset.UtcNow);
+        _protection = protection ?? new WindowsClipboardHistoryProtection();
         _automaticRetention = automaticRetention;
         var settings = options();
         _enabled = settings.Enabled;
         _retentionDays = Math.Clamp(settings.RetentionDays, 1, 30);
         if (!_enabled) { Erase(); return; }
         var saved = _store.ReadState<ClipboardHistoryState>("clipboard.json");
+        bool legacyPlaintext = saved?.SchemaVersion == 1;
+        string? recoveryError = null;
+        if (saved is { SchemaVersion: 2 })
+        {
+            byte[]? plaintext = null;
+            try
+            {
+                plaintext = _protection.Unprotect(Convert.FromBase64String(saved.ProtectedPayload ?? ""));
+                saved = JsonSerializer.Deserialize<ClipboardHistoryState>(plaintext);
+            }
+            catch (Exception ex) when (ex is CryptographicException or FormatException or JsonException or PlatformNotSupportedException or ArgumentException)
+            {
+                saved = null;
+                recoveryError = "Saved clipboard history could not be unlocked for this Windows user and was cleared.";
+                Erase();
+            }
+            finally { if (plaintext != null) CryptographicOperations.ZeroMemory(plaintext); }
+        }
         if (saved is { SchemaVersion: 1 })
         {
             _paused = saved.Paused;
@@ -58,7 +81,9 @@ public sealed class ClipboardHistoryHub : IDisposable
             }
             PruneCore();
         }
+        if (legacyPlaintext) Erase();
         Persist();
+        if (recoveryError != null) _protectionError = recoveryError;
         UpdateRetentionTicker();
     }
 
@@ -110,7 +135,15 @@ public sealed class ClipboardHistoryHub : IDisposable
         lock (_gate)
         {
             if (_disposed || !_enabled || _paused || (expectedGeneration.HasValue && expectedGeneration.Value != _captureGeneration)
-                || string.IsNullOrWhiteSpace(text) || text.Length > MaxTextCharacters) return false;
+                || string.IsNullOrWhiteSpace(text)) return false;
+            bool truncated = text.Length > MaxTextCharacters;
+            if (truncated)
+            {
+                int length = MaxTextCharacters;
+                if (char.IsHighSurrogate(text[length - 1]) && char.IsLowSurrogate(text[length])) length--;
+                text = text[..length];
+                if (string.IsNullOrWhiteSpace(text)) return false;
+            }
             pruned = PruneCore();
             var duplicate = _items.FirstOrDefault(x => x.Text == text);
             var retained = _items.Where(x => x != duplicate).ToList();
@@ -131,7 +164,7 @@ public sealed class ClipboardHistoryHub : IDisposable
             {
                 _items.Clear();
                 _items.AddRange(retained);
-                _items.Add(new(duplicate?.Id ?? Guid.NewGuid().ToString("N"), text, _utcNow(), duplicate?.Pinned ?? false));
+                _items.Add(new(duplicate?.Id ?? Guid.NewGuid().ToString("N"), text, _utcNow(), duplicate?.Pinned ?? false, truncated));
                 Persist();
                 captured = true;
             }
@@ -208,7 +241,22 @@ public sealed class ClipboardHistoryHub : IDisposable
     private bool PruneCore() => _items.RemoveAll(x => !x.Pinned && (_utcNow() - x.CapturedUtc).TotalDays >= _retentionDays) > 0;
     private void Persist()
     {
-        if (_enabled) _store.WriteState("clipboard.json", new ClipboardHistoryState { Paused = _paused, Items = _items.ToList() });
+        if (!_enabled) return;
+        byte[]? plaintext = null;
+        try
+        {
+            plaintext = JsonSerializer.SerializeToUtf8Bytes(new ClipboardHistoryState { Paused = _paused, Items = _items.ToList() });
+            byte[] protectedData = _protection.Protect(plaintext);
+            _store.WriteState("clipboard.json", new ProtectedClipboardHistoryState { ProtectedPayload = Convert.ToBase64String(protectedData) });
+            _protectionError = null;
+        }
+        catch (Exception ex) when (ex is CryptographicException or PlatformNotSupportedException or ArgumentException)
+        {
+            // Never retain an earlier plaintext migration file if protection is unavailable.
+            Erase();
+            _protectionError = "Windows could not protect saved clipboard history. History is kept only for this session.";
+        }
+        finally { if (plaintext != null) CryptographicOperations.ZeroMemory(plaintext); }
     }
     private void Erase()
     {
@@ -244,4 +292,11 @@ public sealed class ClipboardHistoryState
     public int SchemaVersion { get; set; } = 1;
     public bool Paused { get; set; }
     public List<ClipboardHistoryItem> Items { get; set; } = new();
+    public string? ProtectedPayload { get; set; }
+}
+
+public sealed class ProtectedClipboardHistoryState
+{
+    public int SchemaVersion { get; set; } = 2;
+    public string ProtectedPayload { get; set; } = "";
 }

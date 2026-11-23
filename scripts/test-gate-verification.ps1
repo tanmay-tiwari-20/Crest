@@ -1,6 +1,9 @@
+param([string]$ArtifactRoot = '')
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 . (Join-Path $PSScriptRoot 'release-gate-common.ps1')
-$directory = Reset-CrestArtifactDirectory (Join-Path $script:CrestRoot 'artifacts\gate-verification-tests')
+if ([string]::IsNullOrWhiteSpace($ArtifactRoot)) { $ArtifactRoot = Join-Path $script:CrestRoot 'artifacts' }
+$ArtifactRoot = Resolve-CrestArtifactPath ([IO.Path]::GetFullPath($ArtifactRoot)) -AllowRoot
+$directory = Reset-CrestArtifactDirectory (Join-Path $ArtifactRoot 'gate-verification-tests')
 $summaryPath = Join-Path $directory 'summary.json'
 $relativeSummaryPath = $summaryPath.Substring($script:CrestRoot.Length + 1).Replace('\', '/')
 # Synthetic identities exercise the same evaluator used by packaging; no application is built or launched.

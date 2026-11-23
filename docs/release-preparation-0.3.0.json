@@ -1,0 +1,48 @@
+{
+  "SchemaVersion": 1,
+  "ApplicationVersion": "0.3.0",
+  "PlannedTag": "v0.3.0",
+  "ReviewedLocalDate": "2026-11-24",
+  "SourceFingerprint": "B11D41EB29666085BB28C2DC43235E462181D5FE40282CEB450B9C5B6205641D",
+  "Status": "Local release assets prepared and verified; GitHub draft workflow awaits commit/tag",
+  "DomainOutcomes": 139,
+  "LocalPackagedUiOutcomes": 147,
+  "NativeClipboardOutcomesOmitted": 11,
+  "ReleaseProvenanceChecks": 18,
+  "EvidenceValidationChecks": 16,
+  "DocumentationFilesValidated": 21,
+  "NativeP1AcceptanceComplete": false,
+  "OwnerApprovalInherited": false,
+  "HistoricalRecords": "docs/release-gates-0.2.1.json preserves exact previous approval/evidence bytes",
+  "GithubWorkflow": "Full automated suite on Windows; create-only unpublished prerelease draft; no tag replacement or automatic public publication",
+  "CandidateDllSHA256": "614ACA2970279BCFF135F3AF73C1A9D4352C460E2BAD6BA11A39AC09AD8B3D34",
+  "FullAutomatedSuiteVerified": false,
+  "LocalReleaseManifestSHA256": "45C64490679537E569A8FB1543B8285EE20C617B9F0087C168E3DBC7F627C594",
+  "LocalAssets": [
+    {
+      "Name": "Crest-Setup-0.3.0-x64.exe",
+      "SHA256": "B5EB32A2F908FAC087EAC86FC8E871A3EF9DE7FE236D6A81B79D385422DCAF51",
+      "Bytes": 63625925
+    },
+    {
+      "Name": "Crest-Portable-0.3.0-x64.zip",
+      "SHA256": "891A144F520BDD7CE1E479316AEDCDAD3C1DF2627ED9F0E4E49EFCA2316187B3",
+      "Bytes": 93744721
+    },
+    {
+      "Name": "SHA256SUMS.txt",
+      "SHA256": "E075A6C6E6856497339A870C416669F10E33AFF6D172CDD21299C3DDF2974FAF",
+      "Bytes": 187
+    },
+    {
+      "Name": "release-gate-report.json",
+      "SHA256": "895098525A3DBF25A10325C656E9B0F125C8E2ECF345ED01597352D4826C5957",
+      "Bytes": 14793
+    },
+    {
+      "Name": "release-notes.md",
+      "SHA256": "6884EF0D645605A644879DCBCA76755B276A166422570097E2241289C24060E6",
+      "Bytes": 10744
+    }
+  ]
+}

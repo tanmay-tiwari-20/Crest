@@ -1,276 +1,320 @@
 {
   "SchemaVersion": 1,
-  "ApplicationVersion": "0.2.1",
-  "ReviewedDate": "2026-11-20",
-  "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
-  "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+  "ApplicationVersion": "0.3.0",
+  "ReviewedDate": "2026-11-24",
+  "CandidateDllSHA256": "614ACA2970279BCFF135F3AF73C1A9D4352C460E2BAD6BA11A39AC09AD8B3D34",
+  "SourceFingerprint": "B11D41EB29666085BB28C2DC43235E462181D5FE40282CEB450B9C5B6205641D",
   "VisibleOverAppIncidents": [],
-  "Scope": "Crest 0.2.1 exact GitHub candidate. Two resource gates qualify; 14 cases have partial fresh coverage and 15 remain unexecuted/pending. Historical owner checks qualify only the installed preview. Raw private evidence remains ignored locally.",
+  "Scope": "Crest 0.3.0 local release candidate. The final source-bound DLL and source fingerprint identify the prepared build. All 31 P0/P1 native acceptance/performance rows remain pending; local automated scope excludes eleven native clipboard-writing outcomes. Historical 0.2.1 approval is archived separately and is not inherited. GitHub workflows independently verify the full automated suite before creating an unpublished prerelease draft.",
   "Gates": [
     {
       "Id": "AC01",
       "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
-      "Status": "partial",
-      "Notes": "Hidden startup and real restart observed; stationary Win+D/unlock/resume recovery pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC02",
       "Requirement": "One clear-desktop reveal after dwell without placeholder",
       "Status": "pending",
-      "Notes": "Current physical clear-desktop hover/reveal/dismissal remains unexecuted",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC03",
       "Requirement": "Leaving trigger before dwell causes no flash or interception",
       "Status": "pending",
-      "Notes": "Current physical early dwell cancellation and input interception remains unexecuted",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC04",
       "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
-      "Status": "partial",
-      "Notes": "Chrome foreground rejection and hidden windows observed; full Chrome/Explorer pointer/input matrix pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC05",
       "Requirement": "Strict mode rejects visible apps and permits minimized apps",
       "Status": "pending",
-      "Notes": "Physical strict visible/minimized/off-screen/virtual-desktop coverage matrix pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC06",
       "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
       "Status": "pending",
-      "Notes": "Independently timed app switches during dwell/reveal/expansion pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC07",
       "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
       "Status": "pending",
-      "Notes": "Current Windows-panel and fullscreen suppression matrix pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC08",
       "Requirement": "Audio/media controls and registered popups remain usable",
-      "Status": "partial",
-      "Notes": "Exact DLL control/native OLE/audio/compact fixtures pass; full registered popups and physical product interaction pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC09",
       "Requirement": "Settings and launcher targets hide island as focus changes",
-      "Status": "partial",
-      "Notes": "Actual Settings focus/keyboard and hidden island observed; external launcher target matrix pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC10",
       "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
       "Status": "pending",
-      "Notes": "Physical closing reversal and complete 100-cycle native sequence pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC11",
       "Requirement": "Background timer completion/track change never reveals",
-      "Status": "partial",
-      "Notes": "Real countdown/focus/reminder deadlines remained hidden under Chrome in healthy 50-sample observation; background track-change matrix pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC12",
       "Requirement": "Foreground app on second display suppresses selected island",
       "Status": "pending",
-      "Notes": "Second physical display unavailable",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC13",
       "Requirement": "Active/multiple media sessions, preferred player and removal recover",
-      "Status": "partial",
-      "Notes": "Eight actual Windows SMTC outcomes with two owned muted sessions pass; external audible players/product UI pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC14",
       "Requirement": "Hardware volume keys and output disconnect refresh/recover",
-      "Status": "partial",
-      "Notes": "Real API volume/mute/alternate-output switching and independent all-role restoration pass; hardware keys/disconnect/reconnect pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC15",
       "Requirement": "Charging and unavailable battery/brightness show actual capability",
-      "Status": "partial",
-      "Notes": "Actual battery/brightness providers and Settings ready states observed; physical transitions/unavailable hardware pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC16",
       "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
-      "Status": "partial",
-      "Notes": "Running deadline retained through real restart, paused 90 seconds exact, completed timer/focus/due reminder/elapsed stopwatch retained; lock/sleep/clock changes pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC17",
       "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
-      "Status": "partial",
-      "Notes": "Exact DLL native OLE and persistent-reference fixtures pass; physical desktop drag/drop-out and full relink/missing-folder matrix pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC20",
       "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
-      "Status": "partial",
-      "Notes": "Actual single 1920x1080 display at 125 percent and static layout fixtures; physical 100/150/200 percent/mixed-DPI/fallback pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC21",
       "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
-      "Status": "partial",
-      "Notes": "Six actual Settings keyboard/focus observations and named control fixtures pass; island keyboard/Escape/Narrator/high contrast/live reduced motion pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC22",
       "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
-      "Status": "partial",
-      "Notes": "Current ten-minute CPU and warm memory gates pass; other measured budgets pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC23",
       "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
-      "Status": "partial",
-      "Notes": "Quiet same-profile single instance, real graceful quit/restart pass; Explorer restart/Pause-Resume/invisible input regions pending",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "AC24",
       "Requirement": "Clean-account install/upgrade/uninstall, migration and both retention choices",
       "Status": "pending",
-      "Notes": "Clean-account installation/migration/shortcuts/startup opt-in and both uninstall data choices unexecuted",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-readiness",
       "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
       "Status": "pending",
-      "Notes": "2948.890 ms warm portable dispatcher-ready observation; independently cold installed procedure unexecuted",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-hover",
       "Requirement": "Normal eligible hover reveals in about 360 ms including dwell",
       "Status": "pending",
-      "Notes": "Actual eligible hover timing at default settings pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-feedback",
       "Requirement": "Visible control feedback within 100 ms",
       "Status": "pending",
-      "Notes": "Actual visible control feedback latency pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-suppression",
       "Requirement": "Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
       "Status": "pending",
-      "Notes": "Native foreground-to-hide/input-disable percentiles and continuous incident observation pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-frames",
       "Requirement": "30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
       "Status": "pending",
-      "Notes": "Actual displayed-frame attribution and intervals pending",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-idle",
       "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
-      "Status": "pass",
-      "Notes": "600.136 seconds entirely hidden;121 samples;0.0456 percent total-device CPU",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-memory",
       "Requirement": "Warm core resident working set <=200 MB with no AI model",
-      "Status": "pass",
-      "Notes": "Maximum 157081600 bytes;149.80 MiB;below decimal 200 MB",
-      "Evidence": {
-        "Path": "docs/p2-windows-verification-0.2.1.json",
-        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
-      }
+      "Status": "pending",
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-hidden-rendering",
       "Requirement": "No continuous animation or rendering loop while armed/ineligible",
       "Status": "pending",
-      "Notes": "Provider sampling stops, but actual graphics/render trace remains unexecuted",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
     },
     {
       "Id": "PER-battery",
       "Requirement": "Repeatable idle battery-impact comparison without unsupported high-refresh claim",
       "Status": "pending",
-      "Notes": "Repeated matched battery-power comparison unexecuted",
-      "Evidence": null
+      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Evidence": [],
+      "ReviewStatus": "pending",
+      "OwnerDecision": null
+    }
+  ],
+  "OwnerApproval": {
+    "Decision": null,
+    "ReviewStatus": "pending",
+    "Date": null,
+    "FurtherTestingRequested": null,
+    "Evidence": null,
+    "FullTechnicalQualificationClaimed": false
+  },
+  "HistoricalCandidates": [
+    {
+      "ApplicationVersion": "0.2.1",
+      "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+      "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+      "GateRecord": {
+        "Path": "docs/release-gates-0.2.1.json",
+        "SHA256": "675F50F012FE3F5D05A001B5D56079D1E687CE52849ABBC357DC54BCCAB15DDA"
+      },
+      "OwnerApproval": {
+        "Decision": "approved",
+        "ReviewStatus": "closed",
+        "Date": "2026-11-24",
+        "FurtherTestingRequested": false,
+        "Evidence": {
+          "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+          "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+        },
+        "FullTechnicalQualificationClaimed": false
+      }
     }
   ]
 }

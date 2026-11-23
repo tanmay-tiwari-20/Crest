@@ -1,0 +1,239 @@
+{
+  "SchemaVersion": 1,
+  "ApplicationVersion": "0.2.1",
+  "ReviewedLocalDate": "2026-11-24",
+  "Timezone": "Asia/Calcutta",
+  "RecordedUtc": "2026-11-23T19:44:34.8928059+00:00",
+  "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+  "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+  "OwnerReleaseDecision": "approved",
+  "TestingReviewStatus": "closed",
+  "FurtherTestingRequested": false,
+  "OwnerApprovedGateIds": [
+    "AC01",
+    "AC02",
+    "AC03",
+    "AC04",
+    "AC05",
+    "AC06",
+    "AC07",
+    "AC08",
+    "AC09",
+    "AC10",
+    "AC11",
+    "AC12",
+    "AC13",
+    "AC14",
+    "AC15",
+    "AC16",
+    "AC17",
+    "AC20",
+    "AC21",
+    "AC22",
+    "AC23",
+    "AC24",
+    "PER-readiness",
+    "PER-hover",
+    "PER-feedback",
+    "PER-suppression",
+    "PER-frames",
+    "PER-idle",
+    "PER-memory",
+    "PER-hidden-rendering",
+    "PER-battery"
+  ],
+  "OwnerStatement": "Don't do these test , I've already checked all the possible errors and if anything comes up I'll inform you, for now close all the tests and check it approved",
+  "OwnerConfirmedTestVersion": "0.2.1",
+  "OwnerConfirmedNormalInstancePaused": true,
+  "P1GatesPassed": false,
+  "VerifiedGateCount": 4,
+  "PartialGateCount": 18,
+  "PendingGateCount": 9,
+  "TechnicallyOpenGateCount": 27,
+  "ApprovalMeaning": "The owner approved the current candidate and ended further testing. Every gate review is closed by owner decision; approval does not claim that unexecuted acceptance or performance measurements passed.",
+  "AutomatedChecks": [
+    {
+      "Name": "Domain outcomes",
+      "Passed": 97,
+      "Failed": 0
+    },
+    {
+      "Name": "Release provenance",
+      "Passed": 11,
+      "Failed": 0
+    },
+    {
+      "Name": "Acceptance evidence validation",
+      "Passed": 16,
+      "Failed": 0,
+      "SyntheticFixturesOnly": true
+    },
+    {
+      "Name": "Observer lifecycle",
+      "Passed": 3,
+      "Failed": 0
+    }
+  ],
+  "GateOutcomes": [
+    {
+      "Id": "AC02",
+      "Satisfied": true,
+      "Basis": "Exact-candidate native/controller reveal observations and scoped owner confirmation of one clean desktop reveal after dwell without placeholder. Batch 1 corroborates 20 fresh reveals after 122.180-139.860 ms controller dwell."
+    },
+    {
+      "Id": "AC03",
+      "Satisfied": true,
+      "Basis": "Exact-candidate eligible early cancellation observations, with scoped owner no-flash and working-click confirmations. Retry corroborates 25 HoverPending-to-Armed intervals below 120 ms, with the island hidden and no show-event increase; 20 also have physical pointer residence bounds below 120 ms. Batch 1 contributes one additional cursor-bounded cancellation."
+    }
+  ],
+  "OwnerReportedChecks": [
+    {
+      "Scope": "Batch 1",
+      "ExactReply": "25 normal + 25 flicks passed; clicks worked",
+      "NativeCoverage": "20 fresh reveals, 27 reversals and one eligible early cancellation; reported counts are not substituted for recorded counts"
+    },
+    {
+      "Scope": "Early cancellation retry",
+      "ExactReply": "25 attempts completed with no flash",
+      "NativeCoverage": "25 controller intervals below 120 ms, including 20 with tighter physical cursor bounds"
+    },
+    {
+      "Scope": "Batch 2",
+      "ExactReply": "25 reversals + 25 interruptions passed",
+      "NativeCoverage": "7 Open states, one reversal and one Open-to-Ineligible transition"
+    },
+    {
+      "Scope": "Chrome/Explorer and strict mode",
+      "ExactReply": "Every listed app/strict-mode case passed",
+      "NativeCoverage": "Reported-only matrix; batch 4 did not independently capture known Chrome or Explorer foreground"
+    },
+    {
+      "Scope": "Shell/fullscreen",
+      "ExactReply": "Every listed shell/fullscreen case passed",
+      "NativeCoverage": "Limited native shell suppression coverage; full matrix reported by owner"
+    },
+    {
+      "Scope": "Phase interruption retry",
+      "DwellReply": "8 completed; no reveal or blocked input",
+      "RevealReply": "8 completed; Crest hid and input worked",
+      "ExpansionReply": "9 completed; Crest hid and input worked",
+      "ReaffirmedReply": "I saw all 8 reveals and 9 expansions",
+      "NativeCoverage": "Only one reveal/Open and one Open-to-Ineligible transition recorded. The discrepancy is retained; neither full phase coverage nor the 100-cycle sequence is qualified."
+    }
+  ],
+  "Cleanup": {
+    "CandidateExited": true,
+    "CandidateExitCode": null,
+    "QuitSignalExitCode": 0,
+    "PostQuitCandidateWindowCount": 0,
+    "NormalProcessRetained": true,
+    "NormalSettingsUnchanged": true,
+    "WindowsStartupUnchanged": true,
+    "NormalInstanceRemainsPaused": true,
+    "NormalResumePerformed": false
+  },
+  "RawEvidenceDigests": [
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-01-normal-cancel.json",
+      "SHA256": "900DB3C361827AAA287A0B77A120218AFA01DA151535F5D73E71F165FF9399E9",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-01-analysis.json",
+      "SHA256": "192419E0A0B3CBCB1A11FEEFA8E24B112AB04FAE04D6D8E50382312366114415",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-01-diagnostic.log",
+      "SHA256": "ACB39F7777A25AE2803646BCB0112352B6072DDFE08C7E3313209A0E765E7175",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-02-reversal-interruption.json",
+      "SHA256": "BF8C4C4CE20127D088A69BA88FD84F27F1ED3A91DC0B6F790CF18F849A0C74E4",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-02-analysis.json",
+      "SHA256": "07BF7D41142DCB069409FF8BF59942A611F5100A9BF3E88B6D525BA080590DB4",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-02-diagnostic.log",
+      "SHA256": "CF7109D1D0BA5525EC5F3788BC79BCD9AD52DE0011BDAD115529A3239F0727A2",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-03-early-cancel.json",
+      "SHA256": "3973822ECCC02C1C940A0BEAD5EE59CF16154599438EC4340573CA7B45D8D530",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-03-analysis.json",
+      "SHA256": "8AA5105FCF4BFFBB33E02EFC6927813E1B50146C81E9493A80C4073A259E9DB6",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-03-diagnostic.log",
+      "SHA256": "BDF6B60B4A9DA475AFE2E38960D98B2A8F165E6F5FF037160CFF6304435131D2",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-04-shell-apps.json",
+      "SHA256": "D3078DB4BDABEE3279A7B0220334FDC0EC08CFF48A8DC932BD2E2224AB7E0F7A",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-04-analysis.json",
+      "SHA256": "42D386CF7406667AE2238A53E18AEF738642801A8D0AEE4C54271C37898526D2",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-04-diagnostic.log",
+      "SHA256": "1CA2E7B69DC7FA7A28CE5CB415B232701BA6033437FF6BF45862BC78E9E5EE25",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-05-phase-interruptions.json",
+      "SHA256": "1A6904B0EE01FBE31231CABC266DC20075CA55E3B2FD83D238912C286C1154E5",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-05-analysis.json",
+      "SHA256": "DC33AF200CFAA08F35D7EC10E50427696DE42BDB124827F73DDB414AD2A84ADD",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/batch-05-diagnostic.log",
+      "SHA256": "1C82B4694DD5310C38A0F73D0309280115C95D5BE0E697501929CA73CB04884B",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/baseline.json",
+      "SHA256": "55B39847FEFED8C1E9DC8DFBB0F5383768453B66E85FF5EFF2AF830644B5E3CF",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/cleanup.json",
+      "SHA256": "0A39A6A4EEE053FAF9ECA76842F6CFD62329220FB82952FD2EEE620283F653C7",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/guided-20261124-745f5c29/post-quit-snapshot.json",
+      "SHA256": "09CA4C0B2DA1A54109262CED15B701F1853D7C54DC00E49C5E7944B328DAB6A3",
+      "Availability": "Ignored local evidence"
+    },
+    {
+      "Path": "artifacts/release-closeout-20261124/automated-checks.json",
+      "SHA256": "194647510FB89C151C323882687AC80BE0E3C9DD5350BB833E69A7ACF3AEBC52",
+      "Availability": "Ignored local evidence"
+    }
+  ],
+  "Limitations": [
+    "No new full UI/clipboard suite was run in this closeout. Earlier dated UI evidence retains its own scope.",
+    "Raw all-visible counters include minimized Settings; analyses identify physical island visibility separately.",
+    "Human reports and native observations are retained separately where they disagree.",
+    "Only one physical display was available. Remaining display, hardware, recovery, accessibility, clean-account distribution, cold-start, frame/latency/hidden-rendering and battery checks were not completed before the owner ended testing.",
+    "Owner approval closes the review but does not alter the technical verifier or claim full P1 qualification. No public release metadata was changed."
+  ]
+}

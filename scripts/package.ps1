@@ -1,17 +1,19 @@
-param([string]$SourceDir = '')
+param([string]$SourceDir = '', [string]$ArtifactRoot = '')
 . (Join-Path $PSScriptRoot 'release-common.ps1')
 if ($env:OS -ne 'Windows_NT') { throw 'Crest packaging requires Windows.' }
 $metadata = Get-CrestBuildMetadata
+if ([string]::IsNullOrWhiteSpace($ArtifactRoot)) { $ArtifactRoot = Join-Path $script:CrestRoot 'artifacts' }
+$ArtifactRoot = Resolve-CrestArtifactPath ([IO.Path]::GetFullPath($ArtifactRoot)) -AllowRoot
 $repository = Get-CrestGitHubRepository
 $documentationTag = "v$($metadata.Version)"
-if ([string]::IsNullOrWhiteSpace($SourceDir)) { $SourceDir = Join-Path $script:CrestRoot 'artifacts\portable\Crest' }
+if ([string]::IsNullOrWhiteSpace($SourceDir)) { $SourceDir = Join-Path $ArtifactRoot 'portable\Crest' }
 $SourceDir = [IO.Path]::GetFullPath($SourceDir)
 Assert-CrestDistribution $SourceDir $metadata
 $verifiedBuild = Assert-CrestBuildVerification $SourceDir $metadata
 foreach ($item in Get-ChildItem -LiteralPath $SourceDir -Recurse -Force) {
     if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Publish input cannot contain reparse points.' }
 }
-$distributionDir = Resolve-CrestArtifactPath (Join-Path $script:CrestRoot 'artifacts\distribution\Crest')
+$distributionDir = Resolve-CrestArtifactPath (Join-Path $ArtifactRoot 'distribution\Crest')
 if ($distributionDir.StartsWith($SourceDir.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) -or
     $SourceDir.StartsWith($distributionDir.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) -or
     [string]::Equals($distributionDir, $SourceDir, [StringComparison]::OrdinalIgnoreCase)) {
@@ -28,7 +30,7 @@ foreach ($file in Get-ChildItem -LiteralPath $SourceDir -File -Recurse) {
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
     Copy-Item -LiteralPath $file.FullName -Destination $destination -Force
 }
-foreach ($doc in @('USER_GUIDE.md', 'RELEASE_NOTES.md', 'BUILD.md')) {
+foreach ($doc in @('USER_GUIDE.md', 'RELEASE_NOTES.md', 'BUILD.md', 'PRD_COMPLETION.md', 'TEST_REPORT.md')) {
     $destination = Join-Path $distributionDir ('docs\' + $doc)
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
     Copy-CrestReleaseDocument (Join-Path $script:CrestRoot ('docs\' + $doc)) $destination $repository $documentationTag
@@ -85,7 +87,7 @@ if ($needBootstrap) {
     if ($process.ExitCode -ne 0 -or -not (Test-Path -LiteralPath $compiler)) { throw 'Portable compiler extraction failed.' }
     Write-CrestUtf8 $marker (([ordered]@{ Version = '6.7.4'; SourceSHA256 = $compilerHash; CompilerSHA256 = (Get-FileHash -LiteralPath $compiler -Algorithm SHA256).Hash } | ConvertTo-Json) + "`n")
 }
-$installerPath = Resolve-CrestArtifactPath (Join-Path $script:CrestRoot "artifacts\Crest-Setup-$($metadata.Version)-x64.exe")
+$installerPath = Resolve-CrestArtifactPath (Join-Path $ArtifactRoot "Crest-Setup-$($metadata.Version)-x64.exe")
 $outputDir = Split-Path -Parent $installerPath
 if (Test-Path -LiteralPath $installerPath) { Remove-Item -LiteralPath $installerPath -Force }
 $arguments = '/Qp "/DSourceDir=' + $distributionDir + '" "/DOutputDir=' + $outputDir + '" /DAppVersion=' + $metadata.Version + ' /DAppFileVersion=' + $metadata.AssemblyVersion + ' "' + (Join-Path $script:CrestRoot 'installer\Crest.iss') + '"'

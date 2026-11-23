@@ -477,7 +477,7 @@ public sealed partial class IslandWindow : Window
     private void BuildTabs()
     {
         _tabs.Children.Clear();
-        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers, focus and reminders"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf"), ("Capture", "\uE722", "Screen capture references"), ("Workspaces", "\uE8A5", "Workspace presets"), ("Clipboard", "\uE77F", "Clipboard history") };
+        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers, focus and reminders"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf"), ("Capture", "\uE722", "Screen capture references"), ("Workspaces", "\uE8A5", "Workspace presets"), ("Clipboard", "\uE77F", "Clipboard history"), ("Integrations", "\uE774", "Optional integrations") };
         foreach (var (module, glyph, name) in items.Where(i => i.Item1 == "Overview" || _app.Preferences.EnabledModules.Contains(i.Item1)).OrderBy(i => i.Item1 == "Overview" ? -1 : _app.Preferences.ModuleOrder.IndexOf(i.Item1)))
         {
             var b = Design.IconButton(glyph, name, () => Expand(module));
@@ -584,6 +584,7 @@ public sealed partial class IslandWindow : Window
             Show();
         }
         _app.Hardware.SetVisible(true);
+        _app.RefreshVisibleIntegrations();
         _clock.Start();
         Refresh();
         _ = Task.Run(_app.Local.RefreshShelf).ContinueWith(_ => Dispatcher.BeginInvoke(() => { if (IsVisible && _module == "Shelf" && _wide) BuildBody(); }));
@@ -801,6 +802,7 @@ public sealed partial class IslandWindow : Window
                 break;
             case "Capture": BuildCaptures(); break;
             case "Workspaces": BuildWorkspaces(); break;
+            case "Integrations": BuildIntegrations(); break;
             case "Clipboard":
                 _clipboardTools = new ClipboardHistoryPanel(_app.ClipboardHistory, _app.ClipboardListener.CopyToClipboard, ShowMessage, () => _app.ClipboardListener.Status);
                 _body.Children.Add(_clipboardTools); break;

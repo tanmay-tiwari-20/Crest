@@ -1,0 +1,401 @@
+{
+  "SchemaVersion": 1,
+  "ApplicationVersion": "0.2.1",
+  "ReviewedDate": "2026-11-24",
+  "CandidateDllSHA256": "C5B5AB77A4FC6CFA7134024BE44CB4455D1EA5068ACF3FE5E87B1B13ED902195",
+  "SourceFingerprint": "FECD8248B9B3B91417AB52541AC19EBD4CEFDD3EF5721FFECA7AB46387E65E7B",
+  "VisibleOverAppIncidents": [],
+  "Scope": "Crest 0.2.1 exact candidate. The owner approved all gate reviews and ended further testing on 24 November 2026. Four gates pass, 18 have partial coverage and nine remain technically pending; 27 have incomplete technical verification. Approval is recorded separately from measured qualification. Raw private evidence remains ignored locally.",
+  "Gates": [
+    {
+      "Id": "AC01",
+      "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
+      "Status": "partial",
+      "Notes": "Hidden startup/restart retained. Owner reported Pause/Resume recovery; pause-hidden and later fresh-entry reveal observed. Full stationary Win+D/unlock/sleep/secure matrix remains pending.",
+      "Evidence": [
+        {
+          "Path": "docs/p2-windows-verification-0.2.1.json",
+          "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+        },
+        {
+          "Path": "docs/desktop-acceptance-0.2.1-2026-11-24.json",
+          "SHA256": "C319292C867F836BC579AFA9E8A0822FD320F80D53E7D133BA74035E8E6B0880"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC02",
+      "Requirement": "One clear-desktop reveal after dwell without placeholder",
+      "Status": "pass",
+      "Notes": "Exact candidate clear-desktop reveals after dwell corroborated by 20 fresh controller/native sequences. Owner confirmed one clean reveal, no placeholder and working clicks. Presentation latency remains a separate unverified gate.",
+      "Evidence": [
+        {
+          "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+          "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC03",
+      "Requirement": "Leaving trigger before dwell causes no flash or interception",
+      "Status": "pass",
+      "Notes": "Retry corroborates 25 eligible controller cancellations below 120 ms with no island visibility or new show event; 20 also have physical cursor bounds below 120 ms. Owner confirmed no flash and working clicks. Sampling limitations are retained.",
+      "Evidence": [
+        {
+          "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+          "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC04",
+      "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
+      "Status": "partial",
+      "Notes": "Owner reported the full Chrome/Explorer normal/maximized input matrix passed on the test candidate. Native capture did not independently corroborate that matrix; existing foreground rejection retained. Owner approved ending further testing.",
+      "Evidence": [
+        {
+          "Path": "docs/p2-windows-verification-0.2.1.json",
+          "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+        },
+        {
+          "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+          "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC05",
+      "Requirement": "Strict mode rejects visible apps and permits minimized apps",
+      "Status": "partial",
+      "Notes": "Owner reported strict visible/minimized/partly off-screen/inactive-virtual-desktop cases passed. Window arrangement matrix was not independently captured; review closed by owner approval.",
+      "Evidence": {
+        "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+        "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC06",
+      "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
+      "Status": "partial",
+      "Notes": "Owner explicitly reported eight dwell, eight reveal and nine expansion interruptions passed. Retry recorded only one reveal/Open and one Open-to-Ineligible transition; discrepancy retained and full phase matrix remains technically unqualified.",
+      "Evidence": {
+        "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+        "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC07",
+      "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
+      "Status": "partial",
+      "Notes": "Owner reported Start/Search/Task View/Quick Settings/Widgets/notification center/fullscreen cases passed. Native capture corroborates limited shell suppression, not the entire matrix; review closed by owner approval.",
+      "Evidence": {
+        "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+        "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC08",
+      "Requirement": "Audio/media controls and registered popups remain usable",
+      "Status": "partial",
+      "Notes": "Exact DLL control/native OLE/audio/compact fixtures pass; full registered popups and physical product interaction pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC09",
+      "Requirement": "Settings and launcher targets hide island as focus changes",
+      "Status": "partial",
+      "Notes": "Current actual Settings Close and try interaction stays suppressed when FxSound regains foreground; Win+D restores desktop eligibility. Settings-to-desktop focus UX gap remains; external launcher target matrix pending",
+      "Evidence": [
+        {
+          "Path": "docs/p2-windows-verification-0.2.1.json",
+          "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+        },
+        {
+          "Path": "docs/desktop-acceptance-0.2.1-2026-11-24.json",
+          "SHA256": "C319292C867F836BC579AFA9E8A0822FD320F80D53E7D133BA74035E8E6B0880"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC10",
+      "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
+      "Status": "partial",
+      "Notes": "Exact candidate reversal observations and owner reports retained. Current batches do not independently establish the complete phase-interruption/100-cycle sequence. Owner approved ending further testing.",
+      "Evidence": [
+        {
+          "Path": "docs/desktop-acceptance-0.2.1-2026-11-24.json",
+          "SHA256": "C319292C867F836BC579AFA9E8A0822FD320F80D53E7D133BA74035E8E6B0880"
+        },
+        {
+          "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+          "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC11",
+      "Requirement": "Background timer completion/track change never reveals",
+      "Status": "partial",
+      "Notes": "Real countdown/focus/reminder deadlines remained hidden under Chrome in healthy 50-sample observation; background track-change matrix pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC12",
+      "Requirement": "Foreground app on second display suppresses selected island",
+      "Status": "pending",
+      "Notes": "Second physical display unavailable",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC13",
+      "Requirement": "Active/multiple media sessions, preferred player and removal recover",
+      "Status": "partial",
+      "Notes": "Eight actual Windows SMTC outcomes with two owned muted sessions pass; external audible players/product UI pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC14",
+      "Requirement": "Hardware volume keys and output disconnect refresh/recover",
+      "Status": "partial",
+      "Notes": "Real API volume/mute/alternate-output switching and independent all-role restoration pass; hardware keys/disconnect/reconnect pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC15",
+      "Requirement": "Charging and unavailable battery/brightness show actual capability",
+      "Status": "partial",
+      "Notes": "Actual battery/brightness providers and Settings ready states observed; physical transitions/unavailable hardware pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC16",
+      "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
+      "Status": "partial",
+      "Notes": "Running deadline retained through real restart, paused 90 seconds exact, completed timer/focus/due reminder/elapsed stopwatch retained; lock/sleep/clock changes pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC17",
+      "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
+      "Status": "partial",
+      "Notes": "Exact DLL native OLE and persistent-reference fixtures pass; physical desktop drag/drop-out and full relink/missing-folder matrix pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC20",
+      "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
+      "Status": "partial",
+      "Notes": "Actual single 1920x1080 display at 125 percent and static layout fixtures; physical 100/150/200 percent/mixed-DPI/fallback pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC21",
+      "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
+      "Status": "partial",
+      "Notes": "Six actual Settings keyboard/focus observations and named control fixtures pass; island keyboard/Escape/Narrator/high contrast/live reduced motion pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC22",
+      "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
+      "Status": "partial",
+      "Notes": "Current ten-minute CPU and warm memory gates pass; other measured budgets pending",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC23",
+      "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
+      "Status": "partial",
+      "Notes": "Current owner Pause/Resume subset, quiet secondary launch and quit signal exit 0 observed; candidate process absent and post-quit zero HWNDs. Candidate exit code unavailable; Explorer restart/full recovery matrix pending",
+      "Evidence": [
+        {
+          "Path": "docs/p2-windows-verification-0.2.1.json",
+          "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+        },
+        {
+          "Path": "docs/desktop-acceptance-0.2.1-2026-11-24.json",
+          "SHA256": "C319292C867F836BC579AFA9E8A0822FD320F80D53E7D133BA74035E8E6B0880"
+        }
+      ],
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "AC24",
+      "Requirement": "Clean-account install/upgrade/uninstall, migration and both retention choices",
+      "Status": "pending",
+      "Notes": "Clean-account installation/migration/shortcuts/startup opt-in and both uninstall data choices unexecuted",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-readiness",
+      "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
+      "Status": "pending",
+      "Notes": "2948.890 ms warm portable dispatcher-ready observation; independently cold installed procedure unexecuted",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-hover",
+      "Requirement": "Normal eligible hover reveals in about 360 ms including dwell",
+      "Status": "pending",
+      "Notes": "Actual eligible hover timing at default settings pending",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-feedback",
+      "Requirement": "Visible control feedback within 100 ms",
+      "Status": "pending",
+      "Notes": "Actual visible control feedback latency pending",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-suppression",
+      "Requirement": "Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
+      "Status": "pending",
+      "Notes": "Native foreground-to-hide/input-disable percentiles and continuous incident observation pending",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-frames",
+      "Requirement": "30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
+      "Status": "pending",
+      "Notes": "Actual displayed-frame attribution and intervals pending",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-idle",
+      "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
+      "Status": "pass",
+      "Notes": "600.136 seconds entirely hidden;121 samples;0.0456 percent total-device CPU",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-memory",
+      "Requirement": "Warm core resident working set <=200 MB with no AI model",
+      "Status": "pass",
+      "Notes": "Maximum 157081600 bytes;149.80 MiB;below decimal 200 MB",
+      "Evidence": {
+        "Path": "docs/p2-windows-verification-0.2.1.json",
+        "SHA256": "D048D1663729B21C6840909DDD363317FD62E8B648ED79609C8F95E82E10CCA1"
+      },
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-hidden-rendering",
+      "Requirement": "No continuous animation or rendering loop while armed/ineligible",
+      "Status": "pending",
+      "Notes": "Provider sampling stops, but actual graphics/render trace remains unexecuted",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    },
+    {
+      "Id": "PER-battery",
+      "Requirement": "Repeatable idle battery-impact comparison without unsupported high-refresh claim",
+      "Status": "pending",
+      "Notes": "Repeated matched battery-power comparison unexecuted",
+      "Evidence": null,
+      "ReviewStatus": "closed",
+      "OwnerDecision": "approved"
+    }
+  ],
+  "OwnerApproval": {
+    "Decision": "approved",
+    "ReviewStatus": "closed",
+    "Date": "2026-11-24",
+    "FurtherTestingRequested": false,
+    "Evidence": {
+      "Path": "docs/owner-release-approval-0.2.1-2026-11-24.json",
+      "SHA256": "2993536463F65EEB658CFC2450A67DD8918F9B4C23CEEE5AB2083BC811C97F41"
+    },
+    "FullTechnicalQualificationClaimed": false
+  }
+}
