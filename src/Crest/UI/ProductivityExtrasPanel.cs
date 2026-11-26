@@ -30,6 +30,9 @@ public sealed class ProductivityExtrasPanel : StackPanel
         _startFocus = Design.Button("Start focus session", StartFocus, true);
         _focus.Children.Add(_startFocus);
         _focusTime.HorizontalAlignment = HorizontalAlignment.Center;
+        _focusTime.FontSize = 40;
+        _focusTime.Margin = new Thickness(0, 16, 0, 8);
+        _focusStatus.TextAlignment = TextAlignment.Center;
         _focus.Children.Add(_focusTime); _focus.Children.Add(_focusStatus);
         _focusAction = Design.Button("Pause focus", () => Execute(() =>
         {
@@ -50,12 +53,15 @@ public sealed class ProductivityExtrasPanel : StackPanel
         _addAt = Design.Button("Add at chosen time", AddAt); _reminders.Children.Add(_addAt);
         _reminders.Children.Add(Design.Text("Reminders are saved locally and become due while hidden. Due reminders remain until snoozed or dismissed.", 11, "Muted"));
         _reminders.Children.Add(_reminderRows);
+        PanelLayout.Refine(this);
         ShowReminders(false);
     }
     private static void Field(Panel parent, string label, TextBox field)
     {
         var panel = new StackPanel { Margin = new Thickness(0, 0, 6, 6) };
-        panel.Children.Add(Design.Text(label, 10, "Muted")); panel.Children.Add(field);
+        var caption = Design.Text(label, 12, "Muted");
+        caption.Margin = new Thickness(0, 0, 0, 6);
+        panel.Children.Add(caption); panel.Children.Add(field);
         AutomationProperties.SetName(field, label); parent.Children.Add(panel);
     }
     public void ShowReminders(bool reminders) { _focus.Visibility = reminders ? Visibility.Collapsed : Visibility.Visible; _reminders.Visibility = reminders ? Visibility.Visible : Visibility.Collapsed; Refresh(); }
@@ -125,7 +131,8 @@ public sealed class ProductivityExtrasPanel : StackPanel
             }
             var dismiss = Design.Button("Dismiss", () => Execute(() => _local.DismissReminder(reminder.Id)));
             AutomationProperties.SetName(dismiss, "Dismiss reminder " + reminder.Text); dismiss.IsEnabled = !_busy; actions.Children.Add(dismiss);
-            row.Children.Add(actions); var card = Design.Card(row, new Thickness(8)); card.Margin = new Thickness(0, 6, 0, 0); _reminderRows.Children.Add(card);
+            foreach (var action in actions.Children.OfType<Button>()) action.Margin = new Thickness(0, 8, 4, 0);
+            row.Children.Add(actions); var card = Design.Card(row, new Thickness(12)); card.Margin = new Thickness(0, 8, 0, 0); _reminderRows.Children.Add(card);
         }
         if (hadFocus && _reminders.IsVisible) _reminderText.Focus();
     }

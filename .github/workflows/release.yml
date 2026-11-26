@@ -8,7 +8,7 @@ on:
       tag:
         description: Existing version tag to build (must match Crest.csproj)
         required: true
-        default: v0.3.0
+        default: v0.4.0
         type: string
 
 permissions:
@@ -50,6 +50,7 @@ jobs:
           path: |
             artifacts/productivity-qa/ui-outcomes.json
             artifacts/productivity-qa/*.png
+            artifacts/productivity-qa/premium/
             artifacts/portable/Crest/.crest-build-verification.json
             artifacts/release/release-gate-report.json
             artifacts/release/release-manifest.json

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-11-24T19:52:47.6062720+00:00",
+  "release": "0.4.0",
+  "status": "automated_checks_passed_with_explicit_omissions",
+  "publishedAppDirectory": "artifacts/contextual-app-0.4.0",
+  "testedReleaseAssembly": {
+    "path": "artifacts/contextual-app-0.4.0/Crest.dll",
+    "sha256": "CD83887DB6387078AF929863894C9326BF3C7FE6CCA88DC52A132D227C6B197B",
+    "matchingPaths": [
+      "artifacts/contextual-release-ui-runner/Crest.dll",
+      "artifacts/contextual-release-platform-runner/Crest.dll"
+    ],
+    "matchingResultRecords": [
+      "artifacts/contextual-release-ui-qa/ui-outcomes.json:assemblySha256",
+      "artifacts/contextual-geometry-final.json:AppDllSHA256"
+    ],
+    "allHashesMatch": true,
+    "runnerPreparation": "Copy each probe's Debug output to an isolated artifact runner, then overlay all published self-contained Release app contents. Original bin directories remain unchanged. UI and geometry runs load the exact published Release assembly."
+  },
+  "checks": [
+    {
+      "kind": "domain",
+      "passed": 156,
+      "exitCode": 0,
+      "assembly": "tests/Crest.Tests/bin/Debug/net10.0/Crest.Tests.dll",
+      "log": "artifacts/contextual-domain-final.log",
+      "buildCommand": ".tools\\dotnet\\dotnet.exe build tests\\Crest.Tests\\Crest.Tests.csproj --configuration Debug --no-restore --nologo -p:TreatWarningsAsErrors=true",
+      "runCommand": ".tools\\dotnet\\dotnet.exe tests\\Crest.Tests\\bin\\Debug\\net10.0\\Crest.Tests.dll"
+    },
+    {
+      "kind": "ui",
+      "passed": 177,
+      "exitCode": 0,
+      "assembly": "artifacts/contextual-release-ui-runner/Crest.UIProbe.dll",
+      "log": "artifacts/contextual-ui-final.log",
+      "record": "artifacts/contextual-release-ui-qa/ui-outcomes.json",
+      "buildCommand": ".tools\\dotnet\\dotnet.exe build tests\\Crest.UIProbe\\Crest.UIProbe.csproj --configuration Debug --no-restore --nologo -p:TreatWarningsAsErrors=true -p:BuildProjectReferences=false",
+      "runCommand": ".tools\\dotnet\\dotnet.exe artifacts\\contextual-release-ui-runner\\Crest.UIProbe.dll artifacts\\contextual-release-ui-qa --skip-native-clipboard"
+    },
+    {
+      "kind": "geometry",
+      "passed": 10,
+      "exitCode": 0,
+      "assembly": "artifacts/contextual-release-platform-runner/Crest.PlatformProbe.dll",
+      "record": "artifacts/contextual-geometry-final.json",
+      "buildCommand": ".tools\\dotnet\\dotnet.exe build tests\\Crest.PlatformProbe\\Crest.PlatformProbe.csproj --configuration Debug --no-restore --nologo -p:TreatWarningsAsErrors=true -p:BuildProjectReferences=false",
+      "runCommand": ".tools\\dotnet\\dotnet.exe artifacts\\contextual-release-platform-runner\\Crest.PlatformProbe.dll --geometry-self-test"
+    }
+  ],
+  "builds": {
+    "succeeded": true,
+    "warnings": 0,
+    "errors": 0,
+    "warningsAsErrors": true,
+    "evidence": "Completed tool build results; the persisted runtime logs contain outcome results and do not include build summaries."
+  },
+  "nativeClipboard": {
+    "skipped": true,
+    "omittedWritingOutcomes": 11,
+    "flag": "--skip-native-clipboard",
+    "detachedSnapshotOutcomesRun": 2,
+    "source": "tests/Crest.UIProbe/ClipboardHistoryChecks.cs",
+    "includedInPassedCounts": false
+  },
+  "newContextualCoverage": {
+    "activityDomainOutcomes": 12,
+    "contextualUiOutcomes": 30,
+    "preservedPreviousUiFeatureOutcomes": 147,
+    "subjects": [
+      "Quiet idle state and exclusion of disabled or unavailable activities",
+      "Stable shared activity identity across compact, activity and detail presentations",
+      "Independent focus and countdown state with stale-action rejection",
+      "Only concurrent real activities produce minimal secondary bubbles",
+      "Single morphing black envelope with adaptive activity height",
+      "Spring retargeting, rapid reversals, suppression and reduced motion",
+      "Seek cancellation on capability loss, unknown duration and track replacement",
+      "Real in-flight Downloads and AI activity through isolated blocking HTTP handlers",
+      "Integration consent, cancellation, scratch cleanup and correct detail routing",
+      "Keyboard entry and escape, theme legibility and Settings viewport bounds",
+      "Correct fixture raster proportions and one visible primary activity action"
+    ],
+    "optionalServiceNetwork": "Test-only handlers; no external network request."
+  },
+  "renders": {
+    "directory": "artifacts/contextual-release-ui-qa/premium",
+    "manifest": "artifacts/contextual-release-ui-qa/premium/render-manifest.json",
+    "count": 78,
+    "unique": true,
+    "allManifestFilesExist": true,
+    "coverage": "Ten module/context routes in light and dark, compact presentations, ten Settings pages at 960 and 700 widths in light and dark, System/Ocean/Forest/Rose samples, and eight explicitly labeled isolated activity fixtures including genuine running Timer, Due Reminder, known/unknown-size Download and busy AI states.",
+    "additionalRenders": "16 productivity and 4 date/time DPI fixtures in the UI result directory.",
+    "visuallyInspectedFinalFiles": [
+      "fixture-focus-context.png",
+      "fixture-concurrent-compact.png",
+      "fixture-music-context.png",
+      "fixture-timer-context.png",
+      "fixture-reminder-context.png",
+      "fixture-download-known-context.png",
+      "fixture-download-unknown-context.png",
+      "fixture-ai-busy-context.png",
+      "dark-settings-overview-960.png",
+      "light-settings-appearance-700.png"
+    ],
+    "observations": [
+      "Activity envelopes retain their actual proportions and readable content.",
+      "The concurrent compact fixture includes the complete circular right media bubble.",
+      "Focus and Timer activity views each have one visible primary action; the Timer clock glyph renders correctly.",
+      "Reminder, Download and AI expanded headers show concise context hints instead of repeating full body text.",
+      "The known-size download frame shows 25% and 64 KB of 256 KB with a quarter-filled progress bar, derived from 65,536 real written bytes of a declared 262,144-byte response.",
+      "The unknown-size download remains an actual connecting 0 B state without a fabricated percentage; the busy AI frame shows pending local model status without the prompt.",
+      "Sampled light and dark Settings first viewports show legible controls and fixed footers."
+    ],
+    "rasterCorrection": "VisualBrush uses the visual's absolute parent offset and actual width/height as its absolute Viewbox; the opaque-bounds regression checks that the envelope is neither stretched nor cropped.",
+    "activityFixtures": [
+      {
+        "file": "fixture-timer-context.png",
+        "kind": "Timer",
+        "Id": "timer:8ee4e566a64841a0b068a21a77131323",
+        "EntityId": "8ee4e566a64841a0b068a21a77131323",
+        "Title": "Tea alongside focus",
+        "Subtitle": "Timer running",
+        "Value": "5:00",
+        "Phase": "Running",
+        "Progress": 0,
+        "source": "Real LocalHub activity using an isolated store and controllable clock"
+      },
+      {
+        "file": "fixture-reminder-context.png",
+        "kind": "Reminder",
+        "Id": "reminder:ea3d1ac2fcfe498fb92e273c3e74c0f5",
+        "EntityId": "ea3d1ac2fcfe498fb92e273c3e74c0f5",
+        "Title": "Reminder",
+        "Subtitle": "Fixture reminder: review tomorrow's plan",
+        "Value": "Due",
+        "Phase": "Due",
+        "Progress": null,
+        "source": "Real LocalHub activity using an isolated store and controllable clock"
+      },
+      {
+        "file": "fixture-download-unknown-context.png",
+        "kind": "Download",
+        "Id": "download:c613fbbc40ee4b4f993831ba611c5950",
+        "EntityId": "c613fbbc40ee4b4f993831ba611c5950",
+        "Title": "Owned in-flight fixture.bin",
+        "Subtitle": "0 B received",
+        "Value": "0 B",
+        "Phase": "Running",
+        "Progress": null,
+        "source": "Real DownloadService request through a test-only HTTP handler; held in flight"
+      },
+      {
+        "file": "fixture-ai-busy-context.png",
+        "kind": "Ai",
+        "Id": "ai:fixture-model",
+        "EntityId": "fixture-model",
+        "Title": "AI request",
+        "Subtitle": "fixture-model · Waiting for the selected local model… No files, clipboard, or system information are sent.",
+        "Value": "Working",
+        "Phase": "Running",
+        "Progress": null,
+        "source": "Real AiAssistantService request through a test-only HTTP handler; held in flight"
+      },
+      {
+        "file": "fixture-download-known-context.png",
+        "kind": "Download",
+        "Id": "download:8eb81931a8bb41859847acc6e0c4014c",
+        "EntityId": "8eb81931a8bb41859847acc6e0c4014c",
+        "Title": "Known-size in-flight fixture.bin",
+        "Subtitle": "64 KB of 256 KB",
+        "Value": "25%",
+        "Phase": "Running",
+        "Progress": 0.25,
+        "source": "Real DownloadService request through a test-only HTTP handler; held in flight"
+      }
+    ]
+  },
+  "limitations": [
+    "Static WPF fixtures are not physical desktop screenshots.",
+    "Settings renders cover the first scroll viewport per page.",
+    "No 60/120 FPS or compositor frame-time claim is supported.",
+    "Geometry checks exercise diagnostic parsing and pure calculations, not physical display transitions or mixed-DPI acceptance.",
+    "These runs do not qualify desktop visibility, physical OLE dragging, hardware media/audio/brightness integrations, audible playback or screen-reader acceptance.",
+    "The 11 omitted native clipboard-writing outcomes are not passed outcomes."
+  ],
+  "historicalEvidence": "Earlier 0.3.0 presentation reports and images describe the rejected first overhaul. The pre-correction 0.4.0 hash 9E247289 records, DLL and 73 renders are preserved under artifacts/contextual-previous-release-9e247289; artifacts/contextual-extra-previews contains the historical 30-outcome run that exposed the corrected visual defects. Use this record and contextual-release-ui-qa for the final CD83887D Release.",
+  "historicalRecords": {
+    "directory": "artifacts/contextual-previous-release-9e247289",
+    "appAssemblySha256": "9E24728928F92553A084D91412F27EE59CC31E763C19CEF9F9BF95B535E6225B",
+    "uiPassed": 177,
+    "renders": 73,
+    "supersededBy": "CD83887DB6387078AF929863894C9326BF3C7FE6CCA88DC52A132D227C6B197B"
+  },
+  "resultRecordHashes": {
+    "ui": "0F97A7D6E8D728FC1486B83C31CBA988EDCC6B98E03789711835C217FAA868F8",
+    "geometry": "7B000A59D25CFA321FA14476F454265965B42FE86382C28A1765050D9121175C",
+    "renderManifest": "CC69FED8C1E3AB8D329048E57DB338E9608599A865FD8E145209C685D7572BC8"
+  }
+}

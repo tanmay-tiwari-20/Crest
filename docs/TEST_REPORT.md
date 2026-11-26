@@ -1,5 +1,13 @@
 # Compatibility and test report
 
+## Crest 0.4.0 release verification — 26 November 2026
+
+The local candidate passed **163 domain outcomes and 191 WPF/UI outcomes**, plus 18 release-provenance checks, 16 evidence checks, 10 geometry checks, and three observer-lifecycle checks. The application and probes compiled with zero warnings or errors. The WPF suite loaded the published ReadyToRun DLL. Local verification omitted 11 native clipboard-writing outcomes after the snapshot guard rejected a clipboard format before any write. The tag workflow runs the full suite on a fresh Windows runner and records its exact counts and hashes in the release manifest.
+
+New coverage includes permission-denied and successful location responses, rounding before forecast requests, calendar file migration, Outlook and subscription source selection, DPAPI feed-link storage, Settings navigation, and palette contrast, selection, and persistence. The integration harness uses synthetic source data. Live classic Outlook and the Windows location permission flow remain unverified, and all 31 physical acceptance and performance gates stay open. [Release notes](RELEASE_NOTES.md) · [Current gate record](release-gates.json)
+
+Static WPF renders cover Settings at standard and compact widths. [Overview](images/settings-overview-0.4.0.png) · [Integrations](images/settings-integrations-0.4.0.png) · [Appearance](images/settings-appearance-0.4.0.png)
+
 ## Crest 0.3.0 release preparation — 24 November 2026
 
 The release pipeline verifies **139 domain outcomes and 147 WPF/UI outcomes against the final published ReadyToRun DLL**, plus 18 provenance checks, 16 evidence-validation checks, 21 GitHub documents, 10 geometry checks and three observer-lifecycle checks. Eleven native clipboard-writing outcomes are explicitly omitted in the local candidate to preserve the user's clipboard; the omission is retained in the packaged provenance, release manifest and generated release body. GitHub's fresh Windows workflows run the full suite, including those eleven outcomes, before creating the draft.
@@ -16,7 +24,7 @@ The implementation snapshot passed **139 domain outcomes and 147 WPF/UI outcomes
 
 [Snapshot evidence](prd-completion-verification.json) identifies packaged DLL `F56F067E5D4FD53177052FD9D4EA01BE7B2F4B084823118FB0F19CEEFA00780D` and source fingerprint `DB67E63BBDFE604B5405EBDD18488EDEAC8E374F2053E0C8C9BD9C87A161B6D5`. That candidate started hidden and quit with exit code 0 in an isolated profile. Subsequent release-pipeline edits require a final source-bound build/package record; this snapshot does not qualify a changed DLL or source fingerprint.
 
-The current [0.3.0 gate record](release-gates.json) has **31 pending P0/P1 acceptance and performance rows**, with no inherited owner approval. The exact [0.2.1 gate record](release-gates-0.2.1.json), historical owner decision and all dated evidence are preserved. No current physical notification permission, BLE/Phone Link operation, complete screen-reader/display matrix, measured frame/battery budget or clean-account installation is claimed. Optional MSIX XML and script syntax checks pass; Windows SDK MakeAppx is absent, so no signed-package permission compatibility was established.
+The [0.3.0 gate record](release-gates-0.3.0.json) has **31 pending P0/P1 acceptance and performance rows**, with no inherited owner approval. The exact [0.2.1 gate record](release-gates-0.2.1.json), historical owner decision and all dated evidence are preserved. No current physical notification permission, BLE/Phone Link operation, complete screen-reader/display matrix, measured frame/battery budget or clean-account installation is claimed. Optional MSIX XML and script syntax checks pass; Windows SDK MakeAppx is absent, so no signed-package permission compatibility was established.
 
 ## Historical Crest 0.2.1 records
 

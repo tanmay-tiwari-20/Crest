@@ -1,18 +1,16 @@
 # Using Crest
 
-Crest 0.3.0 opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. This guide describes the **0.3.0 prerelease candidate** and its optional integrations. The [test report](TEST_REPORT.md) separates current verification from historical native checks; the [implementation map](PRD_COMPLETION.md) records each integration's supported scope.
+Crest 0.4.0 opens a top-center island on an eligible Windows desktop by default. You can opt in to opening it over other apps. [Release notes](RELEASE_NOTES.md) · [Test report](TEST_REPORT.md)
 
 ## Install
 
-The [0.3.0 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.3.0) is being prepared as a prerelease. Its page and assets become publicly downloadable when published. In its **Assets** list, choose an installer or portable application package. GitHub's source-code ZIP and tarball contain source files and are intended for development.
-
-The previously published [0.2.1 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.1) remains available; it does not contain the optional integrations in this guide.
+Choose the installer or portable application ZIP under **Assets**. [Crest 0.4.0 prerelease](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.4.0)
 
 Both packages include the .NET runtime. You do not need a separate runtime, an SDK, administrator access, or a Crest account. Windows 10 and ARM64 packages are not available. The current installer is unsigned.
 
 ### Installer
 
-1. Download `Crest-Setup-0.3.0-x64.exe` when the 0.3.0 assets are published.
+1. Download `Crest-Setup-0.4.0-x64.exe`.
 2. Run it and follow the setup steps. Crest installs for your current Windows user account.
 3. Choose an optional desktop shortcut if wanted. Setup adds Start-menu entries.
 4. Start Crest from the Start menu or the final setup step.
@@ -21,7 +19,7 @@ Startup with Windows is off by default. You can enable it later in **Settings �
 
 ### Portable package
 
-1. Download `Crest-Portable-0.3.0-x64.zip` when the 0.3.0 assets are published.
+1. Download `Crest-Portable-0.4.0-x64.zip`.
 2. Extract the entire archive into a folder you want to keep.
 3. Run `Crest.exe` from the extracted folder.
 
@@ -30,7 +28,7 @@ Keep the executable, runtime, and supporting files together. Portable Crest stil
 When a release supplies a SHA-256 checksum, compare it with your downloaded package:
 
 ```powershell
-Get-FileHash .\Crest-Setup-0.3.0-x64.exe -Algorithm SHA256
+Get-FileHash .\Crest-Setup-0.4.0-x64.exe -Algorithm SHA256
 ```
 
 Compare the result with that filename's entry in `SHA256SUMS.txt` from the same release. The [build guide](BUILD.md) explains package creation and the optional signed MSIX path for Windows capabilities. An ordinary installer or portable package does not guarantee notification-listener access.
@@ -54,8 +52,8 @@ Closing Settings keeps Crest running. Starting Crest again reuses its existing i
 2. Press **Win+D** to show the wallpaper desktop. Minimize or close any remaining ordinary app windows on the selected display.
 3. Move the pointer away from the top edge.
 4. Enter the top-center edge and pause for about 120 milliseconds.
-5. Click the chevron to open the horizontal activity deck. The focus, music, and battery cards show their current local state together.
-6. Select an icon below the deck to open Music, Controls, Timer, Launch, Shelf, Capture, Workspaces, Clipboard, or Optional integrations when enabled. Settings → Modules controls visibility and icon order. The overview icon returns to the activity cards; album artwork also opens Music.
+5. Click the compact island or its chevron to expand the current activity. When Crest is idle, it opens **Your tools**. Select a secondary bubble to switch to another live activity.
+6. Select **Tools** to find the enabled modules. **Settings → Modules** controls visibility and order.
 7. Move away to dismiss after the pointer grace period. In desktop-only mode, opening another app suppresses Crest.
 
 The default centered trigger is **240 × 3 device-independent pixels**, which scale with Windows display scaling. Settings can change the delay, width, depth, and whether the trigger spans the full top edge.
@@ -189,29 +187,32 @@ Quitting clears unpinned references and retains pinned ones. In desktop-only mod
 
 ## Optional integrations
 
-Open **Settings → Integrations** and choose **Weather**, **Calendar**, **Downloads**, **AI**, or **Windows**. Every optional source starts off. Enabling the first source adds **Optional integrations** to the island dock. **Settings → Modules** can hide that dock entry independently of a source's enablement. Background updates never reveal Crest.
+Open **Settings → Integrations** and choose **Weather**, **Calendar**, **Downloads**, **AI**, or **Windows**. Each source starts off. The first enabled source adds **Optional integrations** to the island's tools catalogue. You can hide the entry in **Settings → Modules**. Source refreshes run quietly.
 
 ### Weather
 
-1. Enable **Enable city weather**.
-2. Enter a city, choose **Find city**, and select the matching result.
-3. Read the current temperature, conditions, wind, and last-refresh time. **Refresh weather** requests a fresh forecast.
+1. Select **Use Windows location**. Windows controls location access. From the island, **Set up Windows location** opens the Weather page in Settings. If access is unavailable or you prefer a fixed city, enable weather, enter the city name, choose **Find city**, and select a match.
+2. Read the current temperature, conditions, wind, and last-refresh time. Use **Refresh weather** when you want a new forecast.
 
-City search and selected coordinates are sent to [Open-Meteo](https://open-meteo.com/), a public online weather provider. Crest does not request your device location or a weather account. The provider's free non-commercial terms and service availability apply.
+Crest asks Windows for location once per selection and rounds the coordinates to 0.1° before saving them or requesting weather. Select **Use Windows location** again after moving. The weather provider receives only the saved area for forecasts and the text you enter for city searches. [Open-Meteo](https://open-meteo.com/)
 
-Crest retains one forecast and uses a 30-minute cache. Opening the module refreshes when needed; a failed refresh identifies the age of saved data. **Clear saved weather** deletes the cache. **Disconnect weather** also disables requests and removes the selected city. Turning weather off stops requests and clears the forecast while keeping the city preference for later use.
+Crest keeps one forecast in a 30-minute cache. A failed refresh shows the age of saved data. **Clear saved weather** deletes the cache. **Disconnect weather** also turns off weather and removes the saved location. Turning off weather keeps the chosen area for next time.
 
 ### Calendar and meeting links
 
-1. Enable **Enable local calendar** and choose **Select local calendar**.
-2. Select an available `.ics` file, up to 2 MiB. Crest reads it locally without changing the file.
-3. Use **Refresh calendar** to read changes. Up to 200 upcoming events over the next 90 days are shown.
+Choose one source under **Calendar**:
 
-Event names and details are hidden by default. Enable **Show event titles and details** to see titles, locations, descriptions, and supported meeting links. Ordinary events, timezones, all-day dates, and common daily/weekly/monthly/yearly recurrence are supported, including exclusions and occurrence overrides. Complex recurrence or unknown timezone rules are reported and skipped.
+- **Connect Outlook** reads the default calendar from classic Outlook on this PC. Open classic Outlook with a configured profile before connecting. Use a feed or file with the new Outlook app, web Outlook, Google Calendar, or Apple Calendar.
+- **Use subscription link** opens a private field. **Connect calendar link** accepts an HTTPS or `webcal` iCalendar publishing/subscription link from a provider. Use a link that supplies .ics data within 2 MiB. The selected link is encrypted for your Windows user. Treat private calendar links like credentials.
+- **Select local calendar** reads a local `.ics` file up to 2 MiB.
+
+The panel refreshes on open as needed. **Refresh calendar** fetches changes on demand. Crest shows up to 200 upcoming events over 90 days and keeps previews in memory. Connecting another source replaces the current source.
+
+Event names and details are hidden by default. Enable **Show event titles and details** to see titles, locations, and supported meeting links. File and subscription sources also show event descriptions. Outlook uses locations for meeting links. Ordinary events, timezones, all-day dates, and common daily/weekly/monthly/yearly recurrence are supported, including exclusions and occurrence overrides. Complex recurrence or unknown timezone rules are reported and skipped.
 
 For a recognized meeting link, **Open Microsoft Teams meeting**, **Open Zoom meeting**, or **Open Google Meet meeting** opens the validated HTTPS provider page in your browser. Joining proceeds through that provider. Crest does not automatically join a call and provides no meeting mute or hang-up control.
 
-Event previews remain in memory. **Clear event previews** removes them; the selected path stays available for an explicit refresh. **Disconnect calendar** also disables reading and removes that path. Turning the source off clears previews while retaining its path preference. No calendar account is connected.
+**Clear event previews** clears the in-memory events. **Disconnect calendar** also removes the source and turns off reading. Turning the source off keeps its configuration for next time.
 
 ### Crest-managed downloads
 
@@ -249,18 +250,20 @@ Enable **Enable Phone Link access**, choose **Check Phone Link support**, then s
 
 | Page | Options |
 |---|---|
-| Overview | Application overview and getting-started information. |
-| Appearance | System/light/dark/Ocean/Forest/Rose theme, motion, Compact/Comfortable/Large size presets, size adjustment, motion speed, and preference display scope. |
+| Overview | Set up the island and jump to visibility, modules, or integrations. |
+| Appearance | Preview System, Dark, Light, Ocean, Forest, or Rose. Choose island size, motion, and the display whose appearance you want to edit. |
 | Behavior | Strict desktop mode, optional app access, selected display, per-display trigger coverage/dimensions/delay/grace, surface gestures, startup, and keyboard reveal. |
-| Modules | Choose visible modules, move icons earlier/later, opt into timer-completion sound, and preview the bundled chime with Test timer sound. |
+| Modules | Choose visible modules and reorder them from the same list. Enable or preview the timer-completion chime. |
 | Shortcuts | Add and remove explicit launch entries. |
 | Workspaces | Create, rename, edit, launch, and remove groups of selected targets. |
 | Privacy | Opt into clipboard history and set retention; explain saved references and history management. |
 | Activities | Use timers, stopwatch, focus sessions and reminders in a normal Settings window, including while other apps are active. |
-| Integrations | Opt into city weather, local calendars and meeting links, managed downloads, local Ollama assistance, notification previews, accessory batteries, and Phone Link access; manage source clear/disconnect controls. |
+| Integrations | Set up weather and your calendar, review source status, and manage downloads, local Ollama, Windows previews, accessory batteries, and Phone Link. |
 | About | Local-data information, reset, tray instructions, and release-verification information. |
 
 In Appearance and Behavior, **Preference display** selects **All displays (default)** or a specific display. A display profile saves its own theme, motion, size/speed, trigger coverage, width/depth, dwell, and grace. Uncustomized displays use the defaults. **Use defaults for this display** removes that override. Crest still uses one selected display at a time; changing the preference-editing scope does not move the island. The selected display falls back to primary if disconnected, and a saved override can be reused when that display returns.
+
+**System** follows the Windows light or dark preference. Crest applies theme changes as you select them. Windows high contrast uses system colors. The contextual island keeps a black surface in normal contrast and uses the selected palette for its idle accent.
 
 Double-click and middle-click actions on an empty island surface can expand, collapse, dismiss, move through enabled modules, open Settings, or do nothing. The optional pointer-wheel action switches modules. Pointer controls such as buttons, text fields, sliders, and lists retain their normal behavior. Gestures and module order are shared preferences; appearance and trigger profiles are per display.
 
@@ -268,7 +271,7 @@ Double-click and middle-click actions on an empty island surface can expand, col
 
 Preferences, shortcuts, workspaces, timers, stopwatch, focus sessions, reminders, pinned shelf paths, selected capture paths, and explicitly enabled clipboard history are stored in `%LOCALAPPDATA%\Crest`. Optional source choices and the weather cache also live there. Clipboard persistence is protected for the current Windows user. Unpinned shelf references, calendar/notification previews, download history, and AI conversation remain in memory.
 
-Crest has no analytics or required account. Core tools continue without internet. Enabled weather and explicit downloads contact their providers; AI contacts only the selected local service. Notification reading requires Windows permission. Optional sources explain their data access before enablement and can be turned off independently.
+Crest has no analytics or required account. Core tools, classic Outlook calendar access, and local calendar files can operate offline. Weather, configured online feeds, and explicit downloads contact their providers. AI contacts your selected local service. Notification and device location access depend on Windows permissions.
 
 ### Reset local data
 
@@ -282,7 +285,7 @@ For an installed copy, run the newer installer. It requests a graceful quit from
 
 Upgrading preserves your enabled-module choices. To show Capture, Workspaces or Clipboard if they are not in your dock, enable them in **Settings → Modules**. Showing Clipboard does not opt into collection; enable text capture separately in **Settings → Privacy**. Existing timers recover their saved state. Unpinned shelf references clear when the old app quits; pin references that should survive future restarts.
 
-On upgrade to 0.3.0, optional integrations start off until selected. Enabled legacy clipboard history migrates to protected storage for the same Windows user. Protected clipboard data is not portable between Windows user accounts. Previous versions do not understand that new protected format, so do not expect clipboard-history downgrade compatibility. Earlier 0.2.1 installation/owner evidence does not establish 0.3.0 clean-account or upgrade acceptance.
+An upgrade to 0.4.0 keeps your existing city, selected calendar file, theme, and display preferences. Windows location access, Outlook connection, and online subscription links require your selection. Clipboard history and subscription links encrypted for one Windows user can only be read by that user.
 
 For portable use, choose **Quit**, extract the new package, and run its `Crest.exe`. Keep all files from a package together. The existing user-profile preferences are reused. Re-enable startup from the new location if you moved the portable folder.
 
@@ -330,9 +333,9 @@ Double-click the tray icon or choose **Crest Settings** from Start to restore th
 
 ### Optional integrations are missing or unavailable
 
-Confirm **Settings → About** shows 0.3.0; 0.2.1 packages predate these sources. Open **Settings → Integrations** to enable the desired source. If its dock entry is hidden, enable **Optional integrations** in **Settings → Modules**.
+Confirm **Settings → About** shows 0.4.0. Open **Settings → Integrations** to enable a source. If its tools entry is hidden, enable **Optional integrations** in **Settings → Modules**.
 
-For weather, check your connection and city selection; saved data retains its last-refresh time. For calendars, select an available `.ics` file and refresh; unsupported rules are reported. For downloads, choose a new filename in an existing writable folder and check the source server. For AI, confirm the selected local Ollama service is running and the model name is installed; remote endpoints are rejected.
+For weather, check your connection and saved area. If Windows location is unavailable, check **Windows Settings → Privacy & security → Location** or choose a city. For calendars, verify that classic Outlook has a default calendar, the feed link returns iCalendar data, or the selected `.ics` file is accessible. For downloads, choose a new filename in an existing writable folder and check the source server. For AI, confirm your local Ollama service and selected model are available.
 
 For notification previews, request access from Settings and read the package/permission status. Standard portable or installer packages may lack the necessary Windows capability. For batteries, check that the paired device is connected and exposes a standard BLE value. For phone access, run **Check Phone Link support** before opening the installed Microsoft app. These capability failures leave local Crest tools available.
 

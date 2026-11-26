@@ -1,654 +1,382 @@
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 using Crest.Core;
-using Crest.Features;
 
 namespace Crest.UI;
 
-/// <summary>The wide activity view shares the island's one visibility controller.</summary>
+/// <summary>The selected activity's controls, inside the island's shared envelope.</summary>
 public sealed class ActivityDeck : UserControl
 {
-    private static ImageSource? _focusArtwork;
-    private static bool _focusArtworkLoaded;
     private readonly App _app;
-    private readonly Action<string> _expand;
+    private readonly Action<string> _openModule;
     private readonly Action _settings;
-    private readonly Button[] _launcherButtons = new Button[2];
-    private readonly LauncherEntry?[] _launcherEntries = new LauncherEntry?[2];
-    private readonly TextBlock _focusTime = Label("25:00", 16, "IslandText", true);
-    private readonly TextBlock _focusCaption = Label("FOCUS", 10, "IslandMuted", true);
-    private readonly TextBlock _focusHint = Label("A little room to focus.", 10, "IslandMuted");
-    private readonly TextBlock _focusActionText = Label("Start", 11, "IslandText", true);
-    private readonly Button _focusAction;
-    private readonly Button _focusHeader;
-    private readonly Button _musicHeader;
-    private readonly Button _albumButton;
-    private readonly Image _art = new() { Width = 86, Height = 86, Stretch = Stretch.UniformToFill };
-    private readonly Border _artFallback;
-    private readonly TextBlock _title = Label("Nothing playing", 14, "IslandText", true);
-    private readonly TextBlock _artist = Label("Open a music app", 11, "IslandMuted");
-    private readonly TextBlock _player = Label("MEDIA CONTROLS", 9, "IslandMuted", true);
-    private readonly Button _previous;
-    private readonly Button _play;
-    private readonly Button _next;
-    private readonly TextBlock _playIcon = Glyph("\uE768", 16);
+    private readonly Grid _layout = new(), _header = new();
+    private readonly StackPanel _body = new();
+    private readonly TextBlock _title = Label("Crest", 16, "IslandText", true);
+    private readonly TextBlock _subtitle = Label("", 12, "IslandMuted");
+    private readonly TextBlock _glyph = Glyph("\uE8D6", 24);
+    private readonly Image _art = new() { Width = 40, Height = 40, Stretch = Stretch.UniformToFill, Clip = new RectangleGeometry(new Rect(0, 0, 40, 40), 8, 8) };
+    private readonly Grid _artHolder = new() { Width = 40, Height = 40 };
+    private readonly TextBlock _largeValue = Label("", 38, "IslandText");
+    private readonly TextBlock _reminderText = Label("", 13, "IslandText");
+    private readonly TextBlock _operationStatus = Label("", 12, "IslandMuted");
+    private readonly TextBlock _message = Label("", 11, "IslandMuted");
+    private readonly TextBlock _elapsed = Label("", 11, "IslandMuted"), _duration = Label("", 11, "IslandMuted");
+    private readonly ProgressBar _progress = new() { Minimum = 0, Maximum = 100, Height = 2, MinHeight = 2, Margin = new Thickness(0, 4, 0, 0), IsHitTestVisible = false };
     private readonly Slider _seek = new() { Minimum = 0, Maximum = 1, MinHeight = 32, Height = 32, IsMoveToPointEnabled = true, SmallChange = 5, LargeChange = 15 };
-    private readonly TextBlock _elapsed = Label("0:00", 9, "IslandMuted");
-    private readonly TextBlock _duration = Label("0:00", 9, "IslandMuted");
     private readonly DispatcherTimer _seekCommit = new() { Interval = TimeSpan.FromMilliseconds(80) };
-    private readonly Button _batteryButton;
-    private readonly Path _batteryArc = new() { StrokeThickness = 4, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round, IsHitTestVisible = false };
-    private readonly TextBlock _batteryPercent = Label("—", 17, "IslandText", true);
-    private readonly TextBlock _batteryStatus = Label("Checking…", 10, "IslandMuted");
-    private readonly TextBlock _chargingIcon = Glyph("\uE945", 11);
-    private bool _refreshing;
-    private bool _focusBusy;
-    private bool _transportBusy;
-    private bool _seekPointerDown;
     private readonly PendingControlEdit _seekEdit = new();
-    private bool _chargingAnimating;
-    private int _lastBatteryPercent = -1;
+    private readonly Button _primary, _secondary, _previous, _play, _next, _moreControls, _tools;
+    private readonly Grid _seekRow = new();
+    private IslandActivity? _activity;
+    private bool _showHeader = true, _refreshing, _busy, _seekPointerDown;
+    private string _builtKind = "", _seekIdentity = "", _seekTrackIdentity = "";
+    private double _targetHeight;
 
-    public ActivityDeck(App app, Action<string> expand, Action settings)
+    public event EventHandler? DesiredHeightChanged;
+    public event EventHandler? ActivityActionCompleted;
+    public double TargetHeight => _targetHeight;
+    public IslandActivity? CurrentActivity => _activity;
+    public bool ShowHeader
     {
-        _app = app;
-        _expand = expand;
-        _settings = settings;
-        Width = 820;
-        Height = 150;
-        FontFamily = new FontFamily("Segoe UI");
+        get => _showHeader;
+        set { if (_showHeader == value) return; _showHeader = value; _header.Visibility = value ? Visibility.Visible : Visibility.Collapsed; UpdateHeight(); }
+    }
+
+    public ActivityDeck(App app, Action<string> openModule, Action settings)
+    {
+        _app = app; _openModule = openModule; _settings = settings;
+        FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI");
         UseLayoutRounding = true;
         SnapsToDevicePixels = true;
-        var deck = new Grid { Margin = new Thickness(12, 8, 12, 8) };
-        foreach (double width in new[] { 40d, 8d, 188d, 8d, -1d, 8d, 112d })
-            deck.ColumnDefinitions.Add(new ColumnDefinition { Width = width < 0 ? new GridLength(1, GridUnitType.Star) : new GridLength(width) });
-        Content = deck;
+        _layout.Margin = new Thickness(20, 8, 20, 16);
+        _layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _layout.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _header.Height = 56;
+        _header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+        _header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _artHolder.Children.Add(_glyph); _artHolder.Children.Add(_art);
+        _header.Children.Add(_artHolder);
+        var captions = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0) };
+        captions.Children.Add(_title); captions.Children.Add(_subtitle);
+        Grid.SetColumn(captions, 1); _header.Children.Add(captions);
+        _layout.Children.Add(_header);
+        Grid.SetRow(_body, 1); _layout.Children.Add(_body);
+        Content = _layout;
 
-        var rail = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        for (int index = 0; index < 2; index++)
-        {
-            int slot = index;
-            var button = IconButton("\uE8A5", "No shortcut configured", () => LaunchShortcut(slot), 32, "IslandShell");
-            button.Margin = new Thickness(0, 0, 0, 8);
-            _launcherButtons[index] = button;
-            rail.Children.Add(button);
-        }
-        rail.Children.Add(IconButton("\uE710", "Add shortcuts in Settings", _settings, 32, "IslandCard"));
-        Place(deck, rail, 0);
+        _primary = ActionButton("\uE769", "Activity action", RunPrimary);
+        _secondary = ActionButton("\uE711", "Dismiss activity", RunSecondary, false);
+        _previous = ActionButton("\uE892", "Previous track", () => RunTransport(_app.Hardware.PreviousAsync), false);
+        _play = ActionButton("\uE769", "Pause playback", RunPrimary);
+        _next = ActionButton("\uE893", "Next track", () => RunTransport(_app.Hardware.NextAsync), false);
+        _moreControls = TextButton("More controls", () => { if (_activity != null) _openModule(_activity.Module); });
+        _tools = TextButton("Tools", () => _openModule("Tools"));
 
-        var focus = new Grid { Margin = new Thickness(10, 8, 10, 8) };
-        focus.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(76) });
-        focus.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        focus.Children.Add(FocusCharacter());
-        var focusControls = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        var focusHeaderContent = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left };
-        _focusCaption.FontSize = 9;
-        _focusCaption.LineHeight = 12;
-        _focusTime.FontSize = 22;
-        _focusTime.LineHeight = 28;
-        _focusTime.SetValue(Typography.NumeralAlignmentProperty, FontNumeralAlignment.Tabular);
-        focusHeaderContent.Children.Add(_focusCaption);
-        focusHeaderContent.Children.Add(_focusTime);
-        _focusHeader = Button(focusHeaderContent, "Open timer controls", () => _expand("Timer"), 8, "Transparent");
-        _focusHeader.Padding = new Thickness(0);
-        _focusHeader.Height = 44;
-        _focusHeader.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-        focusControls.Children.Add(_focusHeader);
-        _focusActionText.Foreground = new SolidColorBrush(Color.FromRgb(6, 29, 43));
-        _focusAction = Button(_focusActionText, "Start a twenty-five minute focus timer", FocusAction, 18, "Transparent");
-        _focusAction.Background = new SolidColorBrush(Color.FromRgb(72, 201, 250));
-        _focusAction.Padding = new Thickness(12, 0, 12, 0);
-        _focusAction.Height = 32;
-        _focusAction.Width = _focusAction.MinWidth = 64;
-        _focusAction.Padding = new Thickness(7, 0, 7, 0);
-        _focusAction.HorizontalAlignment = HorizontalAlignment.Left;
-        _focusAction.VerticalAlignment = VerticalAlignment.Center;
-        _focusAction.Margin = new Thickness(0, 5, 0, 0);
-        focusControls.Children.Add(_focusAction);
-        Grid.SetColumn(focusControls, 1);
-        focus.Children.Add(focusControls);
-        _focusHint.Visibility = Visibility.Collapsed;
-        Place(deck, Card(focus), 2);
-
-        var music = new Grid { Margin = new Thickness(12, 10, 12, 10) };
-        music.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(86) });
-        music.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) });
-        music.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        var artwork = new Grid { Width = 86, Height = 86, Clip = new RectangleGeometry(new Rect(0, 0, 86, 86), 13, 13) };
-        var emptyArtwork = Glyph("\uE189", 31);
-        emptyArtwork.Foreground = new SolidColorBrush(Color.FromRgb(207, 222, 226));
-        _artFallback = new Border
-        {
-            CornerRadius = new CornerRadius(13),
-            Background = new LinearGradientBrush(Color.FromRgb(32, 58, 67), Color.FromRgb(18, 31, 39), 55),
-            Child = emptyArtwork
-        };
-        artwork.Children.Add(_artFallback);
-        artwork.Children.Add(_art);
-        _albumButton = Button(artwork, "Open music controls", () => _expand("Music"), 13, "Transparent");
-        _albumButton.Padding = new Thickness(0);
-        _albumButton.Width = 86;
-        _albumButton.Height = 86;
-        _albumButton.VerticalAlignment = VerticalAlignment.Center;
-        music.Children.Add(_albumButton);
-        var musicContent = new Grid();
-        musicContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(46) });
-        musicContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(36) });
-        musicContent.RowDefinitions.Add(new RowDefinition { Height = new GridLength(32) });
-        var metadata = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        _player.LineHeight = 12;
-        _title.LineHeight = 18;
-        _artist.LineHeight = 16;
-        metadata.Children.Add(_player);
-        metadata.Children.Add(_title);
-        metadata.Children.Add(_artist);
-        _musicHeader = Button(metadata, "Open music controls", () => _expand("Music"), 8, "Transparent");
-        _musicHeader.Padding = new Thickness(0);
-        _musicHeader.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-        musicContent.Children.Add(_musicHeader);
-        var transport = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        _previous = IconButton("\uE892", "Previous track", () => Transport(_app.Hardware.PreviousAsync), 32, "Transparent");
-        _previous.Margin = new Thickness(0, 0, 10, 0);
-        _playIcon.Foreground = new SolidColorBrush(Color.FromRgb(7, 30, 27));
-        _play = Button(_playIcon, "Play", () => Transport(_app.Hardware.TogglePlaybackAsync), 18, "Transparent");
-        _play.Width = _play.Height = 34;
-        _play.Padding = new Thickness(0);
-        _play.Background = new SolidColorBrush(Color.FromRgb(130, 222, 200));
-        _next = IconButton("\uE893", "Next track", () => Transport(_app.Hardware.NextAsync), 32, "Transparent");
-        _next.Margin = new Thickness(10, 0, 0, 0);
-        transport.Children.Add(_previous);
-        transport.Children.Add(_play);
-        transport.Children.Add(_next);
-        Grid.SetRow(transport, 1);
-        musicContent.Children.Add(transport);
-        var seeking = new Grid();
-        seeking.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
-        seeking.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        seeking.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30) });
+        _seek.Template = SeekTemplate();
+        AutomationProperties.SetName(_seek, "Playback position in seconds");
+        _seek.PreviewMouseLeftButtonDown += (_, _) => _seekPointerDown = true;
+        _seek.PreviewMouseLeftButtonUp += (_, _) => { if (_seekPointerDown) ScheduleSeek(); _seekPointerDown = false; };
+        _seek.KeyUp += (_, e) => { if (e.Key is Key.Left or Key.Right or Key.Up or Key.Down or Key.Home or Key.End or Key.PageUp or Key.PageDown) ScheduleSeek(); };
+        _seek.ValueChanged += (_, _) => { if (!_refreshing) { _seekEdit.Record(_seek.Value); _elapsed.Text = IslandActivities.Time(_seek.Value); ScheduleSeek(); } };
+        _seekCommit.Tick += async (_, _) => await CommitSeekAsync();
+        _seekRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
+        _seekRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        _seekRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(42) });
         _elapsed.VerticalAlignment = _duration.VerticalAlignment = VerticalAlignment.Center;
         _duration.TextAlignment = TextAlignment.Right;
-        _seek.Template = SeekTemplate();
-        _seek.SetResourceReference(Control.ForegroundProperty, "IslandAccent");
-        AutomationProperties.SetName(_seek, "Seek track");
-        AutomationProperties.SetHelpText(_seek, "Drag then release, or use the arrow keys. Available when the player supports seeking.");
-        _seek.PreviewMouseLeftButtonDown += (_, _) => _seekPointerDown = true;
-        _seek.PreviewMouseLeftButtonUp += (_, _) =>
-        {
-            if (!_seekPointerDown)
-                return;
-            ScheduleSeek();
-            _seekPointerDown = false;
-        };
-        _seek.KeyUp += (_, e) =>
-        {
-            if (e.Key is Key.Left or Key.Right or Key.Up or Key.Down or Key.Home or Key.End or Key.PageUp or Key.PageDown)
-                ScheduleSeek();
-        };
-        _seek.ValueChanged += (_, _) =>
-        {
-            if (!_refreshing)
-            {
-                _seekEdit.Record(_seek.Value);
-                _elapsed.Text = Time(_seek.Value);
-                ScheduleSeek();
-            }
-        };
-        _seekCommit.Tick += async (_, _) => await CommitSeekAsync();
-        seeking.Children.Add(_elapsed);
-        Grid.SetColumn(_seek, 1);
-        seeking.Children.Add(_seek);
-        Grid.SetColumn(_duration, 2);
-        seeking.Children.Add(_duration);
-        Grid.SetRow(seeking, 2);
-        musicContent.Children.Add(seeking);
-        Grid.SetColumn(musicContent, 2);
-        music.Children.Add(musicContent);
-        Place(deck, Card(music), 4);
-
-        var battery = new Grid { Margin = new Thickness(10, 8, 10, 8) };
-        battery.RowDefinitions.Add(new RowDefinition { Height = new GridLength(18) });
-        battery.RowDefinitions.Add(new RowDefinition { Height = new GridLength(76) });
-        battery.RowDefinitions.Add(new RowDefinition { Height = new GridLength(22) });
-        var batteryCaption = Label("LAPTOP", 9, "IslandMuted", true);
-        batteryCaption.TextAlignment = TextAlignment.Center;
-        battery.Children.Add(batteryCaption);
-        var ring = new Grid { Width = 68, Height = 68, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        var ringTrack = new Ellipse { Margin = new Thickness(5), StrokeThickness = 4, IsHitTestVisible = false };
-        ringTrack.SetResourceReference(Shape.StrokeProperty, "IslandLine");
-        _batteryArc.Stroke = new SolidColorBrush(Color.FromRgb(130, 222, 200));
-        _batteryPercent.HorizontalAlignment = HorizontalAlignment.Center;
-        _batteryPercent.VerticalAlignment = VerticalAlignment.Center;
-        ring.Children.Add(ringTrack);
-        ring.Children.Add(_batteryArc);
-        ring.Children.Add(_batteryPercent);
-        Grid.SetRow(ring, 1);
-        battery.Children.Add(ring);
-        var batteryFooter = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-        _chargingIcon.Margin = new Thickness(0, 0, 3, 0);
-        _chargingIcon.Foreground = new SolidColorBrush(Color.FromRgb(130, 222, 200));
-        _batteryStatus.MaxWidth = 82;
-        batteryFooter.Children.Add(_chargingIcon);
-        batteryFooter.Children.Add(_batteryStatus);
-        Grid.SetRow(batteryFooter, 2);
-        battery.Children.Add(batteryFooter);
-        _batteryButton = Button(battery, "Open battery and laptop controls", () => _expand("Controls"), 20, "IslandCard");
-        _batteryButton.Padding = new Thickness(0);
-        _batteryButton.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-        _batteryButton.VerticalContentAlignment = VerticalAlignment.Stretch;
-        _batteryButton.BorderThickness = new Thickness(1);
-        _batteryButton.SetResourceReference(Control.BorderBrushProperty, "IslandOutline");
-        Place(deck, _batteryButton, 6);
-
+        _seekRow.Children.Add(_elapsed); Grid.SetColumn(_seek, 1); _seekRow.Children.Add(_seek); Grid.SetColumn(_duration, 2); _seekRow.Children.Add(_duration);
         IsVisibleChanged += (_, _) =>
         {
             if (!IsVisible)
             {
-                _seekCommit.Stop();
-                _seekPointerDown = false;
-                if (_seekEdit.NeedsWrite && !_seekEdit.IsWriting) _ = CommitSeekAsync(allowHidden: true);
+                _seekCommit.Stop(); _seekPointerDown = false;
+                if (_seekEdit.NeedsWrite && !_seekEdit.IsWriting) _ = CommitSeekAsync(true);
                 else if (!_seekEdit.IsWriting) _seekEdit.Cancel();
-                StopChargingMotion();
             }
-            else
-                Refresh();
+            else Refresh();
         };
+        Unloaded += (_, _) => _seekCommit.Stop();
+        ShowActivity(null);
+    }
+
+    public void ShowActivity(IslandActivity? activity)
+    {
+        if (_activity?.Id != activity?.Id)
+        {
+            _seekCommit.Stop(); _seekEdit.Cancel(); _seekPointerDown = false;
+            _seekIdentity = activity?.Kind == IslandActivityKind.Music ? activity.Id : "";
+            _seekTrackIdentity = "";
+        }
+        _activity = activity;
+        string kind = activity?.Kind.ToString() ?? "Idle";
+        if (_builtKind != kind) { _builtKind = kind; BuildBody(); }
         Refresh();
     }
 
-    private void ScheduleSeek()
+    private void BuildBody()
     {
-        if (!_seek.IsEnabled || !IsVisible || !_seekEdit.NeedsWrite)
-            return;
-        _seekCommit.Stop();
-        _seekCommit.Start();
-    }
-    private async Task CommitSeekAsync(bool allowHidden = false)
-    {
-        _seekCommit.Stop();
-        if (!_seek.IsEnabled || (!IsVisible && !allowHidden)) { _seekEdit.Cancel(); return; }
-        if (_seekPointerDown && !allowHidden) return;
-        if (!_seekEdit.TryBeginWrite(out var write)) return;
-        bool succeeded = false;
-        try { await Task.Run(() => _app.Hardware.SeekAsync(write.Value)); succeeded = true; }
-        catch (Exception error) { App.WriteDiagnostic("seek-fault:" + error.GetType().Name); }
-        finally
+        _body.Children.Clear();
+        foreach (var element in new FrameworkElement[] { _largeValue, _primary, _secondary, _progress, _previous, _play, _next, _seekRow, _reminderText, _operationStatus, _moreControls, _tools, _message })
+            if (element.Parent is Panel parent) parent.Children.Remove(element);
+        if (_activity?.Kind is IslandActivityKind.Timer or IslandActivityKind.Focus)
         {
-            bool newerEdit = _seekEdit.CompleteWrite(write, Environment.TickCount64, succeeded && IsVisible ? 1500 : 0);
-            if (newerEdit)
-            {
-                if (IsVisible) ScheduleSeek();
-                else await CommitSeekAsync(allowHidden: true);
-            }
-            if (IsVisible) Refresh();
+            var value = new Grid { Height = 56 };
+            value.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            value.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            _largeValue.VerticalAlignment = VerticalAlignment.Center; value.Children.Add(_largeValue);
+            var actions = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            actions.Children.Add(_primary); _secondary.Margin = new Thickness(8, 0, 0, 0); actions.Children.Add(_secondary);
+            Grid.SetColumn(actions, 1); value.Children.Add(actions);
+            _body.Children.Add(value); _body.Children.Add(_progress); _body.Children.Add(Footer());
         }
-    }
-
-    private async void LaunchShortcut(int slot)
-    {
-        var entry = _launcherEntries[slot];
-        if (entry is not null)
-            await _app.OpenTarget(() => _app.Local.Launch(entry));
-    }
-
-    private async void FocusAction()
-    {
-        if (_focusBusy)
-            return;
-        _focusBusy = true;
-        _focusAction.IsEnabled = false;
-        var selected = _app.Local.Timer;
-        var phase = selected.Phase;
-        try
+        else if (_activity?.Kind == IslandActivityKind.Music)
         {
-            await Task.Run(() =>
-            {
-                switch (phase)
-                {
-                    case TimerPhase.Running:
-                        _app.Local.PauseTimer(selected.Id);
-                        break;
-                    case TimerPhase.Paused:
-                        _app.Local.ResumeTimer(selected.Id);
-                        break;
-                    case TimerPhase.Completed:
-                        _app.Local.AcknowledgeTimer(selected.Id);
-                        break;
-                    default:
-                        _app.Local.AddTimer(TimeSpan.FromMinutes(25), "Focus");
-                        break;
-                }
-            });
+            var transport = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Height = 44 };
+            _previous.Margin = new Thickness(0, 0, 16, 0); _next.Margin = new Thickness(16, 0, 0, 0);
+            transport.Children.Add(_previous); transport.Children.Add(_play); transport.Children.Add(_next);
+            _body.Children.Add(transport); _body.Children.Add(_seekRow); _body.Children.Add(Footer());
         }
-        catch (InvalidOperationException)
+        else if (_activity?.Kind == IslandActivityKind.Reminder)
         {
-            // A concurrent add can fill the bound after the action took its snapshot.
-            _expand("Timer");
+            _reminderText.TextWrapping = TextWrapping.Wrap; _reminderText.MaxHeight = 108; _reminderText.LineHeight = 18;
+            _body.Children.Add(_reminderText);
+            var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 8, 0, 0) };
+            actions.Children.Add(TextButton("Snooze 5m", () => Snooze(5), false));
+            var snooze = TextButton("Snooze 15m", () => Snooze(15), false); snooze.Margin = new Thickness(8, 0, 0, 0); actions.Children.Add(snooze);
+            var dismiss = TextButton("Dismiss", RunSecondary, false); dismiss.Margin = new Thickness(8, 0, 0, 0); actions.Children.Add(dismiss);
+            _body.Children.Add(actions); _body.Children.Add(Footer());
         }
-        finally { _focusBusy = false; Refresh(); }
+        else if (_activity?.Kind is IslandActivityKind.Download or IslandActivityKind.Ai)
+        {
+            _operationStatus.TextWrapping = TextWrapping.Wrap; _operationStatus.MaxHeight = 54; _operationStatus.LineHeight = 18;
+            _body.Children.Add(_operationStatus);
+            if (_activity.Kind == IslandActivityKind.Download) _body.Children.Add(_progress);
+            _body.Children.Add(Footer());
+        }
+        else if (_activity?.Kind == IslandActivityKind.BatteryWarning) _body.Children.Add(Footer());
+        else
+        {
+            var idle = new Grid(); idle.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); idle.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var open = TextButton("Open tools", () => _openModule("Tools"), false); idle.Children.Add(open);
+            var settings = ActionButton("\uE713", "Settings", _settings, false); Grid.SetColumn(settings, 1); idle.Children.Add(settings);
+            _body.Children.Add(idle);
+        }
+        _message.Margin = new Thickness(0, 4, 0, 0); _body.Children.Add(_message);
     }
 
-    private async void Transport(Func<Task> command)
+    private Grid Footer()
     {
-        if (_transportBusy)
-            return;
-        _transportBusy = true;
-        Refresh();
-        try
-        {
-            await Task.Run(command);
-        }
-        finally { _transportBusy = false; Refresh(); }
+        var footer = new Grid { Margin = new Thickness(0, 8, 0, 0), Height = 40 };
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _moreControls.HorizontalAlignment = HorizontalAlignment.Left; footer.Children.Add(_moreControls);
+        _tools.HorizontalAlignment = HorizontalAlignment.Right; Grid.SetColumn(_tools, 1); footer.Children.Add(_tools);
+        return footer;
     }
 
     public void Refresh()
     {
-        if (_refreshing)
-            return;
+        if (_refreshing) return;
         _refreshing = true;
         try
         {
-            bool timerEnabled = _app.Preferences.EnabledModules.Contains("Timer");
-            var timer = _app.Local.Timer;
-            var timers = _app.Local.Timers;
-            int complete = timers.Count(item => item.Phase == TimerPhase.Completed);
-            _focusTime.Text = Time(timer.Phase == TimerPhase.Idle ? 25 * 60 : timer.RemainingSeconds);
-            _focusTime.FontSize = timer.RemainingSeconds >= 3600 ? 18 : 22;
-            _focusCaption.Text = timer.Phase == TimerPhase.Completed ? "COMPLETE" : timer.Phase == TimerPhase.Idle ? "FOCUS" : timer.Name.ToUpperInvariant();
-            _focusHint.Text = !timerEnabled ? "Timers off in Settings." : complete > 0 ? complete + " complete · open timers" : timers.Count > 1 ? timers.Count + " timers · open to choose" : timer.Phase switch
-            {
-                TimerPhase.Running => "One thing at a time.",
-                TimerPhase.Paused => "Ready when you are.",
-                TimerPhase.Completed => "Take a little break.",
-                _ => "A little room to focus."
-            };
-            _focusActionText.Text = _focusBusy ? "…" : timer.Phase switch
-            {
-                TimerPhase.Running => "Pause",
-                TimerPhase.Paused => "Resume",
-                TimerPhase.Completed => "Done",
-                _ => "Start"
-            };
-            _focusAction.IsEnabled = timerEnabled && !_focusBusy;
-            _focusHeader.IsEnabled = timerEnabled;
-            AutomationProperties.SetName(_focusAction, timer.Phase switch
-            {
-                TimerPhase.Running => "Pause timer",
-                TimerPhase.Paused => "Resume timer",
-                TimerPhase.Completed => "Acknowledge completed timer",
-                _ => "Start a twenty-five minute focus timer"
-            });
-            AutomationProperties.SetName(_focusHeader, "Open timers and stopwatch, " + timer.Name + ", " + timer.Phase + ", " + _focusTime.Text + ", " + complete + " completed timers");
-
-            bool musicEnabled = _app.Preferences.EnabledModules.Contains("Music");
+            // The shell selects identity. This view never substitutes another timer or focus session.
+            if (_activity != null && _activity.Kind != IslandActivityKind.BatteryWarning)
+                _activity = IslandActivityCatalog.Read(_app).FirstOrDefault(item => item.Id == _activity.Id);
+            string kind = _activity?.Kind.ToString() ?? "Idle";
+            if (_builtKind != kind) { _builtKind = kind; BuildBody(); }
+            _title.Text = _activity?.Title ?? "Crest";
+            _subtitle.Text = _activity?.Subtitle ?? "No active activities";
+            _glyph.Text = _activity?.Glyph ?? "\uE713";
+            _glyph.SetResourceReference(TextBlock.ForegroundProperty, _activity?.AccentKey ?? "IslandText");
             var media = _app.Hardware.Music;
-            _title.Text = !musicEnabled ? "Music is off" : media.Title;
-            _artist.Text = !musicEnabled ? "Enable it in Settings" : media.HasSession ? media.Artist : "Open a music app";
-            _player.Text = media.HasSession && musicEnabled ? media.PlayerName.ToUpper(CultureInfo.CurrentCulture) : "MEDIA CONTROLS";
-            var artwork = musicEnabled ? media.Artwork : null;
-            if (!ReferenceEquals(_art.Source, artwork))
-                _art.Source = artwork;
-            _artFallback.Visibility = _art.Source is null ? Visibility.Visible : Visibility.Collapsed;
-            _musicHeader.IsEnabled = _albumButton.IsEnabled = musicEnabled;
-            _previous.IsEnabled = musicEnabled && media.CanPrevious && !_transportBusy;
-            _next.IsEnabled = musicEnabled && media.CanNext && !_transportBusy;
-            _play.IsEnabled = musicEnabled && media.CanPlayPause && !_transportBusy;
-            _playIcon.Text = media.IsPlaying ? "\uE769" : "\uE768";
-            AutomationProperties.SetName(_play, media.IsPlaying ? "Pause playback" : "Play");
-            AutomationProperties.SetName(_musicHeader, !musicEnabled ? "Music is disabled in Settings" : media.HasSession ? "Open music controls, " + media.Title + ", " + media.Artist + ", " + media.PlayerName : media.Status);
-            AutomationProperties.SetName(_albumButton, AutomationProperties.GetName(_musicHeader));
-            _seek.IsEnabled = musicEnabled && media.CanSeek && !_transportBusy;
-            _seek.Maximum = Math.Max(1, media.DurationSeconds);
-            if (!musicEnabled || !media.CanSeek) { _seekCommit.Stop(); _seekEdit.Cancel(); }
-            double reportedPosition = _seekEdit.DisplayValue(media.PositionSeconds, Environment.TickCount64, 2);
-            if (!_seekPointerDown)
-                _seek.Value = Math.Clamp(reportedPosition, 0, _seek.Maximum);
-            _elapsed.Text = Time(_seek.Value);
-            _duration.Text = Time(media.DurationSeconds);
-
-            bool controlsEnabled = _app.Preferences.EnabledModules.Contains("Controls");
-            var battery = _app.Hardware.Battery;
-            int percent = battery.Available && controlsEnabled ? Math.Clamp(battery.Percent, 0, 100) : -1;
-            if (percent != _lastBatteryPercent)
+            bool music = _activity?.Kind == IslandActivityKind.Music;
+            _art.Source = music ? media.Artwork : null;
+            _art.Visibility = _art.Source == null ? Visibility.Collapsed : Visibility.Visible;
+            _glyph.Visibility = _art.Source == null ? Visibility.Visible : Visibility.Collapsed;
+            _largeValue.Text = _activity?.Value ?? "";
+            _largeValue.SetResourceReference(TextBlock.ForegroundProperty, _activity?.AccentKey ?? "IslandText");
+            _primary.Content = Glyph(_activity?.PrimaryActionGlyph ?? "\uE768", 18, "IslandActionText");
+            _primary.SetResourceReference(Control.BackgroundProperty, _activity?.AccentKey ?? "IslandAccentTimer");
+            _primary.IsEnabled = !_busy && _activity?.CanInvoke == true;
+            AutomationProperties.SetName(_primary, _activity?.PrimaryActionName ?? "Activity action");
+            Design.RegisterTooltip(_primary, _activity?.PrimaryActionName ?? "Activity action");
+            _secondary.IsEnabled = !_busy;
+            _secondary.Visibility = _activity?.PrimaryAction == IslandActivityAction.DismissFocus ? Visibility.Collapsed : Visibility.Visible;
+            string secondaryName = _activity?.Kind == IslandActivityKind.Focus ? "Dismiss focus session" : _activity?.Kind == IslandActivityKind.Timer ? "Cancel " + _activity.Title : "Dismiss reminder";
+            AutomationProperties.SetName(_secondary, secondaryName); Design.RegisterTooltip(_secondary, secondaryName);
+            _progress.Visibility = _activity?.Progress != null ? Visibility.Visible : Visibility.Collapsed;
+            _progress.Value = (_activity?.Progress ?? 0) * 100;
+            _progress.SetResourceReference(Control.ForegroundProperty, _activity?.AccentKey ?? "IslandAccentTimer");
+            _progress.SetResourceReference(Control.BackgroundProperty, "IslandCard");
+            _reminderText.Text = _activity?.Subtitle ?? "";
+            _operationStatus.Text = _activity is { Kind: IslandActivityKind.Download, Progress: not null } download
+                ? download.Value + " · " + download.Subtitle : _activity?.Subtitle ?? "";
+            _moreControls.Content = _activity?.Kind switch { IslandActivityKind.Focus => "Focus controls", IslandActivityKind.Timer => "Timer controls", IslandActivityKind.Music => _app.Hardware.Players.Count > 1 ? "Music & player controls" : "Music controls", IslandActivityKind.Reminder => "Reminder controls", IslandActivityKind.Download => "Download controls", IslandActivityKind.Ai => "AI controls", _ => "Battery controls" };
+            AutomationProperties.SetName(_moreControls, _moreControls.Content.ToString());
+            if (music)
             {
-                _batteryArc.Data = RingArc(percent);
-                _lastBatteryPercent = percent;
-            }
-            _batteryPercent.Text = percent < 0 ? "—" : percent.ToString(CultureInfo.CurrentCulture) + "%";
-            _batteryStatus.Text = !controlsEnabled ? "Controls off" : battery.Available ? battery.Status : "No battery";
-            _batteryButton.IsEnabled = controlsEnabled;
-            _chargingIcon.Visibility = controlsEnabled && battery.Available && battery.Charging ? Visibility.Visible : Visibility.Collapsed;
-            AutomationProperties.SetName(_batteryButton, battery.Available ? "Open laptop controls, battery " + battery.Percent + " percent, " + battery.Status : "Open laptop controls, " + battery.Status);
-            if (IsVisible && controlsEnabled && battery.Charging && !Design.ReducedMotion(_app.EffectivePreferences))
-            {
-                if (!_chargingAnimating)
+                _previous.IsEnabled = !_busy && media.CanPrevious; _next.IsEnabled = !_busy && media.CanNext; _play.IsEnabled = !_busy && media.CanPlayPause;
+                _play.Content = Glyph(media.IsPlaying ? "\uE769" : "\uE768", 18, "IslandActionText");
+                _play.SetResourceReference(Control.BackgroundProperty, "IslandAccentMusic");
+                AutomationProperties.SetName(_play, media.IsPlaying ? "Pause playback" : "Resume playback");
+                string trackIdentity = TrackIdentity(_seekIdentity, media.Title, media.Artist);
+                bool seekAvailable = media.CanSeek && double.IsFinite(media.DurationSeconds) && media.DurationSeconds > 0;
+                if (!seekAvailable || _seekTrackIdentity.Length > 0 && _seekTrackIdentity != trackIdentity)
                 {
-                    _chargingAnimating = true;
-                    _chargingIcon.BeginAnimation(OpacityProperty, new DoubleAnimation(0.4, 1, TimeSpan.FromMilliseconds(1100)) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
+                    _seekCommit.Stop(); _seekEdit.Cancel(); _seekPointerDown = false;
                 }
+                _seekTrackIdentity = trackIdentity;
+                _seekRow.Visibility = seekAvailable ? Visibility.Visible : Visibility.Collapsed;
+                _seek.Maximum = seekAvailable ? Math.Max(1, media.DurationSeconds) : 1; _seek.IsEnabled = seekAvailable;
+                _seek.SetResourceReference(Control.ForegroundProperty, "IslandAccentMusic");
+                double position = double.IsFinite(media.PositionSeconds) ? Math.Clamp(media.PositionSeconds, 0, _seek.Maximum) : 0;
+                _seek.Value = _seekEdit.DisplayValue(position, Environment.TickCount64, 1);
+                _elapsed.Text = IslandActivities.Time(_seek.Value); _duration.Text = IslandActivities.Time(media.DurationSeconds);
             }
-            else
-                StopChargingMotion();
-
-            bool launcherEnabled = _app.Preferences.EnabledModules.Contains("Launch");
-            for (int index = 0; index < 2; index++)
-            {
-                var entry = index < _app.Preferences.Launchers.Count ? _app.Preferences.Launchers[index] : null;
-                _launcherEntries[index] = entry;
-                _launcherButtons[index].IsEnabled = launcherEnabled && entry is not null;
-                string glyph = entry?.Kind switch
-                {
-                    "Folder" => "\uE8B7",
-                    "Website" => "\uE774",
-                    "Shortcut" => "\uE71B",
-                    _ => index == 1 ? "\uE8B7" : "\uE8A5"
-                };
-                if (_launcherButtons[index].Content is TextBlock icon)
-                    icon.Text = glyph;
-                AutomationProperties.SetName(_launcherButtons[index], entry is null ? "No shortcut configured" : "Open " + entry.Name);
-            }
+            _message.Visibility = string.IsNullOrEmpty(_message.Text) ? Visibility.Collapsed : Visibility.Visible;
+            UpdateHeight();
         }
         finally { _refreshing = false; }
     }
 
-    private void StopChargingMotion()
+    private void UpdateHeight()
     {
-        if (!_chargingAnimating)
-            return;
-        _chargingAnimating = false;
-        _chargingIcon.BeginAnimation(OpacityProperty, null);
-        _chargingIcon.Opacity = 1;
-    }
-
-    private static Geometry? RingArc(int percent)
-    {
-        if (percent <= 0)
-            return null;
-        if (percent >= 100)
-            return new EllipseGeometry(new Point(34, 34), 29, 29);
-        double angle = percent / 100d * Math.PI * 2 - Math.PI / 2;
-        var geometry = new StreamGeometry();
-        using (var context = geometry.Open())
+        double body = _activity?.Kind switch
         {
-            context.BeginFigure(new Point(34, 5), false, false);
-            context.ArcTo(new Point(34 + 29 * Math.Cos(angle), 34 + 29 * Math.Sin(angle)), new Size(29, 29), 0, percent > 50, SweepDirection.Clockwise, true, false);
-        }
-        geometry.Freeze();
-        return geometry;
-    }
-
-    private static FrameworkElement FocusCharacter()
-    {
-        if (!_focusArtworkLoaded)
-        {
-            _focusArtworkLoaded = true;
-            try
-            {
-                var artwork = new BitmapImage();
-                artwork.BeginInit();
-                artwork.UriSource = new Uri("pack://application:,,,/Crest;component/focus-orb.png", UriKind.Absolute);
-                artwork.CacheOption = BitmapCacheOption.OnLoad;
-                artwork.DecodePixelWidth = 128;
-                artwork.EndInit();
-                artwork.Freeze();
-                _focusArtwork = artwork;
-            }
-            catch { _focusArtwork = null; }
-        }
-        if (_focusArtwork is not null)
-            return new Image { Source = _focusArtwork, Width = 64, Height = 64, Stretch = Stretch.Uniform, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, IsHitTestVisible = false };
-        var canvas = new Canvas { Width = 58, Height = 60, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, IsHitTestVisible = false };
-        var shadow = new Ellipse { Width = 44, Height = 7, Fill = new SolidColorBrush(Color.FromArgb(55, 72, 201, 250)) };
-        Canvas.SetLeft(shadow, 7);
-        Canvas.SetTop(shadow, 48);
-        canvas.Children.Add(shadow);
-        var body = new Path
-        {
-            Data = Geometry.Parse("M 10,28 C 4,19 9,11 17,9 C 20,1 33,2 39,8 C 51,7 57,18 51,27 C 57,38 48,48 39,46 C 32,54 19,50 16,45 C 4,45 0,35 10,28 Z"),
-            Fill = new LinearGradientBrush(Color.FromRgb(94, 218, 255), Color.FromRgb(37, 171, 235), 90)
+            IslandActivityKind.Timer or IslandActivityKind.Focus => 110,
+            IslandActivityKind.Music => 92 + (_seekRow.Visibility == Visibility.Visible ? 32 : 0),
+            IslandActivityKind.Reminder => Math.Clamp(Math.Ceiling((_activity.Subtitle.Length + 1) / 46d), 1, 6) * 18 + 96,
+            IslandActivityKind.Download or IslandActivityKind.Ai => Math.Clamp(Math.Ceiling((_activity.Subtitle.Length + 1) / 46d), 1, 3) * 18 + 48 + (_activity.Progress.HasValue ? 6 : 0),
+            IslandActivityKind.BatteryWarning => 48,
+            _ => 44
         };
-        canvas.Children.Add(body);
-        foreach (double x in new[] { 21d, 34d })
-        {
-            var eye = new Ellipse { Width = 3.5, Height = 5.5, Fill = new SolidColorBrush(Color.FromRgb(4, 44, 68)) };
-            Canvas.SetLeft(eye, x);
-            Canvas.SetTop(eye, 24);
-            canvas.Children.Add(eye);
-        }
-        var smile = new Path { Data = Geometry.Parse("M 25,33 Q 29,36 33,33"), Stroke = new SolidColorBrush(Color.FromRgb(4, 44, 68)), StrokeThickness = 1.5, StrokeStartLineCap = PenLineCap.Round, StrokeEndLineCap = PenLineCap.Round };
-        canvas.Children.Add(smile);
-        return new Viewbox { Child = canvas, Width = 64, Height = 64, Stretch = Stretch.Uniform, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false };
+        double target = body + 24 + (_showHeader ? 56 : 0) + (string.IsNullOrEmpty(_message.Text) ? 0 : 24);
+        if (Math.Abs(target - _targetHeight) < 0.5) return;
+        _targetHeight = target; Height = target;
+        DesiredHeightChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    private async void RunPrimary()
+    {
+        var selected = _activity;
+        if (selected == null || _busy) return;
+        await RunAction(() => IslandActivityCatalog.InvokePrimaryAsync(_app, selected, _openModule));
+    }
+
+    private async void RunSecondary()
+    {
+        var selected = _activity;
+        if (selected == null || _busy) return;
+        await RunAction(() => Task.Run(() =>
+        {
+            if (!_app.Preferences.EnabledModules.Contains(selected.Module)) return;
+            switch (selected.Kind)
+            {
+                case IslandActivityKind.Focus: _app.Local.DismissFocus(selected.EntityId); break;
+                case IslandActivityKind.Timer: _app.Local.CancelTimer(selected.EntityId); break;
+                case IslandActivityKind.Reminder: _app.Local.DismissReminder(selected.EntityId); break;
+            }
+        }));
+    }
+
+    private async void Snooze(int minutes)
+    {
+        var selected = _activity;
+        if (selected?.Kind != IslandActivityKind.Reminder || _busy) return;
+        await RunAction(() => Task.Run(() => { if (_app.Preferences.EnabledModules.Contains("Timer") && _app.Local.Reminders.Any(item => item.Id == selected.EntityId && item.Phase == Crest.Features.ReminderPhase.Due)) _app.Local.SnoozeReminder(selected.EntityId, TimeSpan.FromMinutes(minutes)); }));
+    }
+
+    private async void RunTransport(Func<Task> command)
+    {
+        var selected = _activity;
+        if (selected?.Kind != IslandActivityKind.Music || _busy) return;
+        await RunAction(async () => { if (IslandActivityCatalog.Read(_app).Any(item => item.Id == selected.Id)) await command(); });
+    }
+
+    private async Task RunAction(Func<Task> action)
+    {
+        _busy = true; _message.Text = ""; Refresh();
+        try { await action(); }
+        catch (Exception error)
+        { _message.Text = "This action is currently unavailable. Open its controls to check the source."; App.WriteDiagnostic("activity-action:" + error.GetType().Name); }
+        finally { _busy = false; Refresh(); ActivityActionCompleted?.Invoke(this, EventArgs.Empty); }
+    }
+
+    private void ScheduleSeek()
+    {
+        if (!_seek.IsEnabled || !IsVisible || !_seekEdit.NeedsWrite) return;
+        _seekCommit.Stop(); _seekCommit.Start();
+    }
+    private async Task CommitSeekAsync(bool allowHidden = false)
+    {
+        _seekCommit.Stop();
+        if (!_seek.IsEnabled || (!IsVisible && !allowHidden) || _activity?.Id != _seekIdentity) { _seekEdit.Cancel(); return; }
+        if (_seekPointerDown && !allowHidden) return;
+        if (!_seekEdit.TryBeginWrite(out var write)) return;
+        string identity = _seekIdentity;
+        string trackIdentity = _seekTrackIdentity;
+        bool succeeded = false;
+        try
+        {
+            var media = _app.Hardware.Music;
+            if (media.CanSeek && double.IsFinite(media.DurationSeconds) && media.DurationSeconds > 0
+                && TrackIdentity(identity, media.Title, media.Artist) == trackIdentity
+                && IslandActivityCatalog.Read(_app).Any(item => item.Id == identity))
+            { await _app.Hardware.SeekAsync(write.Value); succeeded = true; }
+        }
+        catch (Exception error) { App.WriteDiagnostic("seek-fault:" + error.GetType().Name); }
+        finally
+        {
+            bool newer = _seekEdit.CompleteWrite(write, Environment.TickCount64, succeeded && IsVisible ? 1500 : 0);
+            if (newer) { if (IsVisible) ScheduleSeek(); else await CommitSeekAsync(true); }
+            if (IsVisible) Refresh();
+        }
+    }
+    private static string TrackIdentity(string player, string title, string artist) => player + "\u001F" + title + "\u001F" + artist;
+
+    private static Button ActionButton(string glyph, string name, Action action, bool filled = true)
+    {
+        var button = Design.IconButton(glyph, name, action);
+        button.Width = button.Height = button.MinWidth = button.MinHeight = 44; button.Padding = new Thickness(0); button.BorderThickness = new Thickness(0);
+        button.Style = (Style)Application.Current.Resources["CircleButton"];
+        button.SetResourceReference(Control.ForegroundProperty, filled ? "IslandActionText" : "IslandText");
+        if (filled) button.SetResourceReference(Control.BackgroundProperty, "IslandAccentTimer"); else button.Background = Brushes.Transparent;
+        return button;
+    }
+    private static Button TextButton(string name, Action action, bool quiet = true)
+    {
+        var button = Design.Button(name, action); button.FontSize = 12; button.MinHeight = 40; button.Padding = new Thickness(10, 8, 10, 8); button.BorderThickness = new Thickness(0);
+        button.SetResourceReference(Control.ForegroundProperty, quiet ? "IslandMuted" : "IslandText");
+        if (quiet) button.Background = Brushes.Transparent; else button.SetResourceReference(Control.BackgroundProperty, "IslandCard");
+        return button;
+    }
     private static TextBlock Label(string text, double size, string color, bool bold = false)
     {
-        var label = new TextBlock { Text = text, FontSize = size, FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal, TextTrimming = TextTrimming.CharacterEllipsis, TextWrapping = TextWrapping.NoWrap };
-        label.SetResourceReference(TextBlock.ForegroundProperty, color);
-        return label;
+        var label = Design.Text(text, size, color, bold); label.TextWrapping = TextWrapping.NoWrap; label.TextTrimming = TextTrimming.CharacterEllipsis; return label;
     }
-
-    private static TextBlock Glyph(string glyph, double size)
+    private static TextBlock Glyph(string glyph, double size, string color = "IslandText")
     {
-        var text = Label(glyph, size, "IslandText");
-        text.FontFamily = new FontFamily("Segoe Fluent Icons");
-        text.HorizontalAlignment = HorizontalAlignment.Center;
-        text.VerticalAlignment = VerticalAlignment.Center;
-        return text;
+        var label = Label(glyph, size, color); label.FontFamily = new FontFamily("Segoe Fluent Icons"); label.HorizontalAlignment = HorizontalAlignment.Center; label.VerticalAlignment = VerticalAlignment.Center; return label;
     }
-
-    private static Border Card(UIElement content)
-    {
-        var card = new Border { CornerRadius = new CornerRadius(20), BorderThickness = new Thickness(1), Child = content };
-        card.SetResourceReference(Border.BackgroundProperty, "IslandCard");
-        card.SetResourceReference(Border.BorderBrushProperty, "IslandOutline");
-        return card;
-    }
-
-    private static Button IconButton(string glyph, string name, Action action, double size, string background)
-    {
-        var button = Button(Glyph(glyph, 15), name, action, size / 2, background);
-        button.Width = button.Height = size;
-        button.Padding = new Thickness(0);
-        return button;
-    }
-
-    private static Button Button(UIElement content, string name, Action action, double radius, string background)
-    {
-        var button = new Button { Content = content, MinWidth = 32, MinHeight = 32, Cursor = Cursors.Hand, Template = ButtonTemplate(radius) };
-        if (background == "Transparent")
-            button.Background = Brushes.Transparent;
-        else
-            button.SetResourceReference(Control.BackgroundProperty, background);
-        button.SetResourceReference(Control.ForegroundProperty, "IslandText");
-        AutomationProperties.SetName(button, name);
-        button.Click += (_, _) => action();
-        return button;
-    }
-
-    private static ControlTemplate ButtonTemplate(double radius)
-    {
-        var border = new FrameworkElementFactory(typeof(Border), "buttonSurface");
-        border.SetValue(Border.CornerRadiusProperty, new CornerRadius(radius));
-        border.SetValue(Border.BackgroundProperty, new TemplateBindingExtension(Control.BackgroundProperty));
-        border.SetValue(Border.PaddingProperty, new TemplateBindingExtension(Control.PaddingProperty));
-        border.SetValue(Border.BorderBrushProperty, new TemplateBindingExtension(Control.BorderBrushProperty));
-        border.SetValue(Border.BorderThicknessProperty, new TemplateBindingExtension(Control.BorderThicknessProperty));
-        var presenter = new FrameworkElementFactory(typeof(ContentPresenter));
-        presenter.SetValue(ContentPresenter.HorizontalAlignmentProperty, new TemplateBindingExtension(Control.HorizontalContentAlignmentProperty));
-        presenter.SetValue(ContentPresenter.VerticalAlignmentProperty, new TemplateBindingExtension(Control.VerticalContentAlignmentProperty));
-        border.AppendChild(presenter);
-        var template = new ControlTemplate(typeof(Button)) { VisualTree = border };
-        foreach (var condition in new[] { (UIElement.IsMouseOverProperty, 0.80), (ButtonBase.IsPressedProperty, 0.60), (UIElement.IsEnabledProperty, 0.42) })
-        {
-            var trigger = new Trigger { Property = condition.Item1, Value = condition.Item1 == UIElement.IsEnabledProperty ? false : true };
-            object opacity = condition.Item1 == UIElement.IsMouseOverProperty ? new DynamicResourceExtension("ButtonHoverOpacity")
-                : condition.Item1 == ButtonBase.IsPressedProperty ? new DynamicResourceExtension("ButtonPressedOpacity") : condition.Item2;
-            trigger.Setters.Add(new Setter(UIElement.OpacityProperty, opacity, "buttonSurface"));
-            template.Triggers.Add(trigger);
-        }
-        var focus = new Trigger { Property = UIElement.IsKeyboardFocusedProperty, Value = true };
-        focus.Setters.Add(new Setter(Border.BorderBrushProperty, new DynamicResourceExtension("IslandAccent"), "buttonSurface"));
-        focus.Setters.Add(new Setter(Border.BorderThicknessProperty, new Thickness(2), "buttonSurface"));
-        template.Triggers.Add(focus);
-        return template;
-    }
-
-    private static ControlTemplate SeekTemplate()
-    {
-        return (ControlTemplate)XamlReader.Parse("""
-            <ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" TargetType="Slider">
-              <Border x:Name="focus" Height="32" BorderThickness="2" BorderBrush="Transparent" CornerRadius="8">
-                <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" Orientation="Horizontal">
-                  <Track.DecreaseRepeatButton>
-                    <RepeatButton Command="{x:Static Slider.DecreaseLarge}" Focusable="False">
-                      <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="3" CornerRadius="1.5" VerticalAlignment="Center" Background="{DynamicResource IslandAccent}"/></Grid></ControlTemplate></RepeatButton.Template>
-                    </RepeatButton>
-                  </Track.DecreaseRepeatButton>
-                  <Track.Thumb>
-                    <Thumb Width="16" Height="28">
-                      <Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Border Width="7" Height="15" CornerRadius="3.5" VerticalAlignment="Center" Background="{DynamicResource IslandAccent}"/></Grid></ControlTemplate></Thumb.Template>
-                    </Thumb>
-                  </Track.Thumb>
-                  <Track.IncreaseRepeatButton>
-                    <RepeatButton Command="{x:Static Slider.IncreaseLarge}" Focusable="False">
-                      <RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="3" CornerRadius="1.5" VerticalAlignment="Center" Background="{DynamicResource IslandLine}"/></Grid></ControlTemplate></RepeatButton.Template>
-                    </RepeatButton>
-                  </Track.IncreaseRepeatButton>
-                </Track>
-              </Border>
-              <ControlTemplate.Triggers>
-                <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger>
-                <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="focus" Property="BorderBrush" Value="{DynamicResource IslandAccent}"/></Trigger>
-              </ControlTemplate.Triggers>
-            </ControlTemplate>
-            """);
-    }
-
-    private static void Place(Grid grid, UIElement content, int column)
-    {
-        Grid.SetColumn(content, column);
-        grid.Children.Add(content);
-    }
-    private static string Time(double seconds)
-    {
-        var duration = TimeSpan.FromSeconds(Math.Max(0, Math.Ceiling(seconds)));
-        return duration.TotalHours >= 1
-            ? string.Format(CultureInfo.CurrentCulture, "{0}:{1:00}:{2:00}", (int)duration.TotalHours, duration.Minutes, duration.Seconds)
-            : duration.ToString(@"m\:ss", CultureInfo.CurrentCulture);
-    }
+    private static ControlTemplate SeekTemplate() => (ControlTemplate)XamlReader.Parse("""
+        <ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" TargetType="Slider">
+          <Border x:Name="focus" Height="32" BorderThickness="2" BorderBrush="Transparent" CornerRadius="8">
+            <Track x:Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value}" Orientation="Horizontal">
+              <Track.DecreaseRepeatButton><RepeatButton Command="{x:Static Slider.DecreaseLarge}" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="2" CornerRadius="1" VerticalAlignment="Center" Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Slider}}" /></Grid></ControlTemplate></RepeatButton.Template></RepeatButton></Track.DecreaseRepeatButton>
+              <Track.Thumb><Thumb Width="18" Height="28"><Thumb.Template><ControlTemplate TargetType="Thumb"><Grid Background="Transparent"><Border Width="8" Height="8" CornerRadius="4" VerticalAlignment="Center" Background="{DynamicResource IslandText}" /></Grid></ControlTemplate></Thumb.Template></Thumb></Track.Thumb>
+              <Track.IncreaseRepeatButton><RepeatButton Command="{x:Static Slider.IncreaseLarge}" Focusable="False"><RepeatButton.Template><ControlTemplate TargetType="RepeatButton"><Grid Background="Transparent"><Border Height="2" CornerRadius="1" VerticalAlignment="Center" Background="{DynamicResource IslandLine}" /></Grid></ControlTemplate></RepeatButton.Template></RepeatButton></Track.IncreaseRepeatButton>
+            </Track>
+          </Border>
+          <ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45" /></Trigger><Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="focus" Property="BorderBrush" Value="{DynamicResource IslandAccentMusic}" /></Trigger></ControlTemplate.Triggers>
+        </ControlTemplate>
+        """);
 }

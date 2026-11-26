@@ -20,4 +20,4 @@ The owner reported the Chrome/Explorer, strict-mode, shell/fullscreen and phase-
 
 The test candidate exited; the post-quit native snapshot found **zero candidate windows**. Quit signalling exited with code 0; the candidate's own exit code was unavailable. The normal installed process, settings and Windows startup value were preserved. The normal instance remains paused; use its tray **Resume** command to resume normal operation.
 
-[release-gates.json](release-gates.json) records approval separately from each gate's technical status. Raw profiles, observations and logs remain ignored locally; the shareable JSON records their SHA-256 digests. Public release metadata was not changed.
+[release-gates-0.2.1.json](release-gates-0.2.1.json) records approval separately from each gate's technical status. Raw profiles, observations and logs remain ignored locally; the shareable JSON records their SHA-256 digests. Public release metadata was not changed.

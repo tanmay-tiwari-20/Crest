@@ -1,17 +1,17 @@
 {
   "SchemaVersion": 1,
-  "ApplicationVersion": "0.3.0",
-  "ReviewedDate": "2026-11-24",
-  "CandidateDllSHA256": "614ACA2970279BCFF135F3AF73C1A9D4352C460E2BAD6BA11A39AC09AD8B3D34",
-  "SourceFingerprint": "B11D41EB29666085BB28C2DC43235E462181D5FE40282CEB450B9C5B6205641D",
+  "ApplicationVersion": "0.4.0",
+  "ReviewedDate": "2026-11-26",
+  "CandidateDllSHA256": null,
+  "SourceFingerprint": null,
   "VisibleOverAppIncidents": [],
-  "Scope": "Crest 0.3.0 local release candidate. The final source-bound DLL and source fingerprint identify the prepared build. All 31 P0/P1 native acceptance/performance rows remain pending; local automated scope excludes eleven native clipboard-writing outcomes. Historical 0.2.1 approval is archived separately and is not inherited. GitHub workflows independently verify the full automated suite before creating an unpublished prerelease draft.",
+  "Scope": "Crest 0.4.0 prerelease. All 31 P0/P1 physical acceptance and performance gates are pending. The generated release manifest and gate report identify the tested packages and include their exact automated scope.",
   "Gates": [
     {
       "Id": "AC01",
       "Requirement": "Start, unlock, resume and regain eligibility remain hidden until fresh entry/dwell",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -20,7 +20,7 @@
       "Id": "AC02",
       "Requirement": "One clear-desktop reveal after dwell without placeholder",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -29,7 +29,7 @@
       "Id": "AC03",
       "Requirement": "Leaving trigger before dwell causes no flash or interception",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -38,7 +38,7 @@
       "Id": "AC04",
       "Requirement": "Chrome and Explorer foreground suppress reveal without blocking input",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -47,7 +47,7 @@
       "Id": "AC05",
       "Requirement": "Strict mode rejects visible apps and permits minimized apps",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -56,7 +56,7 @@
       "Id": "AC06",
       "Requirement": "App opened during dwell, reveal or expansion cancels and hides",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -65,7 +65,7 @@
       "Id": "AC07",
       "Requirement": "Start, Search, Task View, Quick Settings and Widgets suppress",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -74,7 +74,7 @@
       "Id": "AC08",
       "Requirement": "Audio/media controls and registered popups remain usable",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -83,7 +83,7 @@
       "Id": "AC09",
       "Requirement": "Settings and launcher targets hide island as focus changes",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -92,7 +92,7 @@
       "Id": "AC10",
       "Requirement": "Pointer closing reversal preserves current motion without duplicate windows",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -101,7 +101,7 @@
       "Id": "AC11",
       "Requirement": "Background timer completion/track change never reveals",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -110,7 +110,7 @@
       "Id": "AC12",
       "Requirement": "Foreground app on second display suppresses selected island",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -119,7 +119,7 @@
       "Id": "AC13",
       "Requirement": "Active/multiple media sessions, preferred player and removal recover",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -128,7 +128,7 @@
       "Id": "AC14",
       "Requirement": "Hardware volume keys and output disconnect refresh/recover",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -137,7 +137,7 @@
       "Id": "AC15",
       "Requirement": "Charging and unavailable battery/brightness show actual capability",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -146,7 +146,7 @@
       "Id": "AC16",
       "Requirement": "Running timer counts sleep, ignores live clock changes, restores UTC deadline; pause retained",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -155,7 +155,7 @@
       "Id": "AC17",
       "Requirement": "Desktop OLE reveal/drop/drag-out, missing source, removal and session clear preserve originals",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -164,7 +164,7 @@
       "Id": "AC20",
       "Requirement": "100/125/150/200% DPI, display disconnect and reachable geometry",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -173,7 +173,7 @@
       "Id": "AC21",
       "Requirement": "Keyboard, screen reader, high contrast and reduced motion essential operation",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -182,7 +182,7 @@
       "Id": "AC22",
       "Requirement": "Repeated animation and hidden idle meet Section 11 budgets",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -191,7 +191,7 @@
       "Id": "AC23",
       "Requirement": "Explorer restart, pause/resume and quit recover safely with no surviving trigger",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 partial observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -200,7 +200,7 @@
       "Id": "AC24",
       "Requirement": "Clean-account install/upgrade/uninstall, migration and both retention choices",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -209,7 +209,7 @@
       "Id": "PER-readiness",
       "Requirement": "Installed baseline interactive readiness within 3000 ms while hidden",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -218,7 +218,7 @@
       "Id": "PER-hover",
       "Requirement": "Normal eligible hover reveals in about 360 ms including dwell",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -227,7 +227,7 @@
       "Id": "PER-feedback",
       "Requirement": "Visible control feedback within 100 ms",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -236,7 +236,7 @@
       "Id": "PER-suppression",
       "Requirement": "Foreground hide/input-disable p95 <=100 ms, p99 <=150 ms, max <=250 ms, no visible-over-app incident",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -245,7 +245,7 @@
       "Id": "PER-frames",
       "Requirement": "30-second actual presentation trace: p95 frame interval <=20 ms, p99 <=33.4 ms",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -254,7 +254,7 @@
       "Id": "PER-idle",
       "Requirement": "Ten-minute all-hidden average Crest CPU <1% of total device CPU",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -263,7 +263,7 @@
       "Id": "PER-memory",
       "Requirement": "Warm core resident working set <=200 MB with no AI model",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pass observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -272,7 +272,7 @@
       "Id": "PER-hidden-rendering",
       "Requirement": "No continuous animation or rendering loop while armed/ineligible",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -281,7 +281,7 @@
       "Id": "PER-battery",
       "Requirement": "Repeatable idle battery-impact comparison without unsupported high-refresh claim",
       "Status": "pending",
-      "Notes": "Current 0.3.0 candidate acceptance has not been recorded. Historical 0.2.1 pending observations and owner decision are preserved in docs/release-gates-0.2.1.json and do not qualify this changed candidate.",
+      "Notes": "Physical acceptance has not been recorded for Crest 0.4.0.",
       "Evidence": [],
       "ReviewStatus": "pending",
       "OwnerDecision": null
@@ -315,6 +315,15 @@
         },
         "FullTechnicalQualificationClaimed": false
       }
+    },
+    {
+      "SourceFingerprint": "B11D41EB29666085BB28C2DC43235E462181D5FE40282CEB450B9C5B6205641D",
+      "GateRecord": {
+        "SHA256": "C9DB907A702C66A11FB873262C47CEF987D17C76C3E416281BBBE31329E773EA",
+        "Path": "docs/release-gates-0.3.0.json"
+      },
+      "CandidateDllSHA256": "614ACA2970279BCFF135F3AF73C1A9D4352C460E2BAD6BA11A39AC09AD8B3D34",
+      "ApplicationVersion": "0.3.0"
     }
   ]
 }

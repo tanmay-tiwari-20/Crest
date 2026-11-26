@@ -36,7 +36,7 @@ The opt-in weather module uses Open-Meteo's city search and weather APIs. Weathe
 
 Read-only AI assistance connects to an existing local [Ollama](https://ollama.com/) installation and an explicitly selected model. Crest does not distribute Ollama or model weights. Those installations and models retain their own licenses and resource requirements.
 
-Microsoft Phone Link, Windows capture tools, and the selected meeting provider's browser page are existing applications or services opened through Windows. Crest does not distribute their code or claim universal call controls. Local calendar input remains a user-selected file; no calendar account or library is bundled for this feature.
+Microsoft Phone Link, Windows capture tools, and the selected meeting provider's browser page are existing applications or services opened through Windows. The classic Outlook adapter reads the default calendar from a running installation using the Outlook Object Model. Online calendar subscriptions use the URL supplied by the user. Crest ships its own iCalendar reader for feeds and local files. Microsoft Outlook and calendar-provider code are distributed separately.
 
 ## Development-only tools
 

@@ -14,8 +14,8 @@ public partial class App
     private bool _hadIntegrationEnabled;
     private void InitializeIntegrations()
     {
-        Weather = new(Store, () => Preferences.Weather);
-        Calendar = new(Store, () => Preferences.Calendar);
+        Weather = new(Store, () => Preferences.Weather, locate: WindowsWeatherLocation.ReadAsync);
+        Calendar = new(Store, () => Preferences.Calendar, readOutlook: new OutlookCalendarReader().ReadAsync);
         Downloads = new(() => Preferences.Downloads);
         Ai = new(() => Preferences.Ai);
         WindowsIntegrations = new(() => Preferences.WindowsIntegrations);
@@ -32,9 +32,12 @@ public partial class App
         || Preferences.WindowsIntegrations.NotificationsEnabled || Preferences.WindowsIntegrations.AccessoryBatteryEnabled || Preferences.WindowsIntegrations.PhoneEnabled;
     public void RefreshVisibleIntegrations()
     {
-        if (Preferences.Weather.Enabled) _ = Weather.RefreshAsync();
-        if (Preferences.Calendar.Enabled) _ = Calendar.RefreshAsync();
         if (Preferences.WindowsIntegrations.NotificationsEnabled) _ = WindowsIntegrations.RefreshNotificationsAsync();
+    }
+    public void OpenIntegrationSettings(string source)
+    {
+        OpenSettings();
+        _settings?.ShowIntegrationSource(source);
     }
     public void OpenIntegrationLink(string url)
     {

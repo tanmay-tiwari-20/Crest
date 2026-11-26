@@ -7,6 +7,8 @@
     <Compile Include="../../src/Crest/Core/DiagnosticLog.cs" Link="DiagnosticLog.cs" />
     <Compile Include="../../src/Crest/Core/InteractionStateMachine.cs" Link="InteractionStateMachine.cs" />
     <Compile Include="../../src/Crest/Core/PendingControlEdit.cs" Link="PendingControlEdit.cs" />
+    <Compile Include="../../src/Crest/Core/SpringDynamics.cs" Link="SpringDynamics.cs" />
+    <Compile Include="../../src/Crest/Core/IslandActivity.cs" Link="IslandActivity.cs" />
     <Compile Include="../../src/Crest/Core/SettingsStore.cs" Link="SettingsStore.cs" />
     <Compile Include="../../src/Crest/Features/LocalHub.cs" Link="LocalHub.cs" />
     <Compile Include="../../src/Crest/Features/LocalHub.Productivity.cs" Link="LocalHub.Productivity.cs" />

@@ -41,6 +41,7 @@ jobs:
           path: |
             artifacts/productivity-qa/ui-outcomes.json
             artifacts/productivity-qa/*.png
+            artifacts/productivity-qa/premium/
             artifacts/portable/Crest/.crest-build-verification.json
             artifacts/release/release-gate-report.json
             artifacts/release/release-manifest.json

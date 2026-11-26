@@ -43,6 +43,7 @@ internal static class Program
         surface.Child = new ScrollViewer { Content = panel, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled };
         var window = new Window { Title = "Crest productivity acceptance probe", Width = 420, Height = 316, Content = surface, ShowInTaskbar = true };
         Design.Apply(settings);
+        IslandProbe.ApplyIslandPalette(surface);
         int exitCode = 0;
         if (args.Contains("--show"))
         {
@@ -62,6 +63,13 @@ internal static class Program
                 var checks = new List<string>();
                 try
                 {
+                    if (args.Contains("--premium-only"))
+                    {
+                        await PremiumPresentationChecks.Run(app, (passed, label) => Check(passed, label, checks), output);
+                        File.WriteAllText(Path.Combine(output, "premium-only-outcomes.json"), JsonSerializer.Serialize(new { coverage = "Premium presentation checks only", passed = checks.Count, checks }, new JsonSerializerOptions { WriteIndented = true }));
+                        Console.WriteLine($"PASS {checks.Count} premium presentation outcomes in {output}");
+                        return;
+                    }
                     await Click(panel, "Add a 5 minute timer");
                     await Click(panel, "Add a 15 minute timer");
                     Check(hub.Timers.Count == 2 && hub.Timers[0].TotalSeconds == 300 && hub.Timers[1].TotalSeconds == 900, "Adding presets preserves independent timers", checks);
@@ -122,6 +130,7 @@ internal static class Program
                     await WindowsIntegrationChecks.Run((passed, label) => Check(passed, label, checks));
                     await DownloadAiUiChecks.Run(app, (passed, label) => Check(passed, label, checks), output);
                     await IntegrationWiringChecks.Run(app, (passed, label) => Check(passed, label, checks));
+                    await PremiumPresentationChecks.Run(app, (passed, label) => Check(passed, label, checks), output);
                     File.WriteAllText(Path.Combine(output, "ui-outcomes.json"), JsonSerializer.Serialize(new { recordedAtUtc = DateTimeOffset.UtcNow, skippedNativeClipboard = args.Contains("--skip-native-clipboard"), assemblySha256 = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(typeof(TimerToolsPanel).Assembly.Location))).ToLowerInvariant(), passed = checks.Count, checks, limits = "Rendered DPI samples and isolated presentation/drop/audio regressions do not qualify desktop visibility, physical desktop OLE dragging, audible hardware playback, physical mixed-DPI, frame timing, or screen-reader acceptance." }, new JsonSerializerOptions { WriteIndented = true }));
                     Console.WriteLine($"PASS {checks.Count} UI outcomes; 16 productivity and 4 date/time DPI renders in {output}");
                 }
@@ -135,7 +144,7 @@ internal static class Program
         hub.Dispose();
         // Only this probe's unique temporary directory is removed.
         string resolved = Path.GetFullPath(temporary);
-        if (resolved.StartsWith(Path.GetFullPath(Path.GetTempPath()), StringComparison.OrdinalIgnoreCase) && Path.GetFileName(resolved).StartsWith("CrestUIProbe-", StringComparison.Ordinal)) Directory.Delete(resolved, true);
+        if (resolved.StartsWith(Path.GetFullPath(Path.GetTempPath()), StringComparison.OrdinalIgnoreCase) && Path.GetFileName(resolved).StartsWith("CrestUIProbe-", StringComparison.Ordinal) && Directory.Exists(resolved)) Directory.Delete(resolved, true);
         return exitCode;
     }
 
@@ -162,7 +171,6 @@ internal static class Program
         var slide = Field<TranslateTransform>(island, "_slide");
         var detailSlide = Field<TranslateTransform>(island, "_detailSlide");
         var clip = Field<RectangleGeometry>(island, "_clip");
-        Rect openRect = StaticField<Rect>(typeof(IslandWindow), "OpenRect");
         Rect compactRect = StaticField<Rect>(typeof(IslandWindow), "CompactRect");
         try
         {
@@ -181,6 +189,7 @@ internal static class Program
             island.Reveal(controller.TransitionVersion);
             await Task.Delay(120);
             island.Expand("Timer");
+            Rect openRect = Field<Rect>(island, "_targetRect");
             bool expandedImmediately = clip.Rect == openRect && !clip.HasAnimatedProperties && detailSlide.Y == 0 && !detailSlide.HasAnimatedProperties;
             Invoke(island, "Collapse");
             bool collapsedImmediately = clip.Rect == compactRect && !clip.HasAnimatedProperties;
@@ -298,7 +307,7 @@ internal static class Program
             batteryNotices.Observe(true, 2, 13, false);
             var interruptedDetailNotice = hardware.PendingBatteryNotice!;
             RevealBatteryFixture();
-            island.Expand("Overview");
+            island.Expand("Music");
             await Task.Delay(180);
             island.Refresh();
             bool overviewRetained = hardware.PendingBatteryNotice == interruptedDetailNotice;
@@ -350,8 +359,12 @@ internal static class Program
         }
         string linked = CreateFile("link.txt"), copied = CreateFile("copy.txt"), pending = CreateFile("pending.txt"), duplicate = CreateFile("duplicate.txt"), rejected = CreateFile("rejected.txt");
         string originalLinked = File.ReadAllText(linked), originalCopied = File.ReadAllText(copied), originalPending = File.ReadAllText(pending);
-        Point VisiblePoint() => surface.TranslatePoint(new Point(410, 22), island);
-        Point GapPoint() => surface.TranslatePoint(new Point(410, 202), island);
+        Point VisiblePoint() => surface.TranslatePoint(IslandProbe.Interior(island), island);
+        Point GapPoint()
+        {
+            Rect envelope = Field<RectangleGeometry>(island, "_clip").Rect;
+            return surface.TranslatePoint(new Point(envelope.X + envelope.Width / 2, envelope.Bottom + 8), island);
+        }
         DragEventArgs Raise(RoutedEvent routedEvent, IDataObject data, DragDropEffects allowed, Point point)
         {
             var arguments = NewDragEvent(island, data, allowed, point, routedEvent);
@@ -473,25 +486,29 @@ internal static class Program
         detail.Opacity = 1;
         detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
         detailSlide.Y = -6;
-        System.Drawing.Point ScreenPoint(double x, double y)
+        var envelopeClip = Field<RectangleGeometry>(island, "_clip");
+        envelopeClip.BeginAnimation(RectangleGeometry.RectProperty, null);
+        envelopeClip.Rect = IslandProbe.Target(island);
+        System.Drawing.Point ScreenPoint(Point point)
         {
-            var screen = surface.PointToScreen(new Point(x, y));
+            var screen = surface.PointToScreen(point);
             return new System.Drawing.Point((int)Math.Round(screen.X), (int)Math.Round(screen.Y));
         }
-        var visibleTop = ScreenPoint(410, 201);
-        var invisibleBottom = ScreenPoint(410, 520);
+        Rect envelopeBounds = envelopeClip.Rect;
+        var visibleTop = ScreenPoint(new Point(envelopeBounds.X + envelopeBounds.Width / 2, envelopeBounds.Top + 1));
+        var invisibleBottom = ScreenPoint(new Point(envelopeBounds.X + envelopeBounds.Width / 2, envelopeBounds.Bottom + 4));
         Check(island.ContainsVisiblePoint(visibleTop) && policy.IsRegisteredPointerSurface(visibleTop)
             && !island.ContainsVisiblePoint(invisibleBottom) && !policy.IsRegisteredPointerSurface(invisibleBottom),
-            "Detail hit testing follows its current translation instead of retaining invisible edges", checks);
-        var detailCenter = ScreenPoint(410, 360);
-        detail.Opacity = 0;
-        bool transparentRejected = !island.ContainsVisiblePoint(detailCenter) && !policy.IsRegisteredPointerSurface(detailCenter);
-        detail.Opacity = 1;
-        detail.IsHitTestVisible = false;
-        bool disabledHitRejected = !island.ContainsVisiblePoint(detailCenter) && !policy.IsRegisteredPointerSurface(detailCenter);
-        detail.IsHitTestVisible = true;
+            "The contiguous envelope hit region follows its current shape and rejects invisible edges", checks);
+        var envelopeCenter = ScreenPoint(new Point(envelopeBounds.X + envelopeBounds.Width / 2, envelopeBounds.Top + envelopeBounds.Height / 2));
+        island.Opacity = 0;
+        bool transparentRejected = !island.ContainsVisiblePoint(envelopeCenter) && !policy.IsRegisteredPointerSurface(envelopeCenter);
+        island.Opacity = 1;
+        island.IsHitTestVisible = false;
+        bool disabledHitRejected = !island.ContainsVisiblePoint(envelopeCenter) && !policy.IsRegisteredPointerSurface(envelopeCenter);
+        island.IsHitTestVisible = true;
         detailSlide.Y = 0;
-        Check(transparentRejected && disabledHitRejected, "Transparent and input-disabled detail cards expose no registered hit region", checks);
+        Check(transparentRejected && disabledHitRejected, "Transparent and input-disabled envelopes expose no registered hit region", checks);
 
         string reentrantFile = CreateFile("reentrant.txt");
         string reentrantOriginal = File.ReadAllText(reentrantFile);
@@ -607,7 +624,10 @@ internal static class Program
         // outside their own bitmap or clipped by an ancestor.
         var drawing = new DrawingVisual();
         using (var context = drawing.RenderOpen())
-            context.DrawRectangle(new VisualBrush(visual) { Stretch = Stretch.Fill }, null, bounds);
+        {
+            context.DrawRectangle(Design.Brush("IslandShell"), null, bounds);
+            context.DrawRectangle(IslandProbe.VisualBrush(visual), null, bounds);
+        }
         var bitmap = new RenderTargetBitmap((int)Math.Ceiling(visual.ActualWidth * dpi / 96d), (int)Math.Ceiling(visual.ActualHeight * dpi / 96d), dpi, dpi, PixelFormats.Pbgra32);
         bitmap.Render(drawing);
         if (expectedText != null)

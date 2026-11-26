@@ -1,12 +1,12 @@
-# Release Crest 0.3.0
+# Release Crest 0.4.0
 
 Crest ships as a Windows 11 x64 installer and portable ZIP through GitHub Releases. GitHub Packages and NuGet publication are not required. Actions artifacts retain build output; an unpublished GitHub prerelease draft is the review point before public distribution.
 
 ## Current candidate
 
-Project version `0.3.0` matches annotated tag `v0.3.0`. It adds optional integrations and local privacy/resource fixes. The native P0/P1 checklist remains open. The owner-approved 0.2.1 record is preserved separately in [release-gates-0.2.1.json](release-gates-0.2.1.json); its approval does not qualify this changed source.
+Project version `0.4.0` matches annotated tag `v0.4.0`. It adds the contextual island, redesigned Settings and themes, Windows location, and more calendar sources. The native P0/P1 checklist remains open. The 0.3.0 gate record and owner-approved 0.2.1 gate record preserve their respective candidate identities. [0.3.0 gate record](release-gates-0.3.0.json) · [0.2.1 gate record](release-gates-0.2.1.json)
 
-The normal packages are unsigned. Optional notification access can require MSIX identity and capabilities; the optional MSIX packaging source is available but an MSIX asset is not included in this candidate. See [PRD_COMPLETION.md](PRD_COMPLETION.md) for supported integration scopes.
+The standard packages are unsigned. The optional MSIX packaging source declares Windows capabilities for notification access and location. See the [user guide](USER_GUIDE.md#optional-integrations) for supported integration scopes.
 
 ## Prepare source and assets
 
@@ -15,7 +15,7 @@ Use the pinned SDK and locked dependencies in [BUILD.md](BUILD.md). Review the s
 From the repository root:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.3.0 -ArtifactRoot artifacts/release-0.3.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.4.0 -ArtifactRoot artifacts/release-0.4.0
 ```
 
 This restores locked dependencies, compiles with warnings treated as errors, runs domain/WPF/native-probe/provenance/documentation checks, tests the exact self-contained DLL, stages public documentation and licenses, compiles the installer, verifies every portable ZIP entry, and writes checksums and release manifests. The custom artifact root preserves older candidate packages.
@@ -23,19 +23,19 @@ This restores locked dependencies, compiles with warnings treated as errors, run
 If a local user's clipboard cannot be safely detached and restored, omit only that write suite explicitly:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.3.0 -ArtifactRoot artifacts/release-0.3.0 -SkipNativeClipboardVerification
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.4.0 -ArtifactRoot artifacts/release-0.4.0 -SkipNativeClipboardVerification
 ```
 
 This still runs the remaining checks. Eleven clipboard outcomes are excluded, the provenance/manifest/release body record that exclusion, and the package cannot claim a complete automated suite or P1 qualification. CI and tag workflows use the full suite on fresh Windows runners. The option cannot be combined with `-SkipBuild`, `-SkipTests`, or `-RequireP1Gates` as a way to erase missing evidence.
 
 `-SkipBuild` repackages only a current source-bound verified build and its summaries; it cannot change its recorded test scope. `-RequireP1Gates` requires the complete automated suite and every current candidate-bound native gate. Default packaging produces a prerelease candidate with open gates disclosed.
 
-Inspect these files under `artifacts/release-0.3.0/release/`:
+Inspect these files under `artifacts/release-0.4.0/release/`:
 
 | File | Purpose |
 | --- | --- |
-| `Crest-Setup-0.3.0-x64.exe` | Per-user installation, Start-menu entries and uninstall retention choice. |
-| `Crest-Portable-0.3.0-x64.zip` | Complete self-contained app; extract every file before running. |
+| `Crest-Setup-0.4.0-x64.exe` | Per-user installation, Start-menu entries and uninstall retention choice. |
+| `Crest-Portable-0.4.0-x64.zip` | Complete self-contained app; extract every file before running. |
 | `SHA256SUMS.txt` | SHA-256 of the installer and ZIP. |
 | `release-manifest.json` | Version, tag, runtime, source/DLL identities, test scope and asset hashes. |
 | `release-gate-report.json` | Current native acceptance status and open gates. |
@@ -49,8 +49,8 @@ Commit all reviewed release source and documentation. Inspect the intended autho
 
 ```powershell
 git push origin main
-git tag -a v0.3.0 -m "Crest 0.3.0 release candidate"
-git push origin v0.3.0
+git tag -a v0.4.0 -m "Crest 0.4.0 release candidate"
+git push origin v0.4.0
 ```
 
 The tag must identify the reviewed release commit. The tag workflow builds the tagged source and creates an **unpublished prerelease draft**. It requires only its scoped `GITHUB_TOKEN` with `contents: write`; CI uses read permission. Repository policy must permit the pinned GitHub-owned actions and draft creation.
@@ -66,7 +66,7 @@ Public publication is a separate deliberate step. Keep this candidate a prerelea
 For a manual fallback with authenticated GitHub CLI:
 
 ```powershell
-gh release create v0.3.0 --repo tanmay-tiwari-20/Crest --verify-tag --draft --prerelease --latest=false --title "Crest 0.3.0 release candidate" --notes-file artifacts/release-0.3.0/release/release-notes.md artifacts/release-0.3.0/release/Crest-Setup-0.3.0-x64.exe artifacts/release-0.3.0/release/Crest-Portable-0.3.0-x64.zip artifacts/release-0.3.0/release/SHA256SUMS.txt artifacts/release-0.3.0/release/release-manifest.json artifacts/release-0.3.0/release/release-gate-report.json
+gh release create v0.4.0 --repo tanmay-tiwari-20/Crest --verify-tag --draft --prerelease --latest=false --title "Crest 0.4.0 release candidate" --notes-file artifacts/release-0.4.0/release/release-notes.md artifacts/release-0.4.0/release/Crest-Setup-0.4.0-x64.exe artifacts/release-0.4.0/release/Crest-Portable-0.4.0-x64.zip artifacts/release-0.4.0/release/SHA256SUMS.txt artifacts/release-0.4.0/release/release-manifest.json artifacts/release-0.4.0/release/release-gate-report.json
 ```
 
 The GitHub website's **Draft a new release** provides the same fallback: select the existing tag, attach those five files, paste the generated body and retain prerelease status. Authentication is required only for the chosen remote operation; local documentation and packaging can be completed independently.

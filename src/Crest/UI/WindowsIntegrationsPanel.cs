@@ -18,41 +18,49 @@ public sealed class WindowsIntegrationsPanel : StackPanel
     public WindowsIntegrationsPanel(WindowsIntegrationService service, WindowsIntegrationPreferences preferences, Action save, Action<string> openTool, bool settings = false)
     {
         _service = service; _preferences = preferences;
-        Children.Add(Design.Text("Windows integrations", 20, "Text", true));
+        Children.Add(PanelLayout.Heading("Windows integrations"));
         Children.Add(Design.Text("Windows decides which notifications and device capabilities are available. Each source is optional and independent.", 12, "Muted"));
-        AddToggle("Read Windows notification previews", () => preferences.NotificationsEnabled, value => preferences.NotificationsEnabled = value, save);
-        Children.Add(Design.Text("Reads app names and notification text only after Windows grants access. Previews stay in memory for up to 24 hours. Crest does not reply or remove Windows notifications. Some unpackaged Windows installations cannot grant this access.", 11, "Muted"));
-        AddToggle("Show notification titles and bodies", () => preferences.ShowNotificationDetails, value => preferences.ShowNotificationDetails = value, save);
-        if (settings) AddAction("Request Windows notification access", () => _ = service.RequestNotificationAccessAsync(), () => preferences.NotificationsEnabled);
-        else Children.Add(Design.Text("Request permission in Settings → Integrations → Windows.", 11, "Muted"));
-        AddAction("Refresh notification previews", () => _ = service.RefreshNotificationsAsync(), () => preferences.NotificationsEnabled);
-        Children.Add(Design.Button("Clear Crest notification previews", service.ClearNotifications));
-        AddToggle("Read paired accessory batteries", () => preferences.AccessoryBatteryEnabled, value => preferences.AccessoryBatteryEnabled = value, save);
-        Children.Add(Design.Text("Reads the standard Bluetooth LE battery service on connected paired devices when you refresh. Devices that expose no value stay unavailable. Pairing stays in Windows.", 11, "Muted"));
-        AddAction("Refresh accessory batteries", () => _ = service.RefreshAccessoriesAsync(), () => preferences.AccessoryBatteryEnabled);
-        Children.Add(Design.Button("Open Bluetooth settings", () => openTool("ms-settings:bluetooth")));
-        AddToggle("Enable Phone Link access", () => preferences.PhoneEnabled, value => preferences.PhoneEnabled = value, save);
-        Children.Add(Design.Text("Uses Microsoft's installed Phone Link app. Crest stores no phone account or messages. Supported calls, messages, and pairing depend on your phone and Phone Link.", 11, "Muted"));
-        AddAction("Check Phone Link support", () => _ = service.ProbePhoneAsync(), () => preferences.PhoneEnabled);
-        AddAction("Open Microsoft Phone Link", () => openTool("ms-phone:"), () => preferences.PhoneEnabled && service.PhoneAvailable);
+        var notifications = new StackPanel();
+        AddToggle(notifications, "Read Windows notification previews", () => preferences.NotificationsEnabled, value => preferences.NotificationsEnabled = value, save);
+        notifications.Children.Add(Design.Text("Reads app names and notification text only after Windows grants access. Previews stay in memory for up to 24 hours. Crest does not reply or remove Windows notifications. Some unpackaged Windows installations cannot grant this access.", 12, "Muted"));
+        AddToggle(notifications, "Show notification titles and bodies", () => preferences.ShowNotificationDetails, value => preferences.ShowNotificationDetails = value, save);
+        if (settings) AddAction(notifications, "Request Windows notification access", () => _ = service.RequestNotificationAccessAsync(), () => preferences.NotificationsEnabled);
+        else notifications.Children.Add(Design.Text("Request permission in Settings → Integrations → Windows.", 12, "Muted"));
+        AddAction(notifications, "Refresh notification previews", () => _ = service.RefreshNotificationsAsync(), () => preferences.NotificationsEnabled);
+        notifications.Children.Add(Design.Button("Clear Crest notification previews", service.ClearNotifications));
+        Children.Add(PanelLayout.Group("Notification previews", notifications));
+        var accessories = new StackPanel();
+        AddToggle(accessories, "Read paired accessory batteries", () => preferences.AccessoryBatteryEnabled, value => preferences.AccessoryBatteryEnabled = value, save);
+        accessories.Children.Add(Design.Text("Reads the standard Bluetooth LE battery service on connected paired devices when you refresh. Devices that expose no value stay unavailable. Pairing stays in Windows.", 12, "Muted"));
+        AddAction(accessories, "Refresh accessory batteries", () => _ = service.RefreshAccessoriesAsync(), () => preferences.AccessoryBatteryEnabled);
+        accessories.Children.Add(Design.Button("Open Bluetooth settings", () => openTool("ms-settings:bluetooth")));
+        Children.Add(PanelLayout.Group("Paired accessories", accessories));
+        var phone = new StackPanel();
+        AddToggle(phone, "Enable Phone Link access", () => preferences.PhoneEnabled, value => preferences.PhoneEnabled = value, save);
+        phone.Children.Add(Design.Text("Uses Microsoft's installed Phone Link app. Crest stores no phone account or messages. Supported calls, messages, and pairing depend on your phone and Phone Link.", 12, "Muted"));
+        AddAction(phone, "Check Phone Link support", () => _ = service.ProbePhoneAsync(), () => preferences.PhoneEnabled);
+        AddAction(phone, "Open Microsoft Phone Link", () => openTool("ms-phone:"), () => preferences.PhoneEnabled && service.PhoneAvailable);
+        Children.Add(PanelLayout.Group("Phone Link", phone));
         Children.Add(Design.Button("Disconnect Windows integrations", () => { preferences.NotificationsEnabled = false; preferences.AccessoryBatteryEnabled = false; preferences.PhoneEnabled = false; preferences.ShowNotificationDetails = false; save(); service.Clear(); }));
-        Children.Add(_live);
+        Children.Add(PanelLayout.Group("Source status", _live));
         Loaded += (_, _) => { service.Changed += OnChanged; Refresh(); };
         Unloaded += (_, _) => service.Changed -= OnChanged;
+        PanelLayout.Refine(this);
+        PanelLayout.Refine(notifications); PanelLayout.Refine(accessories); PanelLayout.Refine(phone);
         Refresh();
     }
-    private void AddToggle(string label, Func<bool> value, Action<bool> update, Action save)
+    private void AddToggle(Panel parent, string label, Func<bool> value, Action<bool> update, Action save)
     {
         var toggle = new CheckBox { Content = label, IsChecked = value(), Margin = new Thickness(0, 12, 0, 6) };
         AutomationProperties.SetName(toggle, label);
         toggle.Checked += (_, _) => { if (_refreshing) return; update(true); save(); Refresh(); };
         toggle.Unchecked += (_, _) => { if (_refreshing) return; update(false); save(); Refresh(); };
         _toggles.Add((toggle, value));
-        Children.Add(toggle);
+        parent.Children.Add(toggle);
     }
-    private void AddAction(string label, Action action, Func<bool> enabled)
+    private void AddAction(Panel parent, string label, Action action, Func<bool> enabled)
     {
-        var button = Design.Button(label, action); _actions.Add((button, enabled)); Children.Add(button);
+        var button = Design.Button(label, action); _actions.Add((button, enabled)); parent.Children.Add(button);
     }
     private void OnChanged(object? sender, EventArgs args)
     {
@@ -76,5 +84,6 @@ public sealed class WindowsIntegrationsPanel : StackPanel
         foreach (var item in _service.Accessories)
             _live.Children.Add(Design.Text(item.Name + " · " + (item.Percent is int value ? value + "%" : "Unavailable") + "\n" + item.Status + " · " + item.UpdatedUtc.ToLocalTime().ToString("g"), 12));
         _live.Children.Add(Design.Text(_service.PhoneStatus, 11, "Muted"));
+        PanelLayout.Refine(_live);
     }
 }

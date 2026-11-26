@@ -1,5 +1,7 @@
 # Crest 0.3.0 PRD implementation
 
+This implementation snapshot describes the first optional integration release. For the current Windows location, Outlook, and subscription-link support, see the [0.4.0 user guide](USER_GUIDE.md#optional-integrations).
+
 The 24 November 2026 implementation adds a supported initial scope for every remaining F19–F26 catalogue entry to the existing P0/P1/P2 application. The owner selected local and free defaults. All optional sources start disabled and use the existing island controller. None can reveal Crest on a background event.
 
 Open **Settings → Integrations** to configure a source. Enabling the first source adds **Optional integrations** to the island dock. **Settings → Modules** can hide that dock entry independently. Sources can be turned off individually; their panels provide clear or disconnect controls.
@@ -42,7 +44,7 @@ The ordinary installer and portable package are unpackaged desktop distributions
 
 Domain fixtures exercise permission defaults, bounded storage, weather cache/offline states, calendar recurrence and joins, download cancellation/no-overwrite/cleanup, AI loopback-only requests and late-result rejection, and actual Windows DPAPI round trips. WPF probes use isolated synthetic data and render the new panels in light and dark themes. The native clipboard listener suite can be omitted explicitly with `--skip-native-clipboard`; omitted checks are recorded, never counted as passed.
 
-The previous 0.2.1 owner acceptance and gate records remain historical for their recorded binary in [release-gates-0.2.1.json](release-gates-0.2.1.json). This changed source does not inherit those results. The current [release-gates.json](release-gates.json) holds 31 pending technical rows and no inherited owner approval. It has not been installed over the owner's paused instance, and no Windows permissions, pairing, model installation or trust settings were changed during implementation.
+The previous 0.2.1 owner acceptance and gate records remain historical for their recorded binary in [release-gates-0.2.1.json](release-gates-0.2.1.json). This changed source does not inherit those results. The [0.3.0 gate record](release-gates-0.3.0.json) holds 31 pending technical rows and no inherited owner approval. It has not been installed over the owner's paused instance, and no Windows permissions, pairing, model installation or trust settings were changed during implementation.
 
 Build with the pinned SDK as described in [BUILD.md](BUILD.md). Optional identity packaging uses [package-msix.ps1](../scripts/package-msix.ps1) and [AppxManifest.xml](../installer/AppxManifest.xml), requiring Windows SDK MakeAppx and an explicitly selected signing certificate for installable output. It does not create/trust a certificate or install the package. Normal self-contained portable and installer workflows remain available.
 

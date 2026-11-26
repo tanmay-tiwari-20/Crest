@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,18 +14,32 @@ namespace Crest.Features;
 
 public sealed class WeatherPreferences
 {
+    private const string WindowsLocationLabel = "Approximate Windows location";
     public bool Enabled { get; set; }
     public string City { get; set; } = "";
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
+    public bool UseWindowsLocation { get; set; }
     public static void Normalize(WeatherPreferences value)
     {
         value.City = (value.City ?? "").Trim();
         if (value.City.Length > 160) value.City = value.City[..160];
-        if (!value.Latitude.HasValue || !value.Longitude.HasValue || !double.IsFinite(value.Latitude.Value)
-            || !double.IsFinite(value.Longitude.Value) || value.Latitude.Value is < -90 or > 90 || value.Longitude.Value is < -180 or > 180)
+        if (!value.Latitude.HasValue || !value.Longitude.HasValue || !ValidCoordinates(value.Latitude.Value, value.Longitude.Value))
+        {
             value.Latitude = value.Longitude = null;
+            if (value.UseWindowsLocation) value.City = "";
+            value.UseWindowsLocation = false;
+        }
+        else if (value.UseWindowsLocation)
+        {
+            value.City = WindowsLocationLabel;
+            value.Latitude = ApproximateCoordinate(value.Latitude.Value);
+            value.Longitude = ApproximateCoordinate(value.Longitude.Value);
+        }
     }
+
+    internal static bool ValidCoordinates(double latitude, double longitude) => latitude is >= -90 and <= 90 && longitude is >= -180 and <= 180;
+    internal static double ApproximateCoordinate(double value) => Math.Round(value, 1, MidpointRounding.AwayFromZero);
 }
 
 public sealed record WeatherCity(string Name, double Latitude, double Longitude);
@@ -33,12 +48,13 @@ public sealed record WeatherSnapshot(string City, double Latitude, double Longit
     public string Conditions => WeatherService.Conditions(WeatherCode);
 }
 
-/// <summary>Explicit city-based Open-Meteo requests. No location access, account, or periodic hidden polling.</summary>
+/// <summary>Open-Meteo forecasts for a chosen city or an explicitly requested approximate Windows location.</summary>
 public sealed class WeatherService : IDisposable
 {
     private readonly SettingsStore _store;
     private readonly Func<WeatherPreferences> _preferences;
     private readonly Func<DateTimeOffset> _now;
+    private readonly Func<CancellationToken, Task<(double Latitude, double Longitude)?>>? _locate;
     private readonly HttpClient _client;
     private readonly bool _ownsClient;
     private readonly SemaphoreSlim _requests = new(1, 1);
@@ -47,19 +63,23 @@ public sealed class WeatherService : IDisposable
     private WeatherSnapshot? _current;
     private long _generation;
     private bool _disposed;
-    private bool _hasApplied, _appliedEnabled;
+    private bool _hasApplied, _appliedEnabled, _appliedWindowsLocation;
+    private CancellationTokenSource? _activeLocation;
     private string _appliedCity = "";
     private double? _appliedLatitude, _appliedLongitude;
-    private string _status = "Weather is off. Enable it to request weather for a city you choose.";
+    private string _status = "Weather is off.";
     public event EventHandler? Changed;
     public WeatherSnapshot? Current { get { lock (_gate) return _preferences().Enabled ? _current : null; } }
     public string Status { get { lock (_gate) return _status; } }
     public bool IsStale => Current is { } current && _now() - current.UpdatedUtc > TimeSpan.FromMinutes(30);
 
-    public WeatherService(SettingsStore store, Func<WeatherPreferences> preferences, HttpClient? client = null, Func<DateTimeOffset>? now = null)
+    public WeatherService(SettingsStore store, Func<WeatherPreferences> preferences, HttpClient? client = null, Func<DateTimeOffset>? now = null,
+        Func<CancellationToken, Task<(double Latitude, double Longitude)?>>? locate = null)
     {
         _store = store; _preferences = preferences; _now = now ?? (() => DateTimeOffset.UtcNow);
+        _locate = locate;
         _ownsClient = client == null; _client = client ?? new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+        WeatherPreferences.Normalize(preferences());
         var saved = store.ReadState<WeatherSnapshot>("weather.json");
         if (saved != null && ValidSnapshot(saved) && Matches(saved, preferences()) && saved.UpdatedUtc <= _now().AddMinutes(5)) _current = saved;
         ApplyPreferences();
@@ -67,18 +87,25 @@ public sealed class WeatherService : IDisposable
 
     public void ApplyPreferences()
     {
-        var options = _preferences(); WeatherPreferences.Normalize(options);
         lock (_gate)
         {
-            if (_hasApplied && _appliedEnabled == options.Enabled && _appliedCity == options.City && _appliedLatitude == options.Latitude && _appliedLongitude == options.Longitude) return;
-            _hasApplied = true; _appliedEnabled = options.Enabled; _appliedCity = options.City; _appliedLatitude = options.Latitude; _appliedLongitude = options.Longitude;
-            if (!options.Enabled || (_current != null && !Matches(_current, options))) { _current = null; _generation++; }
+            var options = _preferences(); WeatherPreferences.Normalize(options);
+            if (_disposed || _hasApplied && _appliedEnabled == options.Enabled && _appliedCity == options.City && _appliedLatitude == options.Latitude
+                && _appliedLongitude == options.Longitude && _appliedWindowsLocation == options.UseWindowsLocation) return;
+            _hasApplied = true; _appliedEnabled = options.Enabled; _appliedCity = options.City;
+            _appliedLatitude = options.Latitude; _appliedLongitude = options.Longitude; _appliedWindowsLocation = options.UseWindowsLocation;
+            _generation++;
+            CancelLocationRequest();
+            if (!options.Enabled || (_current != null && !Matches(_current, options)))
+            {
+                _current = null;
+                _store.DeleteState("weather.json");
+            }
             _status = !options.Enabled ? "Weather is off. No weather requests are made."
-                : !options.Latitude.HasValue ? "Choose a city to load weather."
+                : !options.Latitude.HasValue ? "Use Windows location or choose a city to load weather."
                 : _current == null ? "Weather has not been refreshed yet."
                 : "Last refreshed " + _current.UpdatedUtc.ToLocalTime().ToString("g");
         }
-        if (!options.Enabled) _store.DeleteState("weather.json");
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -111,25 +138,101 @@ public sealed class WeatherService : IDisposable
 
     public void SelectCity(WeatherCity city)
     {
-        var options = _preferences(); options.City = city.Name; options.Latitude = city.Latitude; options.Longitude = city.Longitude;
-        WeatherPreferences.Normalize(options); Clear(); ApplyPreferences();
+        lock (_gate)
+        {
+            if (_disposed) return;
+            CancelLocationRequest();
+            var options = _preferences();
+            options.UseWindowsLocation = false;
+            options.City = city.Name; options.Latitude = city.Latitude; options.Longitude = city.Longitude;
+        }
+        Clear();
+        ApplyPreferences();
+    }
+
+    /// <summary>Call from an explicit user action on the foreground UI thread.</summary>
+    public async Task<bool> UseWindowsLocationAsync(CancellationToken cancellationToken = default)
+    {
+        CancellationTokenSource request;
+        lock (_gate)
+        {
+            if (_disposed || _activeLocation != null || cancellationToken.IsCancellationRequested) return false;
+            _activeLocation = request = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
+            request.CancelAfter(TimeSpan.FromSeconds(25));
+            _status = "Requesting Windows location…";
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+
+        string? failure = null;
+        try
+        {
+            var coordinates = _locate == null ? null : await _locate(request.Token).WaitAsync(request.Token);
+            if (coordinates is not { } position) failure = "Windows location access is unavailable. Check Windows location settings or choose a city.";
+            else if (!WeatherPreferences.ValidCoordinates(position.Latitude, position.Longitude)) failure = "Windows could not determine a location. Try again or choose a city.";
+            else
+            {
+                lock (_gate)
+                {
+                    var options = _preferences();
+                    if (_activeLocation != request || request.IsCancellationRequested) return false;
+                    options.UseWindowsLocation = true;
+                    options.Latitude = WeatherPreferences.ApproximateCoordinate(position.Latitude);
+                    options.Longitude = WeatherPreferences.ApproximateCoordinate(position.Longitude);
+                    WeatherPreferences.Normalize(options);
+                    options.Enabled = true;
+                }
+            }
+        }
+        catch (Exception error) when (error is COMException or UnauthorizedAccessException or InvalidOperationException or NotSupportedException or OperationCanceledException or TimeoutException)
+        {
+            failure = cancellationToken.IsCancellationRequested ? "Windows location request cancelled."
+                : "Windows could not determine a location. Check Windows location settings or choose a city.";
+        }
+        finally
+        {
+            bool showFailure;
+            lock (_gate)
+            {
+                showFailure = _activeLocation == request && failure != null;
+                if (_activeLocation == request) _activeLocation = null;
+                if (showFailure) _status = failure!;
+            }
+            request.Dispose();
+            if (showFailure) Changed?.Invoke(this, EventArgs.Empty);
+        }
+
+        if (failure != null) return false;
+        ApplyPreferences();
+        await RefreshAsync(cancellationToken, force: true);
+        return true;
     }
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default, bool force = false)
     {
-        if (_disposed) return;
-        var options = _preferences(); WeatherPreferences.Normalize(options);
-        if (!options.Enabled || !options.Latitude.HasValue || !options.Longitude.HasValue) { ApplyPreferences(); return; }
-        string city = options.City; double latitude = options.Latitude.Value, longitude = options.Longitude.Value;
-        long generation; lock (_gate) generation = _generation;
+        ApplyPreferences();
+        string city;
+        double latitude, longitude;
+        long generation;
+        lock (_gate)
+        {
+            var options = _preferences();
+            if (_disposed || _activeLocation != null || !options.Enabled || !options.Latitude.HasValue || !options.Longitude.HasValue) return;
+            city = options.City; latitude = options.Latitude.Value; longitude = options.Longitude.Value;
+            generation = _generation;
+        }
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
         linked.CancelAfter(TimeSpan.FromSeconds(15));
         bool acquired = false;
         try
         {
             await _requests.WaitAsync(linked.Token).ConfigureAwait(false); acquired = true;
-            if (!force && Current is { } cached && Matches(cached, options) && _now() - cached.UpdatedUtc < TimeSpan.FromMinutes(30)) return;
-            SetStatus("Refreshing weather…");
+            lock (_gate)
+            {
+                if (_disposed || generation != _generation || _activeLocation != null || !_preferences().Enabled) return;
+                if (!force && _current is { } cached && Matches(cached, _preferences()) && _now() - cached.UpdatedUtc < TimeSpan.FromMinutes(30)) return;
+                _status = "Refreshing weather…";
+            }
+            Changed?.Invoke(this, EventArgs.Empty);
             string address = string.Format(CultureInfo.InvariantCulture, "https://api.open-meteo.com/v1/forecast?latitude={0:R}&longitude={1:R}&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto", latitude, longitude);
             using var json = await GetJsonAsync(address, linked.Token).ConfigureAwait(false);
             var current = json.RootElement.GetProperty("current");
@@ -137,7 +240,7 @@ public sealed class WeatherService : IDisposable
             if (!ValidSnapshot(snapshot)) throw new JsonException("Invalid weather values.");
             lock (_gate)
             {
-                if (_disposed || generation != _generation || !Matches(snapshot, _preferences()) || !_preferences().Enabled) return;
+                if (_disposed || generation != _generation || !Matches(snapshot, _preferences()) || linked.IsCancellationRequested) return;
                 _current = snapshot; _status = "Last refreshed " + snapshot.UpdatedUtc.ToLocalTime().ToString("g");
                 _store.WriteState("weather.json", snapshot);
             }
@@ -145,24 +248,47 @@ public sealed class WeatherService : IDisposable
         }
         catch (Exception error) when (error is HttpRequestException or IOException or JsonException or InvalidOperationException or FormatException or OperationCanceledException or KeyNotFoundException)
         {
-            var cached = Current;
-            if (!_disposed && generation == _generation && _preferences().Enabled) SetStatus(cached == null ? "Weather is unavailable. Check your connection and refresh." : "Refresh unavailable. Showing saved weather from " + cached.UpdatedUtc.ToLocalTime().ToString("g") + ".");
+            lock (_gate)
+            {
+                if (_disposed || generation != _generation || _activeLocation != null || !_preferences().Enabled) return;
+                _status = _current == null ? "Weather is unavailable. Check your connection and refresh."
+                    : "Refresh unavailable. Showing saved weather from " + _current.UpdatedUtc.ToLocalTime().ToString("g") + ".";
+            }
+            Changed?.Invoke(this, EventArgs.Empty);
         }
         finally { if (acquired) _requests.Release(); }
     }
 
     public void Clear()
     {
-        lock (_gate) { _current = null; _generation++; }
-        _store.DeleteState("weather.json");
-        SetStatus(_preferences().Enabled ? "Saved weather cleared. Refresh to request current weather." : "Weather is off. No weather requests are made.");
+        lock (_gate)
+        {
+            _current = null; _generation++;
+            CancelLocationRequest();
+            _store.DeleteState("weather.json");
+            _status = _preferences().Enabled ? "Saved weather cleared. Refresh to request current weather." : "Weather is off. No weather requests are made.";
+        }
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+    private void CancelLocationRequest()
+    {
+        _activeLocation?.Cancel();
+        _activeLocation = null;
     }
     public void Disconnect()
     {
-        var options = _preferences(); options.Enabled = false; options.City = ""; options.Latitude = options.Longitude = null;
+        lock (_gate)
+        {
+            CancelLocationRequest();
+            var options = _preferences();
+            options.Enabled = false;
+            options.City = "";
+            options.Latitude = options.Longitude = null;
+            options.UseWindowsLocation = false;
+        }
         Clear(); ApplyPreferences();
     }
-    public void Dispose() { lock (_gate) { if (_disposed) return; _disposed = true; } _lifetime.Cancel(); if (_ownsClient) _client.Dispose(); }
+    public void Dispose() { lock (_gate) { if (_disposed) return; _disposed = true; CancelLocationRequest(); } _lifetime.Cancel(); if (_ownsClient) _client.Dispose(); }
     private void SetStatus(string value) { lock (_gate) _status = value; Changed?.Invoke(this, EventArgs.Empty); }
     private static bool Matches(WeatherSnapshot value, WeatherPreferences options) => options.Enabled && options.City == value.City && options.Latitude == value.Latitude && options.Longitude == value.Longitude;
     private static bool ValidSnapshot(WeatherSnapshot value) => !string.IsNullOrWhiteSpace(value.City) && value.City.Length <= 160 && double.IsFinite(value.Latitude) && value.Latitude is >= -90 and <= 90 && double.IsFinite(value.Longitude) && value.Longitude is >= -180 and <= 180 && double.IsFinite(value.TemperatureCelsius) && value.TemperatureCelsius is >= -150 and <= 100 && double.IsFinite(value.WindKilometresPerHour) && value.WindKilometresPerHour is >= 0 and <= 500;

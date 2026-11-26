@@ -31,6 +31,57 @@ internal static class WeatherCalendarTests
                 Check(cities.Count == 1 && cities[0].Name == "Pune, Maharashtra, India" && handler.Requests.Single().Scheme == "https");
                 Check(handler.Requests[0].Query.Contains("Pune%20%26%20nearby"));
             });
+            Test("Windows location is requested explicitly and only rounded coordinates reach weather requests and saved settings", () =>
+            {
+                var settings = new AppSettings();
+                var store = new SettingsStore(Path.Combine(root, "windows-location"));
+                using var handler = new FixtureHandler(_ => WeatherJson);
+                using var client = new HttpClient(handler);
+                int requests = 0;
+                using var service = new WeatherService(store, () => settings.Weather, client, () => Now, _ =>
+                {
+                    requests++;
+                    return Task.FromResult<(double, double)?>((18.52347, -73.85691));
+                });
+                service.RefreshAsync().GetAwaiter().GetResult();
+                Check(requests == 0 && handler.Requests.Count == 0);
+                Check(service.UseWindowsLocationAsync().GetAwaiter().GetResult() && requests == 1);
+                var query = handler.Requests.Single().Query;
+                Check(query.Contains("latitude=18.5&longitude=-73.9&", StringComparison.Ordinal));
+                Check(service.Current?.Latitude == 18.5 && service.Current.Longitude == -73.9);
+                store.Save(settings);
+                var saved = store.Load().Weather;
+                Check(saved.Enabled && saved.UseWindowsLocation && saved.Latitude == 18.5 && saved.Longitude == -73.9);
+                service.RefreshAsync(force: true).GetAwaiter().GetResult();
+                Check(requests == 1 && handler.Requests.Count == 2);
+                service.SelectCity(new WeatherCity("Pune", 18.52, 73.85));
+                Check(!settings.Weather.UseWindowsLocation && settings.Weather.Latitude == 18.52 && settings.Weather.Longitude == 73.85 && service.Current == null);
+            });
+            Test("Unavailable Windows location preserves a chosen city and reports a fallback without enabling weather", () =>
+            {
+                var options = new WeatherPreferences { City = "Pune", Latitude = 18.52, Longitude = 73.85 };
+                using var handler = new FixtureHandler(_ => WeatherJson);
+                using var client = new HttpClient(handler);
+                using var service = new WeatherService(new SettingsStore(Path.Combine(root, "location-denied")), () => options,
+                    client, () => Now, _ => Task.FromResult<(double, double)?>(null));
+                Check(!service.UseWindowsLocationAsync().GetAwaiter().GetResult() && !options.Enabled);
+                Check(options.City == "Pune" && options.Latitude == 18.52 && !options.UseWindowsLocation && handler.Requests.Count == 0);
+                Check(service.Status.Contains("choose a city", StringComparison.OrdinalIgnoreCase));
+            });
+            Test("Disconnect cancels Windows location and prevents late coordinates from enabling weather", () =>
+            {
+                var options = new WeatherPreferences();
+                var position = new TaskCompletionSource<(double, double)?>(TaskCreationOptions.RunContinuationsAsynchronously);
+                using var handler = new FixtureHandler(_ => WeatherJson);
+                using var client = new HttpClient(handler);
+                using var service = new WeatherService(new SettingsStore(Path.Combine(root, "location-cancelled")), () => options,
+                    client, () => Now, _ => position.Task);
+                var request = service.UseWindowsLocationAsync();
+                service.Disconnect();
+                position.SetResult((18.52347, 73.85691));
+                Check(!request.GetAwaiter().GetResult() && !options.Enabled && !options.UseWindowsLocation && options.Latitude == null);
+                Check(handler.Requests.Count == 0);
+            });
             Test("Weather caches real values, bounds refreshes, restores cache and reports stale offline data", () =>
             {
                 var options = new WeatherPreferences { Enabled = true, City = "Pune", Latitude = 18.52, Longitude = 73.85 };
@@ -128,6 +179,94 @@ internal static class WeatherCalendarTests
                 preferences.ShowDetails = true; service.ApplyPreferences(); service.ApplyPreferences();
                 Check(service.Events.Count == 1 && service.Status == status && status.Contains("unsupported") && service.LastUpdatedUtc == updated && events == 0);
             });
+            Test("Legacy file calendar settings migrate and explicit Outlook selection reads the default source", () =>
+            {
+                string file = Path.Combine(root, "legacy-calendar.ics");
+                File.WriteAllText(file, Calendar("BEGIN:VEVENT\nDTSTART:20261125T100000Z\nSUMMARY:File event\nEND:VEVENT"));
+                string directory = Path.Combine(root, "legacy-calendar");
+                Directory.CreateDirectory(directory);
+                string pathJson = System.Text.Json.JsonSerializer.Serialize(file);
+                File.WriteAllText(Path.Combine(directory, "settings.json"), "{\"SchemaVersion\":1,\"Calendar\":{\"Enabled\":true,\"SourcePath\":" + pathJson + "}}");
+                var store = new SettingsStore(directory);
+                var preferences = store.Load().Calendar;
+                int outlookReads = 0;
+                using var service = new CalendarService(store, () => preferences, () => Now, readOutlook: (now, token) =>
+                {
+                    outlookReads++;
+                    throw new IOException("Unavailable Outlook fixture.");
+                });
+                Check(preferences.Source == CalendarSource.File && outlookReads == 0);
+                service.RefreshAsync().GetAwaiter().GetResult();
+                Check(service.Events.Single().Title == "File event");
+                service.Disconnect();
+                service.ConnectOutlookAsync().GetAwaiter().GetResult();
+                Check(preferences.Enabled && preferences.Source == CalendarSource.Outlook && preferences.SourcePath == "" && outlookReads == 1);
+                Check(service.Events.Count == 0 && service.Status.Contains("classic Outlook"));
+                service.RefreshAsync(force: false).GetAwaiter().GetResult();
+                Check(outlookReads == 1);
+            });
+            Test("Switching calendar sources cancels pending Outlook reads and rejects late events", () =>
+            {
+                string file = Path.Combine(root, "replacement.ics");
+                File.WriteAllText(file, Calendar("BEGIN:VEVENT\nDTSTART:20261125T100000Z\nSUMMARY:Replacement\nEND:VEVENT"));
+                var preferences = new CalendarPreferences();
+                var outlook = new TaskCompletionSource<CalendarParseResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var store = new SettingsStore(Path.Combine(root, "calendar-switch"));
+                using var service = new CalendarService(store, () => preferences, () => Now, readOutlook: (_, _) => outlook.Task);
+                var pending = service.ConnectOutlookAsync();
+                service.SelectSourceAsync(file).GetAwaiter().GetResult();
+                outlook.SetResult(CalendarService.Parse(Calendar("BEGIN:VEVENT\nDTSTART:20261125T100000Z\nSUMMARY:Late Outlook event\nEND:VEVENT"), Now));
+                pending.GetAwaiter().GetResult();
+                Check(preferences.Source == CalendarSource.File && service.Events.Single().Title == "Replacement");
+            });
+            if (OperatingSystem.IsWindows())
+            {
+                Test("A webcal link uses HTTPS and persists under Windows DPAPI without storing feed text or event details", () =>
+                {
+                    const string secret = "unique-subscription-secret";
+                    string url = "webcal://calendar.example.test/calendar.ics?token=" + secret;
+                    var store = new SettingsStore(Path.Combine(root, "protected-feed"));
+                    var settings = new AppSettings();
+                    using var handler = new FixtureHandler(_ => Calendar("BEGIN:VEVENT\nDTSTART:20261125T100000Z\nSUMMARY:Private feed event\nEND:VEVENT"));
+                    using var client = new HttpClient(handler);
+                    using var service = new CalendarService(store, () => settings.Calendar, () => Now, client);
+                    Check(service.ConnectFeedAsync(url).GetAwaiter().GetResult() == null);
+                    Check(settings.Calendar.Enabled && settings.Calendar.Source == CalendarSource.Feed && service.Events.Single().Title == "Private feed event");
+                    Check(handler.Requests.Single().AbsoluteUri == "https://calendar.example.test/calendar.ics?token=" + secret);
+                    store.Save(settings);
+                    string raw = File.ReadAllText(Path.Combine(store.DirectoryPath, "settings.json"));
+                    Check(!raw.Contains(secret) && !raw.Contains("calendar.example.test") && !raw.Contains("Private feed event"));
+                    settings = store.Load();
+                    using var reopened = new CalendarService(store, () => settings.Calendar, () => Now, client);
+                    reopened.RefreshAsync().GetAwaiter().GetResult();
+                    Check(reopened.Events.Count == 1 && handler.Requests.Count == 2);
+                    reopened.Disconnect();
+                    Check(settings.Calendar.ProtectedFeed == "" && reopened.Events.Count == 0);
+                });
+                Test("Calendar follows bounded HTTPS redirects and discards unsafe or oversized responses", () =>
+                {
+                    var preferences = new CalendarPreferences();
+                    var store = new SettingsStore(Path.Combine(root, "feed-limits"));
+                    int mode = 0;
+                    using var handler = new CalendarHttpHandler(uri => uri.AbsolutePath == "/calendar.ics"
+                        ? new HttpResponseMessage(HttpStatusCode.Redirect) { Headers = { Location = new Uri(mode == 1 ? "http://calendar.example.test/events" : "/events", UriKind.RelativeOrAbsolute) } }
+                        : new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(mode == 2 ? new string('x', CalendarService.MaxFileBytes + 1) : Calendar("BEGIN:VEVENT\nDTSTART:20261125T100000Z\nSUMMARY:Feed event\nEND:VEVENT")) });
+                    using var client = new HttpClient(handler);
+                    using var service = new CalendarService(store, () => preferences, () => Now, client);
+                    foreach (string address in new[] { "http://calendar.example.test/calendar.ics", "https://user:secret@calendar.example.test/calendar.ics", "https://calendar.example.test/calendar.ics#token", "file:///calendar.ics" })
+                        Check(service.ConnectFeedAsync(address).GetAwaiter().GetResult() != null);
+                    Check(handler.Requests == 0 && !preferences.Enabled);
+                    Check(service.ConnectFeedAsync("https://calendar.example.test/calendar.ics").GetAwaiter().GetResult() == null);
+                    Check(handler.Requests == 2 && service.Events.Single().Title == "Feed event");
+                    service.Clear();
+                    mode = 1;
+                    service.RefreshAsync().GetAwaiter().GetResult();
+                    Check(handler.Requests == 3 && service.Events.Count == 0 && service.Status.Contains("could not be read"));
+                    mode = 2;
+                    service.RefreshAsync().GetAwaiter().GetResult();
+                    Check(handler.Requests == 5 && service.Events.Count == 0);
+                });
+            }
             Test("Meeting joins allow named HTTPS providers and reject lookalike hosts, credentials and unrelated actions", () =>
             {
                 Check(MeetingLinks.Validate("https://teams.microsoft.com/l/meetup-join/example")?.Provider == "Microsoft Teams");
@@ -156,5 +295,15 @@ internal static class WeatherCalendarTests
     private sealed class DelayedHandler(Func<Task<string>> response) : HttpMessageHandler
     {
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => new(HttpStatusCode.OK) { Content = new StringContent(await response(), Encoding.UTF8, "application/json") };
+    }
+    private sealed class CalendarHttpHandler(Func<Uri, HttpResponseMessage> response) : HttpMessageHandler
+    {
+        public int Requests { get; private set; }
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            Requests++;
+            return Task.FromResult(response(request.RequestUri!));
+        }
     }
 }

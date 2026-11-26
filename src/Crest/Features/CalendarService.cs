@@ -3,8 +3,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Crest.Core;
@@ -15,113 +20,287 @@ public sealed class CalendarPreferences
 {
     public bool Enabled { get; set; }
     public string SourcePath { get; set; } = "";
+    public bool UseOutlook { get; set; }
+    public string ProtectedFeed { get; set; } = "";
     public bool ShowDetails { get; set; }
+    [JsonIgnore]
+    public CalendarSource Source => UseOutlook ? CalendarSource.Outlook : !string.IsNullOrEmpty(ProtectedFeed)
+        ? CalendarSource.Feed : !string.IsNullOrEmpty(SourcePath) ? CalendarSource.File : CalendarSource.None;
+
     public static void Normalize(CalendarPreferences value)
     {
         value.SourcePath ??= "";
+        value.ProtectedFeed ??= "";
+        if (value.ProtectedFeed.Length > 16384 || value.UseOutlook) value.ProtectedFeed = "";
         if (value.SourcePath.Length > 32768 || (!string.IsNullOrEmpty(value.SourcePath) && (!Path.IsPathFullyQualified(value.SourcePath) || !string.Equals(Path.GetExtension(value.SourcePath), ".ics", StringComparison.OrdinalIgnoreCase)))) value.SourcePath = "";
+        if (value.UseOutlook || value.ProtectedFeed.Length != 0) value.SourcePath = "";
     }
 }
 
+public enum CalendarSource { None, Outlook, Feed, File }
 public sealed record CalendarEvent(string Id, string Title, DateTimeOffset StartUtc, DateTimeOffset EndUtc, bool AllDay, string Location, string Description, string? MeetingUrl, string? MeetingProvider, DateOnly? CalendarDate = null);
 public sealed record CalendarParseResult(IReadOnlyList<CalendarEvent> Events, int UnsupportedEvents, int InvalidEvents);
 
-/// <summary>Read-only, user-selected iCalendar source. Event contents stay in memory and never leave the device.</summary>
+/// <summary>Reads one selected calendar. Event previews stay in memory.</summary>
 public sealed class CalendarService : IDisposable
 {
     public const int MaxEvents = 200;
     public const int MaxFileBytes = 2 * 1024 * 1024;
     public const int PreviewDays = 90;
+    private const int MaxFeedRedirects = 3;
+    private const int MaxFeedAddressLength = 4096;
     private readonly Func<CalendarPreferences> _preferences;
     private readonly Func<DateTimeOffset> _now;
+    private readonly Func<DateTimeOffset, CancellationToken, Task<CalendarParseResult>>? _readOutlook;
+    private readonly HttpClient _client;
+    private readonly bool _ownsClient;
     private readonly object _gate = new();
     private readonly CancellationTokenSource _lifetime = new();
     private CalendarEvent[] _events = Array.Empty<CalendarEvent>();
-    private string _loadedPath = "", _status = "Calendar is off. Choose a local .ics file to read events.";
+    private string _status = "Calendar is off.";
+    private DateTimeOffset? _lastUpdatedUtc;
+    private DateTimeOffset? _lastReadAttemptUtc;
+    private CancellationTokenSource? _activeRead;
     private bool _disposed;
-    private bool _hasApplied, _appliedEnabled;
-    private string _appliedPath = "";
-    private long _generation;
-    private long _refreshVersion;
+    private (bool Enabled, CalendarSource Source, string Value)? _applied;
     public event EventHandler? Changed;
     public IReadOnlyList<CalendarEvent> Events { get { lock (_gate) return _preferences().Enabled ? _events.Where(item => item.EndUtc > _now()).ToArray() : Array.Empty<CalendarEvent>(); } }
     public string Status { get { lock (_gate) return _status; } }
-    public DateTimeOffset? LastUpdatedUtc { get; private set; }
-    public CalendarService(SettingsStore store, Func<CalendarPreferences> preferences, Func<DateTimeOffset>? now = null)
+    public DateTimeOffset? LastUpdatedUtc { get { lock (_gate) return _lastUpdatedUtc; } }
+    public CalendarService(SettingsStore store, Func<CalendarPreferences> preferences, Func<DateTimeOffset>? now = null,
+        HttpClient? client = null, Func<DateTimeOffset, CancellationToken, Task<CalendarParseResult>>? readOutlook = null)
     {
-        _preferences = preferences; _now = now ?? (() => DateTimeOffset.UtcNow); ApplyPreferences();
+        _preferences = preferences;
+        _now = now ?? (() => DateTimeOffset.UtcNow);
+        _readOutlook = readOutlook;
+        _ownsClient = client == null;
+        _client = client ?? new HttpClient(new HttpClientHandler
+        {
+            AllowAutoRedirect = false,
+            UseCookies = false,
+            AutomaticDecompression = DecompressionMethods.All
+        });
+        ApplyPreferences();
     }
     public void ApplyPreferences()
     {
-        var options = _preferences(); CalendarPreferences.Normalize(options);
         lock (_gate)
         {
-            if (_hasApplied && _appliedEnabled == options.Enabled && _appliedPath == options.SourcePath) return;
-            _hasApplied = true; _appliedEnabled = options.Enabled; _appliedPath = options.SourcePath;
-            if (!options.Enabled || _loadedPath != options.SourcePath) { _events = Array.Empty<CalendarEvent>(); LastUpdatedUtc = null; _generation++; }
-            _status = !options.Enabled ? "Calendar is off. Event contents are not read."
-                : string.IsNullOrEmpty(options.SourcePath) ? "Choose a local .ics calendar file."
-                : LastUpdatedUtc == null ? "Refresh the selected calendar to read upcoming events." : "Last read " + LastUpdatedUtc.Value.ToLocalTime().ToString("g");
+            var selection = Selection();
+            if (_disposed || _applied == selection) return;
+            _applied = selection;
+            ClearPreviews();
+            _status = !selection.Enabled ? "Calendar is off."
+                : selection.Source == CalendarSource.None ? "Choose a source to see upcoming events."
+                : "Ready to read upcoming events.";
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
+
     public async Task SelectSourceAsync(string path, CancellationToken cancellationToken = default)
     {
-        var options = _preferences(); options.SourcePath = path; CalendarPreferences.Normalize(options); Clear(); ApplyPreferences(); await RefreshAsync(cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
+        ConfigureSource(CalendarSource.File, path);
+        await RefreshAsync(cancellationToken).ConfigureAwait(false);
     }
-    public async Task RefreshAsync(CancellationToken cancellationToken = default)
+
+    public async Task ConnectOutlookAsync(CancellationToken cancellationToken = default)
     {
-        if (_disposed) return;
-        var options = _preferences(); CalendarPreferences.Normalize(options);
-        if (!options.Enabled || string.IsNullOrEmpty(options.SourcePath)) { ApplyPreferences(); return; }
-        string path = options.SourcePath; long generation, refreshVersion;
-        lock (_gate) { generation = _generation; refreshVersion = ++_refreshVersion; _status = "Reading local calendar…"; }
+        cancellationToken.ThrowIfCancellationRequested();
+        ConfigureSource(CalendarSource.Outlook, "");
+        await RefreshAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task<string?> ConnectFeedAsync(string value, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var uri = ParseFeedAddress(value);
+        if (uri == null) return "Enter the HTTPS or webcal subscription link from your calendar provider.";
+
+        var plaintext = Encoding.UTF8.GetBytes(uri.AbsoluteUri);
+        string protectedFeed;
+        try { protectedFeed = Convert.ToBase64String(WindowsUserDataProtection.Protect(plaintext)); }
+        catch (Exception error) when (error is CryptographicException or PlatformNotSupportedException)
+        { return "Windows could not protect this calendar link. Try Outlook or a local .ics file."; }
+        finally { CryptographicOperations.ZeroMemory(plaintext); }
+
+        ConfigureSource(CalendarSource.Feed, protectedFeed);
+        await RefreshAsync(cancellationToken).ConfigureAwait(false);
+        return null;
+    }
+
+    private void ConfigureSource(CalendarSource source, string value)
+    {
+        lock (_gate)
+        {
+            if (_disposed) return;
+            var options = _preferences();
+            options.Enabled = source != CalendarSource.None;
+            options.UseOutlook = source == CalendarSource.Outlook;
+            options.SourcePath = source == CalendarSource.File ? value : "";
+            options.ProtectedFeed = source == CalendarSource.Feed ? value : "";
+        }
+        ApplyPreferences();
+    }
+
+    private (bool Enabled, CalendarSource Source, string Value) Selection()
+    {
+        var options = _preferences();
+        CalendarPreferences.Normalize(options);
+        return (options.Enabled, options.Source, options.Source == CalendarSource.Feed ? options.ProtectedFeed : options.SourcePath);
+    }
+
+    public async Task RefreshAsync(CancellationToken cancellationToken = default, bool force = true)
+    {
+        ApplyPreferences();
+        (bool Enabled, CalendarSource Source, string Value) selection;
+        CancellationTokenSource linked;
+        lock (_gate)
+        {
+            selection = Selection();
+            if (_disposed || !selection.Enabled || selection.Source == CalendarSource.None || _activeRead != null) return;
+            if (!force && selection.Source != CalendarSource.File && _lastReadAttemptUtc is { } attempted && _now() - attempted < TimeSpan.FromMinutes(5)) return;
+            _activeRead = linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
+            linked.CancelAfter(TimeSpan.FromSeconds(15));
+            _lastReadAttemptUtc = _now();
+            _status = "Reading calendar…";
+        }
         Changed?.Invoke(this, EventArgs.Empty);
-        using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetime.Token);
         try
         {
-            var parsed = await Task.Run(async () =>
+            DateTimeOffset now = _now();
+            var parsed = selection.Source switch
             {
-                using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan);
-                if (stream.Length > MaxFileBytes) throw new IOException("Calendar exceeds size limit.");
-                using var output = new MemoryStream(); var buffer = new byte[8192]; int read;
-                while ((read = await stream.ReadAsync(buffer, linked.Token).ConfigureAwait(false)) > 0)
-                {
-                    if (output.Length + read > MaxFileBytes) throw new IOException("Calendar exceeds size limit.");
-                    output.Write(buffer, 0, read);
-                }
-                return Parse(Encoding.UTF8.GetString(output.ToArray()), _now(), linked.Token);
-            }, linked.Token).ConfigureAwait(false);
+                CalendarSource.Outlook when _readOutlook != null => await _readOutlook(now, linked.Token).WaitAsync(linked.Token).ConfigureAwait(false),
+                CalendarSource.Feed => await ReadFeedAsync(selection.Value, now, linked.Token).ConfigureAwait(false),
+                CalendarSource.File => await ReadFileAsync(selection.Value, now, linked.Token).WaitAsync(linked.Token).ConfigureAwait(false),
+                _ => throw new IOException("Outlook is unavailable.")
+            };
+            linked.Token.ThrowIfCancellationRequested();
             lock (_gate)
             {
-                if (_disposed || generation != _generation || refreshVersion != _refreshVersion || !_preferences().Enabled || path != _preferences().SourcePath) return;
-                _events = parsed.Events.ToArray(); _loadedPath = path; LastUpdatedUtc = _now();
-                _status = $"{_events.Length} upcoming events · last read {LastUpdatedUtc.Value.ToLocalTime():g}.";
+                if (_activeRead != linked || selection != Selection() || linked.IsCancellationRequested) return;
+                _events = parsed.Events.ToArray();
+                _lastUpdatedUtc = _now();
+                _status = $"{_events.Length} upcoming events · last read {_lastUpdatedUtc.Value.ToLocalTime():g}.";
                 if (parsed.UnsupportedEvents > 0) _status += $" {parsed.UnsupportedEvents} event(s) use unsupported recurrence or timezone rules and were skipped.";
                 if (parsed.InvalidEvents > 0) _status += $" {parsed.InvalidEvents} invalid event(s) were skipped.";
             }
         }
-        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or OperationCanceledException)
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException
+            or OperationCanceledException or HttpRequestException or FormatException or CryptographicException or ObjectDisposedException)
         {
             lock (_gate)
             {
-                if (_disposed || generation != _generation || refreshVersion != _refreshVersion) return;
-                _status = _events.Length == 0 ? "Calendar could not be read. Select an available .ics file of at most 2 MiB."
-                    : "Calendar refresh unavailable. Showing events last read " + LastUpdatedUtc?.ToLocalTime().ToString("g") + ".";
+                if (_activeRead != linked || selection != Selection()) return;
+                _status = _lastUpdatedUtc is { } updated ? $"Calendar refresh unavailable. Showing events last read {updated.ToLocalTime():g}."
+                    : selection.Source switch
+                    {
+                        CalendarSource.Outlook => "Outlook could not be read. Open classic Outlook with a signed-in profile and refresh, or choose another source.",
+                        CalendarSource.Feed => "Calendar link could not be read. Check your connection and use a direct subscription link of at most 2 MiB.",
+                        _ => "Calendar could not be read. Select an available .ics file of at most 2 MiB."
+                    };
             }
         }
-        Changed?.Invoke(this, EventArgs.Empty);
+        finally
+        {
+            bool updated;
+            lock (_gate)
+            {
+                updated = _activeRead == linked;
+                if (updated) _activeRead = null;
+            }
+            linked.Dispose();
+            if (updated) Changed?.Invoke(this, EventArgs.Empty);
+        }
     }
+
+    private static Task<CalendarParseResult> ReadFileAsync(string path, DateTimeOffset now, CancellationToken token) => Task.Run(async () =>
+    {
+        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, FileOptions.Asynchronous | FileOptions.SequentialScan);
+        if (stream.Length > MaxFileBytes) throw new IOException("Calendar exceeds size limit.");
+        return await ReadCalendarAsync(stream, now, token).ConfigureAwait(false);
+    }, token);
+
+    private async Task<CalendarParseResult> ReadFeedAsync(string protectedFeed, DateTimeOffset now, CancellationToken token)
+    {
+        byte[] plaintext = WindowsUserDataProtection.Unprotect(Convert.FromBase64String(protectedFeed));
+        Uri? uri;
+        try { uri = ParseFeedAddress(Encoding.UTF8.GetString(plaintext)); }
+        finally { CryptographicOperations.ZeroMemory(plaintext); }
+        if (uri == null) throw new IOException("Invalid calendar feed address.");
+
+        for (int redirects = 0; ; redirects++)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/calendar"));
+            request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*", 0.5));
+            using var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token).ConfigureAwait(false);
+            if (response.StatusCode is HttpStatusCode.MovedPermanently or HttpStatusCode.Redirect or HttpStatusCode.SeeOther
+                or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect)
+            {
+                if (redirects >= MaxFeedRedirects || response.Headers.Location is not { } location
+                    || !Uri.TryCreate(uri, location, out var next) || !IsHttpsFeedAddress(next))
+                    throw new IOException("Unsupported calendar redirect.");
+                uri = next;
+                continue;
+            }
+
+            response.EnsureSuccessStatusCode();
+            if (response.Content.Headers.ContentLength > MaxFileBytes) throw new IOException("Calendar exceeds size limit.");
+            using var stream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
+            return await ReadCalendarAsync(stream, now, token).ConfigureAwait(false);
+        }
+    }
+
+    private static async Task<CalendarParseResult> ReadCalendarAsync(Stream stream, DateTimeOffset now, CancellationToken token)
+    {
+        using var output = new MemoryStream();
+        var buffer = new byte[8192];
+        int read;
+        while ((read = await stream.ReadAsync(buffer, token).ConfigureAwait(false)) > 0)
+        {
+            if (output.Length + read > MaxFileBytes) throw new IOException("Calendar exceeds size limit.");
+            output.Write(buffer, 0, read);
+        }
+        return Parse(Encoding.UTF8.GetString(output.GetBuffer(), 0, (int)output.Length), now, token);
+    }
+
+    private static Uri? ParseFeedAddress(string value)
+    {
+        value = value.Trim();
+        if (value.Length is < 1 or > MaxFeedAddressLength || value.Any(char.IsControl)) return null;
+        if (value.StartsWith("webcal:", StringComparison.OrdinalIgnoreCase)) value = "https:" + value[7..];
+        return Uri.TryCreate(value, UriKind.Absolute, out var uri) && IsHttpsFeedAddress(uri) ? uri : null;
+    }
+
+    private static bool IsHttpsFeedAddress(Uri uri) => uri.IsAbsoluteUri && uri.Scheme == Uri.UriSchemeHttps
+        && uri.Host.Length != 0 && uri.UserInfo.Length == 0 && uri.Fragment.Length == 0 && uri.AbsoluteUri.Length <= MaxFeedAddressLength;
+
     public void Clear()
     {
-        lock (_gate) { _events = Array.Empty<CalendarEvent>(); LastUpdatedUtc = null; _loadedPath = ""; _generation++; _status = "Calendar event previews cleared."; }
+        lock (_gate) { ClearPreviews(); _status = "Calendar event previews cleared."; }
         Changed?.Invoke(this, EventArgs.Empty);
+    }
+    private void ClearPreviews()
+    {
+        _events = Array.Empty<CalendarEvent>();
+        _lastUpdatedUtc = null;
+        _lastReadAttemptUtc = null;
+        _activeRead?.Cancel();
+        _activeRead = null;
     }
     public void Disconnect()
     {
-        var options = _preferences(); options.Enabled = false; options.SourcePath = ""; Clear(); ApplyPreferences();
+        ConfigureSource(CalendarSource.None, "");
     }
-    public void Dispose() { lock (_gate) { if (_disposed) return; _disposed = true; _events = Array.Empty<CalendarEvent>(); _generation++; } _lifetime.Cancel(); }
+    public void Dispose()
+    {
+        lock (_gate) { if (_disposed) return; _disposed = true; ClearPreviews(); }
+        _lifetime.Cancel();
+        _lifetime.Dispose();
+        if (_ownsClient) _client.Dispose();
+    }
 
     public static CalendarParseResult Parse(string text, DateTimeOffset nowUtc, CancellationToken cancellationToken = default)
     {

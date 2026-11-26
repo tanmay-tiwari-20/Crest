@@ -35,12 +35,13 @@ public sealed partial class LocalHub
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
-    public void PauseFocus()
+    public void PauseFocus() => PauseFocus(null);
+    public void PauseFocus(string? expectedId)
     {
         FocusSnapshot? completed = null;
         lock (_gate)
         {
-            if (_disposed || _focus is not { Phase: TimerPhase.Running }) return;
+            if (_disposed || _focus is not { Phase: TimerPhase.Running } || expectedId != null && _focus.Id != expectedId) return;
             _focus.RemainingSeconds = FocusRemaining();
             _focus.Phase = _focus.RemainingSeconds > 0 ? TimerPhase.Paused : TimerPhase.Completed;
             _focus.DeadlineUtc = null;
@@ -50,11 +51,12 @@ public sealed partial class LocalHub
         Changed?.Invoke(this, EventArgs.Empty);
         NotifyFocusAndReminders(completed, Array.Empty<ReminderSnapshot>());
     }
-    public void ResumeFocus()
+    public void ResumeFocus() => ResumeFocus(null);
+    public void ResumeFocus(string? expectedId)
     {
         lock (_gate)
         {
-            if (_disposed || _focus is not { Phase: TimerPhase.Paused }) return;
+            if (_disposed || _focus is not { Phase: TimerPhase.Paused } || expectedId != null && _focus.Id != expectedId) return;
             _focus.Phase = TimerPhase.Running;
             _focusDeadline = MonotonicDeadline(_focus.RemainingSeconds);
             _focus.DeadlineUtc = UtcDeadline(_focus.RemainingSeconds);
@@ -62,11 +64,12 @@ public sealed partial class LocalHub
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
-    public void NextFocusPhase()
+    public void NextFocusPhase() => NextFocusPhase(null);
+    public void NextFocusPhase(string? expectedId)
     {
         lock (_gate)
         {
-            if (_disposed || _focus is not { Phase: TimerPhase.Completed } || _focus.CompletedRounds >= _focus.TargetRounds) return;
+            if (_disposed || _focus is not { Phase: TimerPhase.Completed } || _focus.CompletedRounds >= _focus.TargetRounds || expectedId != null && _focus.Id != expectedId) return;
             _focus.Stage = _focus.Stage == FocusStage.Work ? FocusStage.Break : FocusStage.Work;
             _focus.RemainingSeconds = _focus.Stage == FocusStage.Work ? _focus.WorkSeconds : _focus.BreakSeconds;
             _focus.Phase = TimerPhase.Running;
@@ -76,9 +79,10 @@ public sealed partial class LocalHub
         }
         Changed?.Invoke(this, EventArgs.Empty);
     }
-    public void DismissFocus()
+    public void DismissFocus() => DismissFocus(null);
+    public void DismissFocus(string? expectedId)
     {
-        lock (_gate) { if (_disposed) return; _focus = null; PersistFocus(); UpdateTicker(); }
+        lock (_gate) { if (_disposed || expectedId != null && _focus?.Id != expectedId) return; _focus = null; PersistFocus(); UpdateTicker(); }
         Changed?.Invoke(this, EventArgs.Empty);
     }
     public string AddReminder(string text, DateTimeOffset dueUtc)

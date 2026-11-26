@@ -2,9 +2,19 @@ namespace Crest.UI;
 
 public sealed partial class SettingsWindow
 {
+    private IntegrationsPanel? _integrations;
+
     private void Integrations()
     {
-        Heading("Connect only what you choose.", "Optional sources start off. Review each source, enable it explicitly, and disconnect or clear its data whenever you want.");
-        _page.Children.Add(new IntegrationsPanel(_app, message => _message.Text = message, true));
+        Heading("Integrations", "Connect weather, calendars, and other optional services. Choose what Crest can access for each source.");
+        _integrations = new IntegrationsPanel(_app, SetStatus, true);
+        _page.Children.Add(_integrations);
+    }
+
+    public void ShowIntegrationSource(string source)
+    {
+        ShowSection("Integrations");
+        _integrations?.ShowSection(source);
+        _pageScroll.ScrollToTop();
     }
 }

@@ -27,6 +27,7 @@ public sealed class ClipboardHistoryPanel : StackPanel
         _copy = copy;
         _message = message;
         _captureStatus = captureStatus;
+        _status.Margin = new Thickness(0, 0, 0, 12);
         Children.Add(_status);
         Children.Add(Design.Text("Search saved text", 10, "Muted"));
         AutomationProperties.SetName(_search, "Search clipboard history");
@@ -44,6 +45,7 @@ public sealed class ClipboardHistoryPanel : StackPanel
         actions.Children.Add(_clear);
         Children.Add(actions);
         Children.Add(_rows);
+        PanelLayout.Refine(this);
         Refresh();
     }
 
@@ -109,7 +111,9 @@ public sealed class ClipboardHistoryPanel : StackPanel
             bottom.Children.Add(pin);
             bottom.Children.Add(remove);
             content.Children.Add(bottom);
-            _rows.Children.Add(content);
+            var card = Design.Card(content, new Thickness(12));
+            card.Margin = new Thickness(0, 0, 0, 8);
+            _rows.Children.Add(card);
         }
     }
 

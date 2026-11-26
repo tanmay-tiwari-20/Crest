@@ -25,9 +25,10 @@ public sealed class P2SystemPanel : StackPanel
     {
         _hub = hub; _showMessage = showMessage;
         Margin = new Thickness(0, 14, 0, 0);
-        Children.Add(Design.Text("Audio output", 14, "Text", true));
+        var audioGroup = new StackPanel();
         AutomationProperties.SetName(_outputs, "Select an audio output");
-        Children.Add(_outputs);
+        _outputs.Margin = new Thickness(0, 0, 0, 8);
+        audioGroup.Children.Add(_outputs);
         _switch = Design.Button("Switch audio output", async () =>
         {
             if (_switching || _outputs.SelectedValue is not string id) return;
@@ -40,24 +41,26 @@ public sealed class P2SystemPanel : StackPanel
             catch { _showMessage("Windows could not switch the output. Open Windows sound settings."); }
             finally { _switching = false; _outputSignature = ""; Refresh(); }
         });
-        Children.Add(_switch);
-        Children.Add(_audio);
-        Children.Add(Design.Button("Windows sound settings", () => openSettings("ms-settings:sound")));
-        Children.Add(Design.Button("Refresh audio outputs", async () =>
+        audioGroup.Children.Add(_switch);
+        audioGroup.Children.Add(_audio);
+        audioGroup.Children.Add(Design.Button("Windows sound settings", () => openSettings("ms-settings:sound")));
+        audioGroup.Children.Add(Design.Button("Refresh audio outputs", async () =>
         {
             await _hub.RefreshAudioOutputsAsync(); _outputSignature = ""; Refresh();
         }));
-        var statistics = new StackPanel { Margin = new Thickness(0, 14, 0, 0) };
-        statistics.Children.Add(Design.Text("System activity", 14, "Text", true));
+        Children.Add(PanelLayout.Group("Audio output", audioGroup));
+        var statistics = new StackPanel();
         statistics.Children.Add(_cpu); statistics.Children.Add(_memory); statistics.Children.Add(_network);
         statistics.Children.Add(_statisticsStatus);
-        Children.Add(statistics);
-        var connectivity = new StackPanel { Margin = new Thickness(0, 14, 0, 0) };
-        connectivity.Children.Add(Design.Text("Connectivity", 14, "Text", true));
+        Children.Add(PanelLayout.Group("System activity", statistics));
+        var connectivity = new StackPanel();
         connectivity.Children.Add(_wifi); connectivity.Children.Add(_bluetooth);
         connectivity.Children.Add(Design.Button("Windows Wi-Fi settings", () => openSettings("ms-settings:network-wifi")));
         connectivity.Children.Add(Design.Button("Windows Bluetooth settings", () => openSettings("ms-settings:bluetooth")));
-        Children.Add(connectivity);
+        Children.Add(PanelLayout.Group("Connectivity", connectivity));
+        PanelLayout.Refine(audioGroup);
+        PanelLayout.Refine(statistics);
+        PanelLayout.Refine(connectivity);
         Refresh();
     }
     public void Refresh()

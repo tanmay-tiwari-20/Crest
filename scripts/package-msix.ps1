@@ -43,7 +43,7 @@ if ([string]::IsNullOrWhiteSpace($Publisher)) { throw 'Publisher must be the exa
 if ([string]::IsNullOrWhiteSpace($Version)) {
     $Version = [Diagnostics.FileVersionInfo]::GetVersionInfo((Join-Path $appRoot 'Crest.dll')).FileVersion
 }
-if ($Version -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw 'Version must have four numeric parts, such as 0.3.0.0.' }
+if ($Version -notmatch '^\d+\.\d+\.\d+\.\d+$') { throw 'Version must have four numeric parts, such as 0.4.0.0.' }
 $parts = $Version.Split('.') | ForEach-Object { [long]$_ }
 if (@($parts | Where-Object { $_ -lt 0 -or $_ -gt 65535 }).Count -gt 0 -or $parts[0] -eq 0 -and $parts[1] -eq 0 -and $parts[2] -eq 0 -and $parts[3] -eq 0) {
     throw 'MSIX version components must be between 0 and 65535, and the version must be nonzero.'

@@ -34,35 +34,35 @@ internal static class CompactLocalP2Checks
             string timerId = local.AddTimer(TimeSpan.FromMinutes(10), "Independent timer");
             local.StartFocusSession(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1), 2, "Compact focus");
             await Reveal();
-            check(labels["compactTitle"].Text == "Compact focus" && AutomationProperties.GetName(action) == "Pause Compact focus", "Compact focus metadata and accessible action identify the displayed session");
+            check(labels["compactTitle"].Text == "Compact focus" && AutomationProperties.GetName(action) == "Pause focus session" && IslandProbe.Selected(island)?.EntityId == local.Focus.Id, "Compact focus metadata and accessible action identify the displayed session");
             await Activate(action, island);
-            bool paused = local.Focus.Phase == TimerPhase.Paused && local.Timers.Single(x => x.Id == timerId).Phase == TimerPhase.Running && AutomationProperties.GetName(action) == "Resume Compact focus";
+            bool paused = local.Focus.Phase == TimerPhase.Paused && local.Timers.Single(x => x.Id == timerId).Phase == TimerPhase.Running && AutomationProperties.GetName(action) == "Resume focus session";
             await Activate(action, island);
             check(paused && local.Focus.Phase == TimerPhase.Running && local.Timers.Single(x => x.Id == timerId).Phase == TimerPhase.Running, "Compact focus pause and resume leave the independent countdown running");
             clock.Advance(3); local.Tick(); await Reveal();
             action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); island.UpdateLayout();
-            check(labels["compactTitle"].Text == "Work complete" && AutomationProperties.GetName(action) == "Open completed focus session" && Field<string>(island, "_module") == "Timer" && VisibleButton(island, "Start break") && local.Timers.Single(x => x.Id == timerId).Phase == TimerPhase.Running, "Compact completed focus opens the focus continuation controls without changing another timer");
+            check(labels["compactTitle"].Text == "Compact focus" && IslandProbe.Selected(island)?.Phase == "Completed" && AutomationProperties.GetName(action) == "Open completed focus session" && Field<string>(island, "_module") == "Timer" && VisibleButton(island, "Start break") && local.Timers.Single(x => x.Id == timerId).Phase == TimerPhase.Running, "Compact completed focus opens the focus continuation controls without changing another timer");
             local.AddReminder("Compact reminder", clock.UtcNow);
             await Reveal(); action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); island.UpdateLayout();
-            check(labels["compactTitle"].Text == "Reminder due" && AutomationProperties.GetName(action) == "Open due reminders" && VisibleButton(island, "Dismiss reminder Compact reminder") && VisibleButton(island, "Snooze Compact reminder for 5 minutes"), "Compact due reminder action opens snooze and dismissal controls");
+            check(labels["compactTitle"].Text == "Reminder" && AutomationProperties.GetName(action) == "Open due reminders" && VisibleButton(island, "Dismiss reminder Compact reminder") && VisibleButton(island, "Snooze Compact reminder for 5 minutes"), "Compact due reminder action opens snooze and dismissal controls");
             await Reveal(); details.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); island.UpdateLayout();
-            check(VisibleButton(island, "Dismiss reminder Compact reminder"), "Compact reminder details select the same reminder controls as its action");
+            check(IslandProbe.Presentation(island) == "Activity" && Field<ActivityDeck>(island, "_expanded").CurrentActivity?.EntityId == local.Reminders.Single().Id && VisibleButton(island, "Dismiss"), "Compact reminder details select the same reminder controls as its action");
             string completedTimerId = local.AddTimer(TimeSpan.FromSeconds(1), "Completed alongside reminder");
             clock.Advance(1); local.Tick(); local.SelectTimer(timerId);
             bool ConcurrentActivitiesRetained() => local.Timers.Single(x => x.Id == completedTimerId).Phase == TimerPhase.Completed
                 && local.Timers.Single(x => x.Id == timerId).Phase == TimerPhase.Running
                 && local.Focus.Phase == TimerPhase.Completed && local.Reminders.Single().Phase == ReminderPhase.Due;
             await Reveal(); action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); island.UpdateLayout();
-            check(labels["compactTitle"].Text == "Timer complete" && AutomationProperties.GetName(action) == "Open completed timers"
+            check(labels["compactTitle"].Text == "Completed alongside reminder" && AutomationProperties.GetName(action) == "Open completed timers"
                 && VisibleButton(island, "Acknowledge Completed alongside reminder") && !VisibleButton(island, "Dismiss reminder Compact reminder")
                 && !VisibleButton(island, "Start break") && ConcurrentActivitiesRetained(),
                 "Compact completed-timer action opens acknowledgement when a due reminder, completed focus and running timer coexist");
             await Reveal(); details.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); island.UpdateLayout();
-            check(labels["compactTitle"].Text == "Timer complete" && VisibleButton(island, "Acknowledge Completed alongside reminder")
+            check(labels["compactTitle"].Text == "Completed alongside reminder" && VisibleButton(island, "Acknowledge Completed alongside reminder")
                 && !VisibleButton(island, "Dismiss reminder Compact reminder") && !VisibleButton(island, "Start break") && ConcurrentActivitiesRetained(),
                 "Compact completed-timer details select the displayed countdown instead of a concurrent reminder or focus session");
             settings.EnabledModules.Clear(); await Reveal();
-            check(labels["compactTitle"].Text == "crest" && labels["compactDetail"].Text == "Your desktop, in reach" && !action.IsVisible && local.Focus.Phase == TimerPhase.Completed && local.Reminders.Single().Phase == ReminderPhase.Due, "Disabled Timer module hides focus and reminder metadata and actions while retaining local state");
+            check(labels["compactTitle"].Text == "crest" && labels["compactDetail"].Text == "Idle" && !action.IsVisible && local.Focus.Phase == TimerPhase.Completed && local.Reminders.Single().Phase == ReminderPhase.Due, "Disabled Timer module hides focus and reminder metadata and actions while retaining local state");
         }
         finally
         {

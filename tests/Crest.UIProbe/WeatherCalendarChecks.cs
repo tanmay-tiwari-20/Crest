@@ -21,9 +21,14 @@ internal static class WeatherCalendarChecks
         Directory.CreateDirectory(directory); Directory.CreateDirectory(outputDirectory);
         var originalPreferences = app.EffectivePreferences;
         var store = new SettingsStore(Path.Combine(directory, "state"));
-        var weatherPreferences = new WeatherPreferences(); var calendarPreferences = new CalendarPreferences { Enabled = true };
+        var weatherPreferences = new WeatherPreferences(); var calendarPreferences = new CalendarPreferences();
+        int locationRequests = 0;
         using var handler = new ProviderFixture(); using var client = new HttpClient(handler);
-        using var weather = new WeatherService(store, () => weatherPreferences, client);
+        using var weather = new WeatherService(store, () => weatherPreferences, client, locate: _ =>
+        {
+            locationRequests++;
+            return Task.FromResult<(double Latitude, double Longitude)?>((18.5179, 73.8412));
+        });
         var now = new DateTimeOffset(2026, 11, 24, 10, 0, 0, TimeSpan.Zero);
         using var calendar = new CalendarService(store, () => calendarPreferences, () => now);
         var messages = new List<string>(); var launches = new List<string>(); int saves = 0;
@@ -31,9 +36,9 @@ internal static class WeatherCalendarChecks
         {
             var weatherPanel = new WeatherPanel(weather, weatherPreferences, () => saves++, messages.Add);
             Layout(weatherPanel);
-            check(!FindButton(weatherPanel, "Find city").IsEnabled && !FindButton(weatherPanel, "Refresh weather").IsEnabled
-                && weather.Current == null && handler.Requests == 0,
-                "Weather UI starts disabled with no provider request before explicit enablement");
+            check(FindButton(weatherPanel, "Use Windows location").IsEnabled && !FindButton(weatherPanel, "Find city").IsEnabled
+                && !FindButton(weatherPanel, "Refresh weather").IsEnabled && weather.Current == null && handler.Requests == 0 && locationRequests == 0,
+                "Weather starts off but offers explicit Windows setup without requesting location or forecasts on open");
             FindCheckBox(weatherPanel, "Enable city weather").IsChecked = true;
             check(weatherPreferences.Enabled && saves == 1 && handler.Requests == 0,
                 "Weather enablement stores consent and waits for an explicitly chosen city");
@@ -49,11 +54,24 @@ internal static class WeatherCalendarChecks
             check(!weatherPreferences.Enabled && weatherPreferences.City == "" && weatherPreferences.Latitude == null
                 && !FindButton(weatherPanel, "Find city").IsEnabled,
                 "Weather Disconnect clears location selection and disables further requests");
+            FindButton(weatherPanel, "Use Windows location").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => FindButton(weatherPanel, "Use Windows location").IsEnabled);
+            check(locationRequests == 1 && weatherPreferences.Enabled && weatherPreferences.UseWindowsLocation
+                && weatherPreferences.Latitude == 18.5 && weatherPreferences.Longitude == 73.8 && weather.Current != null,
+                "Use Windows location activates weather in one step and displays a forecast for rounded coordinates");
 
             string path = Path.Combine(directory, "Selected calendar.ics");
             string original = "BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nUID:private\nDTSTART:20261125T100000Z\nDTEND:20261125T110000Z\nSUMMARY:Private planning title\nDESCRIPTION:Private event details\\nhttps://meet.google.com/abc-defg-hij\nLOCATION:Private meeting room\nEND:VEVENT\nEND:VCALENDAR";
-            File.WriteAllText(path, original); await calendar.SelectSourceAsync(path);
+            File.WriteAllText(path, original);
             var calendarPanel = new CalendarPanel(calendar, calendarPreferences, () => saves++, launches.Add, messages.Add, selected => selected(path));
+            Layout(calendarPanel);
+            check(FindButton(calendarPanel, "Select local calendar").IsEnabled && FindButton(calendarPanel, "Connect Outlook").IsEnabled
+                && !FindButton(calendarPanel, "Refresh calendar").IsEnabled && calendar.Events.Count == 0,
+                "Calendar starts off and offers a source choice without reading a calendar on open");
+            FindButton(calendarPanel, "Select local calendar").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            await Until(() => FindButton(calendarPanel, "Select local calendar").IsEnabled);
+            check(calendarPreferences.Enabled && calendarPreferences.Source == CalendarSource.File && calendar.Events.Count == 1,
+                "Selecting an iCalendar file activates calendar previews without a separate enable step");
             Layout(calendarPanel);
             check(Texts(calendarPanel).Contains("Busy") && !Texts(calendarPanel).Any(text => text.Contains("Private planning title") || text.Contains("Private meeting room") || text.Contains("Private event details"))
                 && !Descendants<Button>(calendarPanel).Any(button => AutomationProperties.GetName(button).StartsWith("Open Google Meet meeting", StringComparison.Ordinal)),
@@ -97,6 +115,10 @@ internal static class WeatherCalendarChecks
         }
     }
     private static void Layout(FrameworkElement panel) { panel.Measure(new Size(388, double.PositiveInfinity)); panel.Arrange(new Rect(0, 0, 388, panel.DesiredSize.Height)); panel.UpdateLayout(); }
+    private static async Task Until(Func<bool> ready)
+    {
+        for (int attempt = 0; attempt < 200 && !ready(); attempt++) await Task.Delay(10);
+    }
     private static void RenderInThemes(FrameworkElement panel, string name, string output)
     {
         foreach (string theme in new[] { "Dark", "Light" })

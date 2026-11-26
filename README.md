@@ -1,28 +1,28 @@
 # Crest
 
-<img src="assets/focus-orb.png" alt="Original Crest focus character" width="88" />
+<img src="assets/crest.png" alt="Original Crest open-summit identity" width="88" />
 
 [![Windows build](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml/badge.svg)](https://github.com/tanmay-tiwari-20/Crest/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Crest is a native Windows 11 utility that opens a small island at the top-center of your desktop. A fresh hover reveals music, productivity tools, system controls, shortcuts, and a file shelf. It stays hidden while an application is active by default; an optional setting lets you open it over other apps.
 
-**Crest 0.3.0 is a prerelease candidate.** It adds optional weather, local calendars and meeting links, managed downloads, read-only local AI, notification previews, accessory battery reads, and Phone Link access. Configure sources in **Settings → Integrations**. The [implementation and compatibility map](docs/PRD_COMPLETION.md) records supported operations and remaining physical acceptance.
+**Crest 0.4.0** brings a redesigned Settings window, visual theme choices, faster weather and calendar setup, and an island that expands around the selected live activity. Idle opens the tools catalogue, and other live activities appear in small secondary bubbles. [Release notes](docs/RELEASE_NOTES.md)
 
 ## Download and install
 
-The [0.3.0 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.3.0) is being prepared as a prerelease; its page and assets become publicly downloadable when published. Open **Assets** and choose one of the following 0.3.0 packages when available:
+Open **Assets** on the 0.4.0 prerelease page to choose a Windows package. [GitHub Releases](https://github.com/tanmay-tiwari-20/Crest/releases)
 
 | Package | Use it when | Installation |
 |---|---|---|
-| `Crest-Setup-0.3.0-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
-| `Crest-Portable-0.3.0-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
+| `Crest-Setup-0.4.0-x64.exe` | You want Start-menu entries and normal Windows uninstall support. | Run the installer for your Windows user account. A desktop shortcut is optional. |
+| `Crest-Portable-0.4.0-x64.zip` | You want to run Crest from an extracted folder. | Extract the ZIP, keep every file together, and run `Crest.exe`. |
 
 Both packages target **Windows 11 x64** and include the .NET runtime. You do not need an SDK, a separate runtime installation, administrator access, or a Crest account. The source-code archives on a GitHub release are for building the application; download an application package to run it.
 
 The installer is currently unsigned. Startup with Windows is off by default and can be enabled in Settings. Portable use still stores preferences in your Windows user profile.
 
-Compare downloaded assets with `SHA256SUMS.txt` from the same release. The previously published [0.2.1 release](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.2.1) remains available and predates the optional integrations described here. Upgrade steps and package checks are in the [user guide](docs/USER_GUIDE.md#install).
+Compare downloaded assets with `SHA256SUMS.txt` from the same release. Find upgrade steps and package checks in the [user guide](docs/USER_GUIDE.md#install).
 
 ## First use
 
@@ -31,7 +31,7 @@ Crest starts quietly in the system tray. Open **Crest Settings** from Start, dou
 1. Close Settings, press **Win+D**, and minimize or close any remaining visible apps on the selected display.
 2. Move the pointer away from the top edge.
 3. Enter the top-center edge and pause briefly. The default trigger is 240 × 3 device-independent pixels, with a 120 ms hover delay.
-4. Click the chevron to expand the focus, music, and battery cards. Use the icon dock below them to open a detail panel.
+4. Click the compact activity or chevron to expand its details and actions. With no live activity, this opens **Your tools**. Choose **Tools** from an activity to find every enabled module inside the same envelope; choose a secondary bubble to expand that concurrent activity.
 
 A stationary pointer does not reveal Crest after Win+D, unlock, resume, or tray Resume. Move away and enter the trigger again. In desktop-only mode, opening an app dismisses Crest. Media and timer activity never reveal it automatically.
 
@@ -50,11 +50,11 @@ To open Crest while using another app, enable **Settings → Behavior → Allow 
 | Clipboard history (F10) | Off by default. Explicit opt-in captures new text copies locally; search, copy, pin, pause/resume, remove, clear, and 1–30-day retention. |
 | Capture references (F13) | Launch the Windows screenshot tool and retain up to 12 recent image references that you explicitly select. |
 | Workspaces (F14) | Save up to 20 presets of up to 20 app, file, folder, and HTTP/HTTPS website targets, then launch a group together. |
-| Launch shortcuts | Explicit app, file, folder, HTTP/HTTPS website, and Windows shortcut entries. The side rail shows the first two; the detail panel shows the full list. |
+| Launch shortcuts | Explicit app, file, folder, HTTP/HTTPS website, and Windows shortcut entries, available through the tools catalogue and full detail panel. |
 | File shelf (F16) | Up to 20 references, with open, drag-out, pinning across restarts, removal, and missing-source recovery by locating a replacement or opening the nearest existing folder. Original files are not copied, moved, or deleted by Crest. |
-| Personalization (F17/F18) | System/light/dark/Ocean/Forest/Rose themes, size presets, module ordering, configurable surface gestures, separate appearance/trigger preferences per display, motion, startup, optional access over other apps, and keyboard reveal. |
-| Weather (F20) | Chosen-city Open-Meteo weather, current temperature/conditions/wind, last refresh, bounded cache, stale/offline states, clear and disconnect. |
-| Calendar and meetings (F21/F23) | Read-only local `.ics` calendar with common recurrence, up to 200 upcoming events over 90 days, hidden event details by default, and validated Teams/Zoom/Google Meet join links. |
+| Personalization (F17/F18) | Preview System, Dark, Light, Ocean, Forest, and Rose. Set appearance and trigger preferences by display, reorder modules, and customize gestures, motion, startup, and the keyboard shortcut. |
+| Weather (F20) | Use Windows location or choose a city. Open-Meteo supplies current temperature, conditions and wind, with last-refresh and offline status. |
+| Calendar and meetings (F21/F23) | Connect the default calendar in classic Outlook, subscribe to a compatible online iCalendar feed, or open a local `.ics` file. Previews are read-only, with details hidden by default and validated Teams, Zoom, and Google Meet links. |
 | Downloads (F24) | Explicit Crest-managed HTTP(S) transfers to new filenames, progress, two concurrent transfers, cancel/retry, and partial-file cleanup. Other apps' downloads are not monitored. |
 | Read-only AI (F25) | Bounded typed conversation with an existing local Ollama service and selected installed model; cancel, clear, and disconnect. No model is bundled and suggestions are not executed. |
 | Windows integrations (F19/F22/F26) | Permission-gated notification previews, standard BLE accessory battery reads, and capability-checked handoff to Microsoft Phone Link. Availability depends on package identity, Windows permissions, and device support. |
@@ -62,7 +62,14 @@ To open Crest while using another app, enable **Settings → Behavior → Allow 
 
 The [user guide](docs/USER_GUIDE.md) explains each module, keyboard access, upgrades, and removal.
 
-Optional sources are **off by default**. Enabling the first source adds **Optional integrations** to the dock; Modules can hide that entry independently. Notification permission is requested from Settings. Calendar meeting actions open provider join pages; call mute and hang-up controls are unavailable. Phone pairing and phone actions remain in Phone Link.
+### Settings previews
+
+<img src="docs/images/settings-integrations-0.4.0.png" alt="Crest Integrations with source status and the Windows location setup button" width="440" />
+<img src="docs/images/settings-appearance-0.4.0.png" alt="Light Crest Appearance page with six theme previews and per-display controls" width="440" />
+
+Static WPF renders use an isolated profile. [Settings Overview preview](docs/images/settings-overview-0.4.0.png)
+
+Optional sources are **off by default**. Enabling the first source adds **Optional integrations** to the tools catalogue; Modules can hide that entry independently. Notification permission is requested from Settings. Calendar meeting actions open provider join pages; call mute and hang-up controls are unavailable. Phone pairing and phone actions remain in Phone Link.
 
 The compact island respects enabled modules. Its status, accessible name, and action follow the displayed battery warning, timer, focus session, due reminder, or music session. Due reminder and completed focus actions open their relevant controls. The tray's **Timers, focus and reminders** opens **Settings → Activities**; live due events can notify through the Windows tray without revealing the island. Settings keeps keyboard focus and tab order when switching pages.
 
@@ -75,7 +82,7 @@ These are static WPF renders using isolated test data, rather than native deskto
 
 ## Privacy and local data
 
-Crest has no analytics or required account. Optional notification access requires Windows permission; weather and downloads contact their selected servers only after opt-in and explicit configuration. AI sends only typed conversation to your chosen local Ollama service. Preferences, shortcuts, workspaces, activities, pinned shelf paths, selected capture paths, and explicitly enabled clipboard history live in `%LOCALAPPDATA%\Crest`. Unpinned shelf references clear when Crest quits. Website targets open through Windows when you select them.
+Crest has no analytics or required account. Weather, online calendar feeds, and downloads contact their respective servers after you opt in and choose a source. Precise Windows location is rounded before storage or forecast requests. Calendar feed links are encrypted for the current Windows user. AI sends typed conversation to your chosen local Ollama service. User data lives in `%LOCALAPPDATA%\Crest`.
 
 Text capture is **off by default**. Enable it in **Settings → Privacy** to collect new clipboard changes while Crest runs. History is limited to 100 entries, 8,192 characters per entry, and 120,000 stored characters. Unpinned entries expire after the configured retention period; pinned text remains until removed or cleared. Pause keeps existing history and retention active. Clear removes pins too; disabling capture clears retained text. Enabling or resuming capture does not import the existing clipboard contents.
 
@@ -87,9 +94,7 @@ Retained clipboard text is protected with Windows DPAPI for the current user. En
 
 The candidate targets Windows 11 x64. ARM64 and Windows 10 packages are not available. Media actions depend on the player exposing a compatible Windows session; brightness and battery details depend on hardware support and the values Windows supplies.
 
-Current 0.3.0 verification passes **139 domain outcomes and 147 WPF/UI outcomes**. **Eleven native clipboard-writing outcomes were explicitly omitted** and are not counted as passed. Static renders and fixture checks establish their stated logic; physical Windows capabilities, clean-account installation, accessibility/display operation, and performance remain separate acceptance. See the [test report](docs/TEST_REPORT.md), [verification record](docs/prd-completion-verification.json), and [acceptance runbook](docs/P1_ACCEPTANCE_RUNBOOK.md).
-
-Earlier 0.2.1 owner approval, desktop/shelf, installation, sound, and resource observations remain historical for their recorded binaries. They do not qualify this changed release. Cold startup, frame delivery, hidden resource use, and battery impact must be measured on the exact candidate.
+0.4.0 is a Windows prerelease. The release manifest records automated checks against the packaged DLL, and the gate report lists open Windows acceptance work. [Test report](docs/TEST_REPORT.md) · [Acceptance runbook](docs/P1_ACCEPTANCE_RUNBOOK.md)
 
 Audio switching probes Windows PolicyConfig at runtime and reads back the selected default; this undocumented interface may be unavailable on a Windows build, so **Windows sound settings** is always offered. System statistics stop when hidden or when Controls is disabled.
 
@@ -112,7 +117,7 @@ Maintainers need Windows, Git, and **.NET SDK 10.0.404**, pinned by [global.json
 ```powershell
 git clone https://github.com/tanmay-tiwari-20/Crest.git
 cd Crest
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.3.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.4.0
 ```
 
 The release script restores locked dependencies, builds, runs outcome tests, publishes a self-contained x64 app, and uses the verified Inno Setup compiler to create an installer and portable ZIP. It uses `.tools/dotnet` when available, otherwise the pinned system SDK. Upload-ready files and checksums go under `artifacts/release/`. Use `scripts/build.ps1` for a build without packaging.
@@ -130,6 +135,7 @@ Crest uses C#/.NET 10, WPF, Windows media APIs, Core Audio, and WMI. Read the [b
 ## Documentation
 
 - [User guide](docs/USER_GUIDE.md)
+- [Contextual-island design and prototype](docs/CONTEXTUAL_ISLAND_REPORT.md)
 - [PRD analysis and implementation scope](docs/PRD_ANALYSIS.md)
 - [0.3.0 integrations and compatibility](docs/PRD_COMPLETION.md)
 - [Reference design observations](docs/REFERENCE_DESIGN.md)

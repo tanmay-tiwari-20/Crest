@@ -43,20 +43,24 @@ internal static class IntegrationWiringChecks
                 FindButton(panel, name).RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); await Settle();
                 bool valid = name switch
                 {
-                    "Weather" => Descendants<WeatherPanel>(panel).Any() && !FindButton(panel, "Find city").IsEnabled,
-                    "Calendar" => Descendants<CalendarPanel>(panel).Any() && !FindButton(panel, "Select local calendar").IsEnabled,
+                    "Weather" => Descendants<WeatherPanel>(panel).Any() && FindButton(panel, "Use Windows location").IsEnabled && !FindButton(panel, "Refresh weather").IsEnabled,
+                    "Calendar" => Descendants<CalendarPanel>(panel).Any() && FindButton(panel, "Connect Outlook").IsEnabled && !FindButton(panel, "Refresh calendar").IsEnabled,
                     "Downloads" => Descendants<DownloadPanel>(panel).Any() && !FindButton(panel, "Choose destination and download").IsEnabled,
                     "AI" => Descendants<AiAssistantPanel>(panel).Any() && !FindButton(panel, "Ask local model").IsEnabled,
                     _ => Descendants<WindowsIntegrationsPanel>(panel).Any() && !FindButton(panel, "Request Windows notification access").IsEnabled
                         && !FindButton(panel, "Refresh accessory batteries").IsEnabled && !FindButton(panel, "Check Phone Link support").IsEnabled
                 };
-                if (!valid) throw new InvalidOperationException("Settings integration page did not build its disabled provider controls: " + name);
+                if (!valid) throw new InvalidOperationException("Settings integration page did not build its initial source controls: " + name);
                 allBuilt = true;
             }
             check(allBuilt && app.Weather.Current == null && app.Calendar.Events.Count == 0 && app.Downloads.Items.Count == 0
                 && app.Ai.Messages.Count == 0 && app.WindowsIntegrations.Notifications.Count == 0 && app.WindowsIntegrations.Accessories.Count == 0
                 && !app.WindowsIntegrations.PhoneAvailable && !settings.EnabledModules.Contains("Integrations"),
                 "Actual Settings Integrations navigation builds all five optional panels with providers off and no retained activity");
+
+            window.ShowIntegrationSource("Calendar"); await Settle();
+            check(Descendants<CalendarPanel>(window).Any() && AutomationProperties.GetItemStatus(FindButton(panel, "Calendar")) == "Selected · Off",
+                "Opening Settings for a specific integration selects that source and exposes its off state");
 
             settings.Downloads.Enabled = true; ApplyAndSave();
             var firstOptIn = store.Load();

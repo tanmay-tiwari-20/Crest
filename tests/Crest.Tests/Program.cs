@@ -8,6 +8,8 @@ Directory.CreateDirectory(root);
 try
 {
     passed += FoundationTests.Run();
+    passed += SpringDynamicsTests.Run();
+    passed += IslandActivityTests.Run();
     passed += ControlEditTests.Run();
     passed += ProductivityTests.Run();
     passed += DiagnosticTests.Run();

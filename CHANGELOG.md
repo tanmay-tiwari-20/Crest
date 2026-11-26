@@ -1,8 +1,17 @@
 # Changelog
 
-## 0.3.0 — Optional integrations prerelease candidate — 24 November 2026
+## 0.4.0 — Settings, themes, and easier integration setup — 26 November 2026
 
-The 0.3.0 tag and application assets are being prepared for prerelease publication. These entries describe the current candidate; published 0.2.1 packages remain a separate historical release.
+- Redesigned Settings with clearer navigation, shortcuts to common tasks, and grouped display, visibility, and module controls.
+- Added visual previews for System, Dark, Light, Ocean, Forest, and Rose. Theme preferences can still be set per display, and Windows high contrast takes precedence.
+- Added Windows location for faster weather setup, with city search as an alternative.
+- Added read-only connections for the default calendar in classic Outlook and compatible online iCalendar feeds. Local `.ics` files remain supported.
+- Updated the island to expand around the selected activity and show other active tasks in compact secondary bubbles. The tools catalogue remains available when idle or from an expanded activity.
+- See the [release notes](docs/RELEASE_NOTES.md), [user guide](docs/USER_GUIDE.md), and [test report](docs/TEST_REPORT.md) for setup, compatibility, and verification.
+
+## 0.3.0 — Optional integrations prerelease — 24 November 2026
+
+The [0.3.0 prerelease](https://github.com/tanmay-tiwari-20/Crest/releases/tag/v0.3.0) introduced Crest's first optional integrations.
 
 ### Added
 

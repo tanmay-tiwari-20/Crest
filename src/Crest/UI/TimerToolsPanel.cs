@@ -24,7 +24,7 @@ public sealed class TimerToolsPanel : StackPanel
     private readonly TextBlock _elapsed = Design.Text("0:00.00", 38, "Text", true);
     private readonly TextBlock _stopwatchStatus = Design.Text("Ready when you are.", 11, "Muted");
     private readonly TextBox _name = new() { MaxLength = 40 }, _minutes = new() { Text = "10", MaxLength = 12 };
-    private readonly Button _timersTab, _stopwatchTab, _stopwatchAction, _lap, _reset;
+    private readonly Button _timersTab, _stopwatchTab, _focusTab, _remindersTab, _stopwatchAction, _lap, _reset;
     private readonly DispatcherTimer _displayClock = new() { Interval = TimeSpan.FromMilliseconds(100) };
     private readonly ProductivityExtrasPanel _extras;
     private bool _showStopwatch, _busy;
@@ -34,17 +34,23 @@ public sealed class TimerToolsPanel : StackPanel
     {
         _local = local;
         _message = message;
-        var tabs = new UniformGrid { Columns = 2, Margin = new Thickness(0, 0, 0, 8) };
+        var tabs = new UniformGrid { Columns = 4, Margin = new Thickness(0, 0, 0, 12) };
         _timersTab = Design.Button("Timers", () => ShowTool(false));
         _stopwatchTab = Design.Button("Stopwatch", () => ShowTool(true));
         _timersTab.Margin = new Thickness(0, 0, 4, 0);
-        _stopwatchTab.Margin = new Thickness(4, 0, 0, 0);
+        _stopwatchTab.Margin = new Thickness(0, 0, 4, 0);
         Grid.SetColumn(_stopwatchTab, 1);
         tabs.Children.Add(_timersTab);
         tabs.Children.Add(_stopwatchTab);
         _extras = new ProductivityExtrasPanel(local, message);
-        tabs.Children.Add(Design.Button("Focus sessions", () => ShowExtraTool(false)));
-        tabs.Children.Add(Design.Button("Reminders", () => ShowExtraTool(true)));
+        _focusTab = Design.Button("Focus", () => ShowExtraTool(false));
+        _remindersTab = Design.Button("Reminders", () => ShowExtraTool(true));
+        _focusTab.Margin = new Thickness(0, 0, 4, 0);
+        _remindersTab.Margin = new Thickness(0);
+        foreach (var tab in new[] { _timersTab, _stopwatchTab, _focusTab, _remindersTab })
+            tab.Padding = new Thickness(6, 8, 6, 8);
+        tabs.Children.Add(_focusTab);
+        tabs.Children.Add(_remindersTab);
         Children.Add(tabs);
         Children.Add(_timers);
         Children.Add(_stopwatch);
@@ -108,6 +114,7 @@ public sealed class TimerToolsPanel : StackPanel
         _displayClock.Tick += (_, _) => Refresh();
         IsVisibleChanged += (_, _) => UpdateDisplayClock();
         Unloaded += (_, _) => _displayClock.Stop();
+        PanelLayout.Refine(this);
         ShowTool(false);
     }
 
@@ -117,10 +124,10 @@ public sealed class TimerToolsPanel : StackPanel
         _extras.Visibility = Visibility.Collapsed;
         _timers.Visibility = stopwatch ? Visibility.Collapsed : Visibility.Visible;
         _stopwatch.Visibility = stopwatch ? Visibility.Visible : Visibility.Collapsed;
-        AutomationProperties.SetName(_timersTab, "Timers" + (!stopwatch ? ", selected" : ""));
-        AutomationProperties.SetName(_stopwatchTab, "Stopwatch" + (stopwatch ? ", selected" : ""));
-        _timersTab.SetResourceReference(Control.ForegroundProperty, stopwatch ? "Muted" : "Accent");
-        _stopwatchTab.SetResourceReference(Control.ForegroundProperty, stopwatch ? "Accent" : "Muted");
+        PanelLayout.Select(_timersTab, !stopwatch, "Timers");
+        PanelLayout.Select(_stopwatchTab, stopwatch, "Stopwatch");
+        PanelLayout.Select(_focusTab, false, "Focus sessions");
+        PanelLayout.Select(_remindersTab, false, "Reminders");
         Refresh();
     }
 
@@ -130,8 +137,10 @@ public sealed class TimerToolsPanel : StackPanel
         _timers.Visibility = _stopwatch.Visibility = Visibility.Collapsed;
         _extras.Visibility = Visibility.Visible;
         _extras.ShowReminders(reminders);
-        AutomationProperties.SetName(_timersTab, "Timers");
-        AutomationProperties.SetName(_stopwatchTab, "Stopwatch");
+        PanelLayout.Select(_timersTab, false, "Timers");
+        PanelLayout.Select(_stopwatchTab, false, "Stopwatch");
+        PanelLayout.Select(_focusTab, !reminders, "Focus sessions");
+        PanelLayout.Select(_remindersTab, reminders, "Reminders");
         Refresh();
     }
     public void ShowFocusSessions() => ShowExtraTool(false);
@@ -283,8 +292,8 @@ public sealed class TimerToolsPanel : StackPanel
         actions.Children.Add(cancel);
         Grid.SetColumn(actions, 1);
         content.Children.Add(actions);
-        var surface = Design.Card(content, new Thickness(10, 4, 10, 8));
-        surface.Margin = new Thickness(0, 6, 0, 0);
+        var surface = Design.Card(content, new Thickness(12, 8, 12, 12));
+        surface.Margin = new Thickness(0, 8, 0, 0);
         return new(surface, select, time, status, action, cancel);
     }
 

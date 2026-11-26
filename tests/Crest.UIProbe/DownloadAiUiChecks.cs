@@ -162,7 +162,7 @@ internal static class DownloadAiUiChecks
         element.UpdateLayout();
         var target = new RenderTargetBitmap((int)Math.Ceiling(element.ActualWidth), (int)Math.Ceiling(element.ActualHeight), 96, 96, PixelFormats.Pbgra32);
         var drawing = new DrawingVisual();
-        using (var context = drawing.RenderOpen()) context.DrawRectangle(new VisualBrush(element), null, new Rect(0, 0, element.ActualWidth, element.ActualHeight));
+        using (var context = drawing.RenderOpen()) context.DrawRectangle(IslandProbe.VisualBrush(element), null, new Rect(0, 0, element.ActualWidth, element.ActualHeight));
         target.Render(drawing); var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(target));
         using var stream = File.Create(file); encoder.Save(stream);
     }

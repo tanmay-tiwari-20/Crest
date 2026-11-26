@@ -83,7 +83,7 @@ P3 F19–F26 now has concrete initial adapters for Windows notification previews
 
 ## Release gate for 0.3.0
 
-[release-gates.json](release-gates.json) is the current 0.3.0 candidate record. All 31 P0/P1 acceptance and performance rows begin pending for this changed release; automated implementation checks do not count as physical acceptance passes. The final release pipeline must bind the record to its own DLL and source fingerprint. The exact prior record, including the owner's 24 November approval of 0.2.1, is preserved in [release-gates-0.2.1.json](release-gates-0.2.1.json). That approval applies to its recorded candidate and is not transferred to 0.3.0.
+[release-gates-0.3.0.json](release-gates-0.3.0.json) holds the historical 0.3.0 candidate record. All 31 P0/P1 acceptance and performance rows begin pending for this changed release; automated implementation checks do not count as physical acceptance passes. The final release pipeline must bind the record to its own DLL and source fingerprint. The exact prior record, including the owner's 24 November approval of 0.2.1, is preserved in [release-gates-0.2.1.json](release-gates-0.2.1.json). That approval applies to its recorded candidate and is not transferred to 0.3.0.
 
 ### Historical foundation and acceptance evidence
 

@@ -3,9 +3,12 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Automation;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Crest.Core;
 using Microsoft.Win32;
 using Forms = System.Windows.Forms;
@@ -13,14 +16,23 @@ namespace Crest.UI;
 
 public sealed partial class SettingsWindow : Window
 {
-    private readonly App _app; private readonly StackPanel _page = new(); private readonly StackPanel _nav = new(); private string _section = "Overview";
-    private readonly TextBlock _message = Design.Text("", 11, "Muted"); private TextBlock? _hardwareStatus;
+    private const string SaveStatus = "Changes are saved automatically.";
+    private readonly App _app;
+    private readonly StackPanel _page = new();
+    private readonly StackPanel _nav = new();
+    private readonly TextBlock _message = Design.Text(SaveStatus, 12, "Muted");
+    private readonly ScrollViewer _pageScroll;
+    private readonly Button _close;
+    private string _section = "Overview";
+    private TextBlock? _hardwareStatus;
     private WindowState _restoreState = WindowState.Normal;
     private static readonly string[] Sections = { "Overview", "Appearance", "Behavior", "Modules", "Shortcuts", "Workspaces", "Privacy", "Activities", "Integrations", "About" };
     private TimerToolsPanel? _activities;
+
     public SettingsWindow(App app)
     {
         _app = app;
+        Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/Crest;component/UI/SettingsControls.xaml") });
         StateChanged += (_, _) =>
         {
             if (WindowState != WindowState.Minimized) _restoreState = WindowState;
@@ -28,74 +40,57 @@ public sealed partial class SettingsWindow : Window
         };
         SourceInitialized += (_, _) => FitToDisplay();
         Title = "Crest · Settings";
-        Width = 880;
-        Height = 700;
+        Width = 1000;
+        Height = 760;
         MinWidth = 700;
         MinHeight = 560;
         WindowStartupLocation = WindowStartupLocation.CenterScreen;
         SetResourceReference(BackgroundProperty, "Surface");
         var layout = new Grid();
-        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(190) });
+        layout.SetResourceReference(Panel.BackgroundProperty, "Surface");
+        layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(204) });
         layout.ColumnDefinitions.Add(new ColumnDefinition());
         Content = layout;
-        var sidebar = new Grid { Margin = new Thickness(22, 26, 18, 22) };
-        sidebar.RowDefinitions.Add(new RowDefinition { Height = new GridLength(84) });
-        sidebar.RowDefinitions.Add(new RowDefinition());
-        sidebar.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        var logo = new StackPanel { Orientation = Orientation.Horizontal, Height = 40, VerticalAlignment = VerticalAlignment.Top };
-        var image = new Image { Width = 34, Height = 34, Margin = new Thickness(0, 0, 10, 0) };
-        try
-        {
-            image.Source = new System.Windows.Media.Imaging.BitmapImage(new Uri("pack://application:,,,/crest.png"));
-        }
-        catch { image.Source = null; }
-        logo.Children.Add(image);
-        logo.Children.Add(Design.Text("crest", 26, "Text", true));
-        sidebar.Children.Add(logo);
-        Grid.SetRow(_nav, 1);
-        sidebar.Children.Add(_nav);
-        var bottom = new StackPanel();
-        bottom.Children.Add(Design.Text("MADE FOR YOUR DESKTOP", 9, "Muted", true));
-        bottom.Children.Add(Design.Text("Local. Quiet. Yours.", 11, "Muted"));
-        Grid.SetRow(bottom, 2);
-        sidebar.Children.Add(bottom);
-        layout.Children.Add(sidebar);
-        var content = new Grid { Margin = new Thickness(28, 30, 32, 22) };
-        content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(34) });
+        layout.Children.Add(BuildSidebar());
+
+        var content = new Grid { MaxWidth = 1000 };
         content.RowDefinitions.Add(new RowDefinition());
-        content.RowDefinitions.Add(new RowDefinition { Height = new GridLength(54) });
-        var eyebrow = Design.Text("PERSONAL DESKTOP UTILITY  /  " + App.AppVersion, 10, "Muted", true);
-        content.Children.Add(eyebrow);
-        var scroll = new ScrollViewer { Content = _page };
-        Grid.SetRow(scroll, 1);
-        content.Children.Add(scroll);
-        var footer = new Grid();
-        footer.ColumnDefinitions.Add(new ColumnDefinition());
-        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        footer.Children.Add(_message);
-        _message.VerticalAlignment = VerticalAlignment.Center;
-        var tryIt = Design.Button("Close and try Crest  ↗", () => { _app.Preferences.OnboardingComplete = true; _app.SavePreferences(); Close(); }, true);
-        tryIt.VerticalAlignment = VerticalAlignment.Center;
-        Grid.SetColumn(tryIt, 1);
-        footer.Children.Add(tryIt);
-        Grid.SetRow(footer, 2);
+        content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        _page.Margin = new Thickness(28, 20, 20, 14);
+        _pageScroll = new ScrollViewer { Content = _page, Margin = new Thickness(0, 0, 8, 0), Focusable = false };
+        AutomationProperties.SetName(_pageScroll, "Settings page");
+        content.Children.Add(_pageScroll);
+        _close = Design.Button("Done", () =>
+        {
+            if (!_app.Preferences.OnboardingComplete)
+            {
+                _app.Preferences.OnboardingComplete = true;
+                _app.SavePreferences();
+            }
+            Close();
+        }, true);
+        var footer = BuildFooter();
+        Grid.SetRow(footer, 1);
         content.Children.Add(footer);
         Grid.SetColumn(content, 1);
         layout.Children.Add(content);
         BuildNav();
         BuildPage();
     }
+
     public void ShowAndActivate()
     {
         if (WindowState == WindowState.Minimized) WindowState = _restoreState;
         Show();
         Activate();
     }
+
     protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
     {
         base.OnDpiChanged(oldDpi, newDpi);
         Dispatcher.BeginInvoke(new Action(() => FitToDisplay(newDpi.DpiScaleX)));
     }
+
     private void FitToDisplay(double? dpiScale = null)
     {
         IntPtr handle = new WindowInteropHelper(this).Handle;
@@ -112,6 +107,59 @@ public sealed partial class SettingsWindow : Window
             Height = Math.Min(Height, availableHeight);
         }
     }
+    private Border BuildSidebar()
+    {
+        var sidebar = new Grid { Margin = new Thickness(12, 16, 12, 12) };
+        sidebar.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        sidebar.RowDefinitions.Add(new RowDefinition());
+        sidebar.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+        var brand = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(9, 0, 0, 12) };
+        var mark = CrestBrand.Mark(34, "Accent");
+        mark.VerticalAlignment = VerticalAlignment.Center;
+        brand.Children.Add(mark);
+        var wordmark = new StackPanel { Margin = new Thickness(9, 0, 0, 0) };
+        wordmark.Children.Add(Design.Text("crest", 24, "Text", true));
+        wordmark.Children.Add(Design.Text("Settings", 12, "Muted"));
+        brand.Children.Add(wordmark);
+        sidebar.Children.Add(brand);
+
+        _nav.Margin = new Thickness(4, 4, 5, 4);
+        var scroll = new ScrollViewer { Content = _nav, Focusable = false };
+        AutomationProperties.SetName(scroll, "Settings navigation");
+        Grid.SetRow(scroll, 1);
+        sidebar.Children.Add(scroll);
+
+        var version = Design.Text("Version " + App.AppVersion, 12, "Muted");
+        var bottom = new Border { Child = version, BorderThickness = new Thickness(0, 1, 0, 0), Margin = new Thickness(8, 8, 8, 0), Padding = new Thickness(1, 10, 0, 0) };
+        bottom.SetResourceReference(Border.BorderBrushProperty, "Divider");
+        Grid.SetRow(bottom, 2);
+        sidebar.Children.Add(bottom);
+
+        var surface = new Border { Child = sidebar, BorderThickness = new Thickness(0, 0, 1, 0) };
+        surface.SetResourceReference(Border.BackgroundProperty, "Inset");
+        surface.SetResourceReference(Border.BorderBrushProperty, "Divider");
+        return surface;
+    }
+
+    private Border BuildFooter()
+    {
+        var grid = new Grid();
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        _message.VerticalAlignment = VerticalAlignment.Center;
+        _message.Margin = new Thickness(0, 0, 12, 0);
+        AutomationProperties.SetLiveSetting(_message, AutomationLiveSetting.Polite);
+        grid.Children.Add(_message);
+        _close.MinWidth = 88;
+        _close.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(_close, 1);
+        grid.Children.Add(_close);
+        var footer = new Border { Child = grid, BorderThickness = new Thickness(0, 1, 0, 0), Padding = new Thickness(28, 10, 28, 12) };
+        footer.SetResourceReference(Border.BorderBrushProperty, "Divider");
+        return footer;
+    }
+
     private void BuildNav()
     {
         // Keep navigation controls alive when changing pages so keyboard focus
@@ -120,10 +168,21 @@ public sealed partial class SettingsWindow : Window
         {
             foreach (var section in Sections)
             {
-                var button = Design.Button(section, () => { _section = section; BuildNav(); BuildPage(); });
+                var button = Design.Button(section, () => ShowSection(section));
                 button.HorizontalContentAlignment = HorizontalAlignment.Left;
-                button.Margin = new Thickness(0, 0, 0, 7);
-                button.Padding = new Thickness(14, 11, 14, 11);
+                var row = new StackPanel { Orientation = Orientation.Horizontal };
+                var icon = Design.Icon(NavGlyph(section), 16);
+                icon.Width = 22;
+                icon.Margin = new Thickness(0, 0, 8, 0);
+                row.Children.Add(icon);
+                var text = Design.Text(section, 13);
+                text.SetBinding(TextBlock.ForegroundProperty, new System.Windows.Data.Binding("Foreground") { Source = button });
+                text.SetBinding(TextBlock.FontWeightProperty, new System.Windows.Data.Binding("FontWeight") { Source = button });
+                row.Children.Add(text);
+                button.Content = row;
+                button.Margin = new Thickness(0, section is "Shortcuts" or "About" ? 8 : 0, 0, 2);
+                button.Padding = new Thickness(9, 5, 10, 5);
+                button.MinHeight = 34;
                 _nav.Children.Add(button);
             }
         }
@@ -131,15 +190,35 @@ public sealed partial class SettingsWindow : Window
         {
             var button = (Button)_nav.Children[index];
             bool selected = Sections[index] == _section;
-            button.SetResourceReference(Control.BackgroundProperty, selected ? "Raised" : "Surface");
-            button.SetResourceReference(Control.ForegroundProperty, selected ? "Accent" : "Text");
+            button.SetResourceReference(Control.BackgroundProperty, selected ? "Selected" : "Inset");
+            button.SetResourceReference(Control.ForegroundProperty, selected ? "Text" : "Muted");
+            button.SetResourceReference(Control.BorderBrushProperty, selected ? "Accent" : "Inset");
+            button.BorderThickness = new Thickness(1);
+            var icon = (TextBlock)((StackPanel)button.Content).Children[0];
+            icon.SetResourceReference(TextBlock.ForegroundProperty, selected ? "Accent" : "Muted");
+            button.FontWeight = selected ? FontWeights.SemiBold : FontWeights.Normal;
+            AutomationProperties.SetItemStatus(button, selected ? "Selected" : "");
         }
     }
-    private void BuildPage()
+    private static string NavGlyph(string section) => section switch
     {
+        "Overview" => "\uE80F", "Appearance" => "\uE790", "Behavior" => "\uE7C4",
+        "Modules" => "\uECA5", "Shortcuts" => "\uE8A7", "Workspaces" => "\uE8F1",
+        "Privacy" => "\uE72E", "Activities" => "\uE823", "Integrations" => "\uE774", _ => "\uE946"
+    };
+    private void BuildPage(bool restoreView = true)
+    {
+        var focused = Keyboard.FocusedElement as Control;
+        string? focusName = restoreView && focused != null && focused.IsDescendantOf(_page) ? AutomationProperties.GetName(focused) : null;
+        double offset = restoreView ? _pageScroll.VerticalOffset : 0;
         _activities = null;
+        _integrations = null;
+        _hardwareStatus = null;
+        _resetDisplay = null;
         _page.Children.Clear();
-        _message.Text = "Changes are saved automatically.";
+        string closeLabel = _app.Preferences.OnboardingComplete ? "Done" : "Try Crest";
+        _close.Content = closeLabel;
+        AutomationProperties.SetName(_close, closeLabel);
         switch (_section)
         {
             case "Overview":
@@ -164,98 +243,189 @@ public sealed partial class SettingsWindow : Window
             case "Privacy": Privacy(); break;
             case "Integrations": Integrations(); break;
             case "Activities":
-                Heading("A little room to focus.", "Timers, focus sessions, and local reminders. Due notices stay here until you continue, snooze, or dismiss them.");
-                _activities = new TimerToolsPanel(_app.Local, message => _message.Text = message);
+                Heading("Activities", "Manage timers, focus sessions, and local reminders. Due notices stay here until you act on them.");
+                _activities = new TimerToolsPanel(_app.Local, SetStatus);
                 _page.Children.Add(_activities); break;
         }
+        _pageScroll.ScrollToVerticalOffset(offset);
+        if (!string.IsNullOrEmpty(focusName))
+        {
+            var heading = _page.Children[0];
+            Dispatcher.BeginInvoke(DispatcherPriority.Loaded, new Action(() =>
+            {
+                if (_page.Children.Count == 0 || !ReferenceEquals(_page.Children[0], heading)) return;
+                if (Keyboard.FocusedElement is Control current && (current.IsDescendantOf(_nav) || current.IsDescendantOf(_page))) return;
+                var destination = FindPageControl(_page, focusName) ?? FindPageControl(_page, "Preference display");
+                (destination ?? (Button)_nav.Children[Array.IndexOf(Sections, _section)]).Focus();
+            }));
+        }
+    }
+
+    private static Control? FindPageControl(DependencyObject element, string name)
+    {
+        if (element is Control control && control.Focusable && control.IsEnabled && AutomationProperties.GetName(control) == name) return control;
+        foreach (var child in LogicalTreeHelper.GetChildren(element).OfType<DependencyObject>())
+            if (FindPageControl(child, name) is { } match) return match;
+        return null;
     }
     private void Heading(string title, string description)
     {
-        _page.Children.Add(Design.Text(title, 30, "Text", true));
-        var p = Design.Text(description, 13, "Muted");
-        p.Margin = new Thickness(0, 8, 0, 22);
-        _page.Children.Add(p);
+        var header = new StackPanel { Margin = new Thickness(0, 0, 0, 16) };
+        var heading = Design.Text(title, 32, "Text", true);
+        AutomationProperties.SetHeadingLevel(heading, AutomationHeadingLevel.Level1);
+        header.Children.Add(heading);
+        var subtitle = Design.Text(description, 14, "Muted");
+        subtitle.Margin = new Thickness(0, 5, 0, 0);
+        header.Children.Add(subtitle);
+        _page.Children.Add(header);
     }
-    private Border Section(string title, string detail, UIElement? control = null)
+
+    private Border Section(string title, string? detail = null, UIElement? control = null)
     {
         var stack = new StackPanel();
-        stack.Children.Add(Design.Text(title, 14, "Text", true));
-        var p = Design.Text(detail, 12, "Muted");
-        p.Margin = new Thickness(0, 6, 0, control == null ? 0 : 14);
-        stack.Children.Add(p);
+        var heading = Design.Text(title, 17, "Text", true);
+        AutomationProperties.SetHeadingLevel(heading, AutomationHeadingLevel.Level2);
+        stack.Children.Add(heading);
+        if (!string.IsNullOrEmpty(detail))
+        {
+            var description = Design.Text(detail, 13, "Muted");
+            description.Margin = new Thickness(0, 4, 0, 0);
+            stack.Children.Add(description);
+        }
         if (control != null)
+        {
+            stack.Children.Add(new Border { Height = 12 });
             stack.Children.Add(control);
-        var card = Design.Card(stack, new Thickness(18));
+        }
+        var card = Design.Card(stack, new Thickness(16, 14, 16, 16));
         card.Margin = new Thickness(0, 0, 0, 12);
         _page.Children.Add(card);
         return card;
     }
     private void Overview()
     {
-        Heading("A little space.\nA lot within reach.", "Your music, laptop controls, and everyday tools.\nHere when you need them, hidden when you don't.");
-        var steps = new StackPanel();
-        steps.Children.Add(_app.Preferences.AllowOverApps
-            ? Step("01", "Keep your app open", "Close Settings. Crest can open over the app you're using on your selected display.")
-            : Step("01", "Return to your desktop", "Close Settings, then press Win+D. In strict mode, minimize any remaining visible apps on Crest's display."));
-        steps.Children.Add(Step("02", "Meet Crest at the top", "Move your pointer away from the top edge, then enter the top-center edge and pause briefly."));
-        steps.Children.Add(Step("03", "Make a little room", "Expand a module. Move away when you're finished."));
-        Section("READY WHEN YOU ARE", "Crest starts quietly in your system tray.", steps);
-        var status = new Grid();
-        status.ColumnDefinitions.Add(new ColumnDefinition());
-        status.ColumnDefinitions.Add(new ColumnDefinition());
-        status.Children.Add(Status("VISIBILITY", _app.Preferences.AllowOverApps ? "Over other apps" : _app.Preferences.StrictDesktop ? "Strict desktop" : "Desktop active"));
-        var hw = Status("LAPTOP CONTROLS", HardwareStatus(), t => _hardwareStatus = t);
-        Grid.SetColumn(hw, 1);
-        status.Children.Add(hw);
-        _page.Children.Add(status);
-        var note = Design.Text(_app.Preferences.AllowOverApps
-            ? "App access is enabled. Enter the top edge to open Crest while you work. Timer completions still wait for your next hover."
-            : "Crest stays hidden while an app or a Windows panel is active. Enable app access in Behavior to open it over other apps. Timer completions wait for your next hover.", 12, "Muted");
-        note.Margin = new Thickness(0, 20, 0, 10);
-        _page.Children.Add(note);
+        Heading("Overview", "Set up the island and choose the tools you want at the top of your screen.");
         if (_app.Store.RecoveredCorruptSettings)
             Section("Preferences recovered", "An unreadable settings file was replaced with safe defaults.");
+
+        var preview = new Border { MinHeight = 76, CornerRadius = new CornerRadius(10), BorderThickness = new Thickness(1), Child = SurfacePreview() };
+        preview.SetResourceReference(Border.BackgroundProperty, "Inset");
+        preview.SetResourceReference(Border.BorderBrushProperty, "Divider");
+        string edge = _app.EffectivePreferences.FullWidthTrigger ? "top edge" : "top-center edge";
+        string firstStep = _app.Preferences.AllowOverApps
+            ? "Close Settings and move your pointer to the " + edge + " of your selected display."
+            : "Close Settings, press Win+D, then move your pointer to the " + edge + " of your selected display.";
+        if (_app.Preferences.AccessibilityShortcut) firstStep += " You can also press Ctrl+Alt+Space.";
+        Section("Open the island", firstStep + " Click the island for the current activity, or choose Tools for all enabled modules.", preview);
+
+        var links = new StackPanel();
+        string visibility = _app.Preferences.AllowOverApps ? "Over other apps" : _app.Preferences.StrictDesktop ? "Strict desktop" : "Desktop active";
+        AddSetting(links, "Island visibility", visibility, LinkTo("Behavior", "Edit behavior"));
+        int moduleCount = _app.Preferences.EnabledModules.Count;
+        AddSetting(links, "Enabled modules", $"{moduleCount} of {ModuleCatalog.All.Length} tools available on the island", LinkTo("Modules", "Manage modules"));
+        AddSetting(links, "Integrations", "Weather, calendars, and optional sources", LinkTo("Integrations", "Manage integrations"));
+        Section("Quick settings", control: links);
+
+        _hardwareStatus = Design.Text(HardwareStatus(), 13, "Muted");
+        Section("Device controls", control: _hardwareStatus);
     }
-    private static UIElement Step(string number, string title, string detail)
+
+    private Button LinkTo(string section, string label)
     {
-        var g = new Grid { Margin = new Thickness(0, 0, 0, 16) };
-        g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
-        g.ColumnDefinitions.Add(new ColumnDefinition());
-        g.Children.Add(Design.Text(number, 12, "Accent", true));
-        var s = new StackPanel();
-        s.Children.Add(Design.Text(title, 13, "Text", true));
-        s.Children.Add(Design.Text(detail, 12, "Muted"));
-        Grid.SetColumn(s, 1);
-        g.Children.Add(s);
-        return g;
+        var link = Design.Button(label, () =>
+        {
+            ShowSection(section);
+            ((Button)_nav.Children[Array.IndexOf(Sections, section)]).Focus();
+        });
+        return link;
     }
-    private static UIElement Status(string label, string value, Action<TextBlock>? capture = null)
+
+    private static void AddSetting(Panel group, string title, string? detail, UIElement? control = null)
     {
-        var s = new StackPanel();
-        s.Children.Add(Design.Text(label, 9, "Muted", true));
-        var result = Design.Text(value, 12, "Text", true);
-        s.Children.Add(result);
-        capture?.Invoke(result);
-        return s;
+        var row = new Grid { Margin = new Thickness(0, group.Children.Count == 0 ? 0 : 8, 0, 0) };
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var label = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 4, 12, 4) };
+        label.Children.Add(Design.Text(title, 13, "Text", true));
+        if (!string.IsNullOrEmpty(detail))
+        {
+            var description = Design.Text(detail, 12, "Muted");
+            description.Margin = new Thickness(0, 2, 0, 0);
+            label.Children.Add(description);
+        }
+        row.Children.Add(label);
+        if (control != null)
+        {
+            Grid.SetColumn(control, 1);
+            row.Children.Add(control);
+            if (control is FrameworkElement element) element.VerticalAlignment = VerticalAlignment.Center;
+        }
+        group.Children.Add(row);
     }
-    private ComboBox Choice(string name, string[] items, string selected, Action<string> changed)
+
+    private static Border SurfacePreview()
     {
-        var c = new ComboBox { ItemsSource = items, SelectedItem = selected };
+        var pill = new Border { Width = 186, Height = 48, CornerRadius = new CornerRadius(24), BorderThickness = new Thickness(1), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, IsHitTestVisible = false };
+        pill.SetResourceReference(Border.BackgroundProperty, "IslandShell");
+        pill.SetResourceReference(Border.BorderBrushProperty, "IslandOutline");
+        var content = new Grid();
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+        content.ColumnDefinitions.Add(new ColumnDefinition());
+        content.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+        var mark = CrestBrand.Mark(20, "IslandAccent");
+        mark.HorizontalAlignment = HorizontalAlignment.Center;
+        mark.VerticalAlignment = VerticalAlignment.Center;
+        content.Children.Add(mark);
+        var meta = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(2, 0, 2, 0) };
+        meta.Children.Add(Design.Text("crest", 13, "IslandText", true));
+        meta.Children.Add(Design.Text("Idle", 11, "IslandMuted"));
+        Grid.SetColumn(meta, 1);
+        content.Children.Add(meta);
+        var expand = Design.Icon("\uE70D", 17);
+        expand.SetResourceReference(TextBlock.ForegroundProperty, "IslandMuted");
+        Grid.SetColumn(expand, 2);
+        content.Children.Add(expand);
+        pill.Child = content;
+        AutomationProperties.SetName(pill, "Crest idle island appearance preview");
+        return pill;
+    }
+
+    private ComboBox Choice(string name, string[] items, string selected, Action<string> changed, bool save = true)
+    {
+        var c = new ComboBox { ItemsSource = items, SelectedItem = selected, MinWidth = 158, MaxWidth = 196 };
         AutomationProperties.SetName(c, name);
-        c.SelectionChanged += (_, _) => { if (c.SelectedItem is string s) { changed(s); Save(); } };
+        c.SelectionChanged += (_, _) =>
+        {
+            if (c.SelectedItem is not string selection) return;
+            changed(selection);
+            if (save) Save();
+        };
         return c;
     }
-    private CheckBox Toggle(string text, bool value, Action<bool> change)
+
+    private CheckBox Toggle(string text, bool value, Action<bool> change, bool save = true)
     {
-        var c = new CheckBox { Content = text, IsChecked = value };
+        var c = new CheckBox { IsChecked = value };
+        c.SetResourceReference(StyleProperty, "SettingsSwitch");
         AutomationProperties.SetName(c, text);
-        c.Click += (_, _) => { change(c.IsChecked == true); Save(); };
+        c.Click += (_, _) =>
+        {
+            change(c.IsChecked == true);
+            if (save) Save();
+        };
         return c;
     }
     private void Save()
     {
         _app.SavePreferences();
-        _message.Text = _app.Store.LastError ?? "Saved. Applies to your next hover.";
+        SetStatus(_app.Store.LastError ?? "Changes saved.");
+    }
+
+    private void SetStatus(string message)
+    {
+        if (_message.Text == message) return;
+        _message.Text = message;
+        UIElementAutomationPeer.FromElement(_message)?.RaiseAutomationEvent(AutomationEvents.LiveRegionChanged);
     }
     private string HardwareStatus() => (_app.Hardware.AudioAvailable ? "Audio ready" : "Audio unavailable") + " · " + (_app.Hardware.BrightnessAvailable ? "Brightness ready" : "Brightness unavailable");
     public void RefreshCapabilities()
@@ -266,35 +436,63 @@ public sealed partial class SettingsWindow : Window
     public void RefreshActivities() => _activities?.Refresh();
     public void ShowSection(string section)
     {
-        if (!Sections.Contains(section)) return;
-        _section = section; BuildNav(); BuildPage();
+        if (!Sections.Contains(section) || _section == section) return;
+        _section = section;
+        SetStatus(_app.Store.LastError ?? SaveStatus);
+        BuildNav();
+        BuildPage(restoreView: false);
+        ((Button)_nav.Children[Array.IndexOf(Sections, section)]).BringIntoView();
     }
     private void Appearance()
     {
-        Heading("Make yourself at home.", "A quiet surface, in the style that feels right to you.");
-        PreferenceScope();
-        Section("Color theme", "Follow Windows, or choose Dark, Light, Ocean, Forest, or Rose.", Choice("Color theme", ModuleCatalog.Themes, Scoped.Theme, value => ChangeScoped(s => s.Theme = value)));
-        Section("Motion", "Follow Windows animation preferences. Reduced motion uses a short fade.", Choice("Motion preference", new[] { "System", "Normal", "Reduced" }, Scoped.Motion, value => ChangeScoped(s => s.Motion = value)));
-        Section("Size preset", "Choose a starting size or adjust it below.", Choice("Island size preset", new[] { "Compact", "Comfortable", "Large" }, Scoped.SizeScale < .98 ? "Compact" : Scoped.SizeScale > 1.1 ? "Large" : "Comfortable", value => { ChangeScoped(s => s.SizeScale = value == "Compact" ? .9 : value == "Large" ? 1.2 : 1); BuildPage(); }));
-        Range("Island size", "Keep controls comfortable at your display's scaling.", 85, 130, Scoped.SizeScale * 100, v => ChangeScoped(s => s.SizeScale = v / 100), "%");
-        Range("Motion speed", "Adjust reveal and dismissal together.", 50, 200, Scoped.MotionSpeed * 100, v => ChangeScoped(s => s.MotionSpeed = v / 100), "%");
+        Heading("Appearance", "Choose a palette, island size, and motion for each display.");
+        Section("Display preferences", control: PreferenceScope(compact: true));
+        Section("Color theme", "Applies to Settings and the island accent.", new ThemePicker(Scoped.Theme, value =>
+        {
+            ChangeScoped(s => s.Theme = value);
+            Save();
+        }));
+
+        var size = new StackPanel();
+        AddSetting(size, "Size preset", null, Choice("Island size preset", new[] { "Compact", "Comfortable", "Large" },
+            Scoped.SizeScale < .98 ? "Compact" : Scoped.SizeScale > 1.1 ? "Large" : "Comfortable", value =>
+            {
+                ChangeScoped(s => s.SizeScale = value == "Compact" ? .9 : value == "Large" ? 1.2 : 1);
+                BuildPage();
+            }));
+        AddSetting(size, "Island size", "Fine-tune the preset.", Range("Island size", 85, 130, Scoped.SizeScale * 100, v => ChangeScoped(s => s.SizeScale = v / 100), "%"));
+        Section("Size", control: size);
+
+        var motion = new StackPanel();
+        AddSetting(motion, "Motion preference", "System follows the Windows animation setting. Reduced uses a short fade.",
+            Choice("Motion preference", new[] { "System", "Normal", "Reduced" }, Scoped.Motion, value => ChangeScoped(s => s.Motion = value)));
+        AddSetting(motion, "Motion speed", "Applies to reveal and dismissal.", Range("Motion speed", 50, 200, Scoped.MotionSpeed * 100, v => ChangeScoped(s => s.MotionSpeed = v / 100), "%"));
+        Section("Motion", control: motion);
     }
-    private void Range(string title, string detail, double min, double max, double value, Action<double> change, string unit)
+
+    private Grid Range(string title, double min, double max, double value, Action<double> change, string unit)
     {
-        var s = new StackPanel();
-        var label = Design.Text(((int)value) + unit, 12, "Accent", true);
-        s.Children.Add(label);
+        var row = new Grid { Width = 158 };
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(52) });
+        var label = Design.Text(((int)Math.Round(value)) + unit, 12, "Accent", true);
+        label.VerticalAlignment = VerticalAlignment.Center;
+        label.HorizontalAlignment = HorizontalAlignment.Right;
+        Grid.SetColumn(label, 1);
         var slider = new Slider { Minimum = min, Maximum = max, Value = value, TickFrequency = 1, IsSnapToTickEnabled = true };
         AutomationProperties.SetName(slider, title);
         slider.ValueChanged += (_, _) => { label.Text = ((int)slider.Value) + unit; change(slider.Value); };
         slider.PreviewMouseLeftButtonUp += (_, _) => Save();
         slider.PreviewKeyUp += (_, _) => Save();
-        s.Children.Add(slider);
-        Section(title, detail, s);
+        row.Children.Add(slider);
+        row.Children.Add(label);
+        return row;
     }
+
     private void Behavior()
     {
-        Heading("Choose where Crest opens.", "Desktop-only by default. Enable app access when you want Crest within reach while you work.");
+        Heading("Behavior", "Choose where Crest opens and how your pointer or keyboard reveals it.");
+        var visibility = new StackPanel();
         var strictDesktop = Toggle("Use strict desktop mode (recommended)", _app.Preferences.StrictDesktop, v => _app.Preferences.StrictDesktop = v);
         strictDesktop.IsEnabled = !_app.Preferences.AllowOverApps;
         var appAccess = Toggle("Allow Crest over other apps", _app.Preferences.AllowOverApps, enabled =>
@@ -302,80 +500,138 @@ public sealed partial class SettingsWindow : Window
             _app.Preferences.AllowOverApps = enabled;
             strictDesktop.IsEnabled = !enabled;
         });
-        Section("App access", "Open Crest from the top edge of your selected display even while another app is active. This is off by default. Settings, Pause, screen lock, and sleep still hide Crest.", appAccess);
-        Section("Desktop visibility", "When app access is off, strict mode requires the wallpaper desktop to be active and apps on your selected display to be minimized. Desktop-active mode permits visible apps after you click the desktop. Your choice is retained while app access is enabled.", strictDesktop);
+        AddSetting(visibility, "Allow Crest over other apps", "Reveal the island above the active app. Crest stays hidden during Settings, Pause, screen lock, and sleep.", appAccess);
+        AddSetting(visibility, "Strict desktop mode", "When app access is off, require the desktop to be active and apps on the selected display to be minimized.", strictDesktop);
+        Section("Visibility", control: visibility);
+
         var displays = Forms.Screen.AllScreens;
-        var displayChoice = new ComboBox { ItemsSource = displays, DisplayMemberPath = "DeviceName", SelectedItem = displays.FirstOrDefault(s => s.DeviceName == _app.Preferences.SelectedDisplay) ?? Forms.Screen.PrimaryScreen };
+        var displayOptions = displays.Select(screen => new
+        {
+            screen.DeviceName,
+            Label = DisplayLabel(screen)
+        }).ToArray();
+        string? activeDisplay = displays.FirstOrDefault(s => s.DeviceName == _app.Preferences.SelectedDisplay)?.DeviceName ?? Forms.Screen.PrimaryScreen?.DeviceName;
+        var displayChoice = new ComboBox { ItemsSource = displayOptions, DisplayMemberPath = "Label", SelectedValuePath = "DeviceName", SelectedValue = activeDisplay, MinWidth = 158, MaxWidth = 196 };
         AutomationProperties.SetName(displayChoice, "Selected display");
-        displayChoice.SelectionChanged += (_, _) => { if (displayChoice.SelectedItem is Forms.Screen screen) { _app.Preferences.SelectedDisplay = screen.DeviceName; Save(); } };
-        Section("Display", "Crest uses one display. If it disconnects, Crest returns to the primary display and waits for a fresh hover.", displayChoice);
-        PreferenceScope();
-        Section("Trigger coverage", "By default, the trigger is a small area at the top-center edge.", Toggle("Use the full-width top edge", Scoped.FullWidthTrigger, v => ChangeScoped(s => s.FullWidthTrigger = v)));
-        Range("Hover delay", "How long your pointer stays at the edge before Crest opens.", 80, 500, Scoped.DwellMs, v => ChangeScoped(s => s.DwellMs = (int)v), " ms");
-        Range("Pointer grace", "A little time to return before the island closes.", 100, 750, Scoped.GraceMs, v => ChangeScoped(s => s.GraceMs = (int)v), " ms");
-        Range("Trigger width", "Width of the centered top-edge trigger.", 80, 800, Scoped.TriggerWidth, v => ChangeScoped(s => s.TriggerWidth = (int)v), " DIP");
-        Range("Trigger depth", "Depth measured down from the top edge.", 1, 12, Scoped.TriggerDepth, v => ChangeScoped(s => s.TriggerDepth = (int)v), " DIP");
-        Section("Double-click gesture", "Double-click an empty island surface to perform this action.", Choice("Double-click gesture", ModuleCatalog.Gestures, _app.Preferences.DoubleClickGesture, value => _app.Preferences.DoubleClickGesture = value));
-        Section("Middle-click gesture", "Middle-click an empty island surface to perform this action.", Choice("Middle-click gesture", ModuleCatalog.Gestures, _app.Preferences.MiddleClickGesture, value => _app.Preferences.MiddleClickGesture = value));
-        Section("Pointer wheel", "Use the wheel on the empty island surface to move through your enabled modules.", Choice("Pointer wheel gesture", new[] { "None", "Switch modules" }, _app.Preferences.WheelGesture, value => _app.Preferences.WheelGesture = value));
-        var startup = new CheckBox { Content = "Start Crest with Windows", IsChecked = _app.Preferences.StartWithWindows };
-        startup.Click += (_, _) => { try { _app.SetStartup(startup.IsChecked == true); _message.Text = "Startup preference saved."; } catch { startup.IsChecked = _app.Preferences.StartWithWindows; _message.Text = "Windows could not change this startup preference."; } };
-        Section("Startup", "Start quietly in your system tray. This is off by default.", startup);
-        Section("Keyboard access", "Enable Ctrl+Alt+Space to open Crest from the keyboard. It follows your visibility choice: desktop-only by default, or over another app when app access is enabled. Tab moves between controls; Escape dismisses.", Toggle("Enable the accessibility reveal shortcut", _app.Preferences.AccessibilityShortcut, v => _app.Preferences.AccessibilityShortcut = v));
+        displayChoice.SelectionChanged += (_, _) =>
+        {
+            if (displayChoice.SelectedValue is not string deviceName) return;
+            _app.Preferences.SelectedDisplay = deviceName;
+            Save();
+        };
+        var display = new StackPanel();
+        AddSetting(display, "Island display", "If this display disconnects, Crest returns to the primary display on your next hover.", displayChoice);
+        Section("Display", control: display);
+
+        var trigger = PreferenceScope();
+        var width = Range("Trigger width", 80, 800, Scoped.TriggerWidth, v => ChangeScoped(s => s.TriggerWidth = (int)v), " DIP");
+        width.IsEnabled = !Scoped.FullWidthTrigger;
+        AddSetting(trigger, "Full-width top edge", "Use the entire edge to reveal Crest.", Toggle("Use the full-width top edge", Scoped.FullWidthTrigger, v =>
+        {
+            ChangeScoped(s => s.FullWidthTrigger = v);
+            width.IsEnabled = !v;
+        }));
+        AddSetting(trigger, "Hover delay", "How long to stay at the edge before Crest opens.", Range("Hover delay", 80, 500, Scoped.DwellMs, v => ChangeScoped(s => s.DwellMs = (int)v), " ms"));
+        AddSetting(trigger, "Pointer grace", "Time to return before the island closes.", Range("Pointer grace", 100, 750, Scoped.GraceMs, v => ChangeScoped(s => s.GraceMs = (int)v), " ms"));
+        AddSetting(trigger, "Trigger width", "Width of the centered target.", width);
+        AddSetting(trigger, "Trigger depth", "Distance down from the top edge.", Range("Trigger depth", 1, 12, Scoped.TriggerDepth, v => ChangeScoped(s => s.TriggerDepth = (int)v), " DIP"));
+        Section("Pointer trigger", control: trigger);
+
+        var gestures = new StackPanel();
+        AddSetting(gestures, "Double-click", null, Choice("Double-click gesture", ModuleCatalog.Gestures, _app.Preferences.DoubleClickGesture, value => _app.Preferences.DoubleClickGesture = value));
+        AddSetting(gestures, "Middle-click", null, Choice("Middle-click gesture", ModuleCatalog.Gestures, _app.Preferences.MiddleClickGesture, value => _app.Preferences.MiddleClickGesture = value));
+        AddSetting(gestures, "Pointer wheel", null, Choice("Pointer wheel gesture", new[] { "None", "Switch modules" }, _app.Preferences.WheelGesture, value => _app.Preferences.WheelGesture = value));
+        Section("Gestures", "These actions apply on an empty part of the island.", gestures);
+
+        var startupAndKeyboard = new StackPanel();
+        var startup = Toggle("Start Crest with Windows", _app.Preferences.StartWithWindows, enabled =>
+        {
+            try { _app.SetStartup(enabled); SetStatus(_app.Store.LastError ?? "Startup preference saved."); }
+            catch { SetStatus("Windows could not change this startup preference."); }
+        }, save: false);
+        startup.Click += (_, _) => startup.IsChecked = _app.Preferences.StartWithWindows;
+        AddSetting(startupAndKeyboard, "Start with Windows", "Open Crest in the system tray at sign-in.", startup);
+        AddSetting(startupAndKeyboard, "Keyboard reveal", "Press Ctrl+Alt+Space to show Crest, Tab to navigate, and Escape to dismiss.", Toggle("Enable the accessibility reveal shortcut", _app.Preferences.AccessibilityShortcut, v => _app.Preferences.AccessibilityShortcut = v));
+        Section("Startup and keyboard", control: startupAndKeyboard);
     }
+
     private void Modules()
     {
-        Heading("Your everyday essentials.", "Choose what appears in the island. Optional sources are configured separately in Integrations.");
-        var details = new[] { ("Music", "Playback and metadata from available Windows media sessions."), ("Controls", "Audio outputs, volume, battery, brightness, CPU, memory, network activity, Wi-Fi and Bluetooth."), ("Timer", "Timers, stopwatch, focus sessions, and local reminders with snooze and dismissal."), ("Launch", "Your chosen apps, folders, websites, and shortcuts."), ("Shelf", "Up to 20 references. Pin chosen references to retain them after quitting."), ("Capture", "Launch Windows capture and retain only the recent image references you select."), ("Workspaces", "Launch a saved group of apps, folders, and websites."), ("Clipboard", "Search and manage text history after opting in from Privacy settings."), ("Integrations", "Optional weather, calendar, downloads, local AI, and Windows integrations.") };
-        foreach (var (name, detail) in details)
-            Section(name, detail, Toggle("Show " + name, _app.Preferences.EnabledModules.Contains(name), v => { if (v && !_app.Preferences.EnabledModules.Contains(name)) _app.Preferences.EnabledModules.Add(name); if (!v) _app.Preferences.EnabledModules.Remove(name); }));
-        ModuleOrdering();
+        Heading("Modules", "Choose which tools appear on the island and arrange their order.");
+        ModuleList();
         var timerSound = new StackPanel();
-        timerSound.Children.Add(Toggle("Play a sound for timer completion", _app.Preferences.TimerSound, v => _app.Preferences.TimerSound = v));
-        var testSound = Design.Button("Test timer sound", () => { _app.PreviewTimerSound(); _message.Text = "Playing Crest's timer chime. If it is silent, check your output and Crest volume in Windows Volume Mixer."; });
+        AddSetting(timerSound, "Play a completion sound", "The chime can play while the island is hidden.", Toggle("Play a sound for timer completion", _app.Preferences.TimerSound, v => _app.Preferences.TimerSound = v));
+        var testSound = Design.Button("Test timer sound", () =>
+        {
+            _app.PreviewTimerSound();
+            SetStatus("Playing Crest's timer chime. If it is silent, check your output and Crest volume in Windows Volume Mixer.");
+        });
         testSound.HorizontalAlignment = HorizontalAlignment.Left;
-        testSound.Margin = new Thickness(0, 10, 0, 0);
+        testSound.Margin = new Thickness(0, 8, 0, 0);
         timerSound.Children.Add(testSound);
-        Section("Timer sound", "A short Crest chime can play when a timer finishes, even while Crest is hidden. This is off by default. Completed timers wait for your next reveal.", timerSound);
-        Section("Optional integrations", "Weather, local calendars, meeting links, Crest downloads, read-only Ollama assistance, notifications, and Windows device access start off. Configure sources and permissions in Integrations.", Design.Button("Configure integrations", () => ShowSection("Integrations")));
+        Section("Timer sound", control: timerSound);
     }
     private void Shortcuts()
     {
-        Heading("Your familiar places.", "Add only the apps, folders, and websites you want within reach.");
-        var actions = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 18) };
-        var file = Design.Button("Add app or file", AddFile);
-        actions.Children.Add(file);
-        var folder = Design.Button("Add folder", AddFolder);
-        folder.Margin = new Thickness(8, 0, 0, 0);
-        actions.Children.Add(folder);
-        _page.Children.Add(actions);
+        Heading("Shortcuts", "Keep your favorite apps, folders, files, and websites in the Launch module.");
+        var actions = new WrapPanel();
+        actions.Children.Add(Design.Button("Add app or file", AddFile));
+        actions.Children.Add(Design.Button("Add folder", AddFolder));
+        PanelLayout.SpaceActions(actions);
+        Section("Add from this PC", control: actions);
         var form = new StackPanel();
-        var name = new TextBox { Text = "", Margin = new Thickness(0, 0, 0, 8) };
+        var name = new TextBox { Margin = new Thickness(0, 4, 0, 8) };
         AutomationProperties.SetName(name, "Website shortcut name");
-        form.Children.Add(Design.Text("Name", 11, "Muted"));
+        form.Children.Add(Design.Text("Name", 12, "Muted"));
         form.Children.Add(name);
-        var url = new TextBox { Text = "https://", Margin = new Thickness(0, 0, 0, 12) };
+        var url = new TextBox { Text = "https://", Margin = new Thickness(0, 4, 0, 12) };
         AutomationProperties.SetName(url, "Website URL");
-        form.Children.Add(Design.Text("Website address", 11, "Muted"));
+        form.Children.Add(Design.Text("Website address", 12, "Muted"));
         form.Children.Add(url);
-        form.Children.Add(Design.Button("Add website", () => { if (string.IsNullOrWhiteSpace(name.Text) || !Uri.TryCreate(url.Text, UriKind.Absolute, out var uri) || (uri.Scheme != "https" && uri.Scheme != "http")) { _message.Text = "Enter a name and a valid https:// or http:// address."; return; } Add(name.Text.Trim(), uri.AbsoluteUri, "Website"); }));
-        Section("A favorite website", "Websites open in your default browser.", form);
-        foreach (var entry in _app.Preferences.Launchers.ToArray())
+        var add = Design.Button("Add website", () =>
         {
-            var s = new StackPanel();
-            s.Children.Add(Design.Text(entry.Name, 14, "Text", true));
-            var path = Design.Text(entry.Target, 11, "Muted");
+            if (string.IsNullOrWhiteSpace(name.Text) || !Uri.TryCreate(url.Text.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("https" or "http"))
+            {
+                SetStatus("Enter a name and a valid https:// or http:// address.");
+                return;
+            }
+            Add(name.Text.Trim(), uri.AbsoluteUri, "Website");
+        });
+        add.HorizontalAlignment = HorizontalAlignment.Left;
+        form.Children.Add(add);
+        Section("Add a website", control: form);
+
+        var shortcuts = _app.Preferences.Launchers;
+        if (shortcuts.Count == 0)
+        {
+            Section("No saved shortcuts", "Items you add here appear in the Launch module.");
+            return;
+        }
+        var saved = new StackPanel();
+        foreach (var entry in shortcuts)
+        {
+            var row = new DockPanel { Margin = new Thickness(0, 4, 0, 4) };
+            var remove = Design.Button("Remove", () =>
+            {
+                shortcuts.Remove(entry);
+                Save();
+                BuildPage();
+            });
+            AutomationProperties.SetName(remove, "Remove shortcut " + entry.Name);
+            DockPanel.SetDock(remove, Dock.Right);
+            row.Children.Add(remove);
+
+            var label = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 12, 0) };
+            label.Children.Add(Design.Text(entry.Name, 13, "Text", true));
+            var path = Design.Text(entry.Target, 12, "Muted");
             path.TextTrimming = TextTrimming.CharacterEllipsis;
             path.TextWrapping = TextWrapping.NoWrap;
-            s.Children.Add(path);
-            var remove = Design.Button("Remove shortcut", () => { _app.Preferences.Launchers.Remove(entry); Save(); BuildPage(); });
-            remove.HorizontalAlignment = HorizontalAlignment.Left;
-            remove.Margin = new Thickness(0, 10, 0, 0);
-            s.Children.Add(remove);
-            var c = Design.Card(s);
-            c.Margin = new Thickness(0, 0, 0, 10);
-            _page.Children.Add(c);
+            path.ToolTip = entry.Target;
+            label.Children.Add(path);
+            row.Children.Add(label);
+            saved.Children.Add(row);
         }
+        Section("Saved shortcuts", control: saved);
     }
     private void AddFile()
     {
@@ -393,7 +649,7 @@ public sealed partial class SettingsWindow : Window
     {
         if (_app.Preferences.Launchers.Count >= 100)
         {
-            _message.Text = "You can keep up to 100 shortcuts.";
+            SetStatus("You can keep up to 100 shortcuts.");
             return;
         }
         _app.Preferences.Launchers.Add(new LauncherEntry { Name = name, Target = target, Kind = kind });
@@ -402,12 +658,30 @@ public sealed partial class SettingsWindow : Window
     }
     private void About()
     {
-        Heading("Small by design.", "Crest " + App.AppVersion + " · Windows 11 · x64\nA local release candidate.");
-        Section("Your data stays here", "No account, analytics, or required internet connection. Preferences, activities, pinned shelf references and selected capture references live in your Windows user profile. Text clipboard history is collected only after you opt in from Privacy settings.");
-        Section("Clear Crest data", "Reset preferences, shortcuts, workspaces, all activities, clipboard history, shelf and capture references, and Windows startup. Your original files are untouched.", Design.Button("Reset Crest data", () => { if (MessageBox.Show(this, "Reset all Crest preferences, workspaces, timers, focus sessions, reminders, stopwatch, clipboard history, and saved references? Your original files will stay in place.", "Reset Crest data", MessageBoxButton.YesNo, MessageBoxImage.Question, MessageBoxResult.No) == MessageBoxResult.Yes) { try { _app.ResetData(); BuildPage(); _message.Text = "Crest data was reset."; } catch { _message.Text = "Some data could not be reset. Please try again."; } } }));
-        Section("Capability status", $"Audio: {_app.Hardware.AudioStatus}\nBrightness: {_app.Hardware.BrightnessStatus}\nBattery: {_app.Hardware.Battery.Status}\nMusic: {_app.Hardware.Music.Status}");
-        Section("Using the tray", "Double-click the Crest tray icon to open Settings. Right-click it for Settings, Pause / Resume, and Quit. Pause disables the hover trigger. Quit releases the island and native subscriptions.");
-        Section("Release verification", "Automated checks cover desktop interaction transitions, timer recovery, settings recovery, and file reference limits. The source includes a compatibility report identifying hardware checks and remaining acceptance tests.");
-        Section("Uninstall", "Use Windows Installed apps after setup. The uninstaller offers a choice to retain or remove Crest preferences. Portable copies can be closed from the tray and removed.");
+        Heading("About Crest", "Version " + App.AppVersion + " for Windows 11 (x64)");
+        var hardware = new StackPanel();
+        AddSetting(hardware, "Audio", _app.Hardware.AudioStatus);
+        AddSetting(hardware, "Brightness", _app.Hardware.BrightnessStatus);
+        AddSetting(hardware, "Battery", _app.Hardware.Battery.Status);
+        AddSetting(hardware, "Music", _app.Hardware.Music.Status);
+        Section("Device support", control: hardware);
+        Section("Using the tray", "Double-click the tray icon to open Settings. Right-click it to pause or resume the island, or quit Crest.");
+        Section("Uninstall", "Use Installed apps in Windows Settings. The uninstaller lets you keep or remove your preferences. To remove a portable copy, quit Crest before deleting its folder.");
+
+        var reset = Design.Button("Reset Crest data", () =>
+        {
+            if (!CrestDialog.Confirm(this, "Reset Crest data", "Reset Crest preferences, integrations, shortcuts, workspaces, activities, clipboard history, saved file references, and Windows startup? Your original files will stay in place.", "Reset Crest data")) return;
+            try
+            {
+                _app.ResetData();
+                _preferenceDisplay = "";
+                BuildPage();
+                SetStatus(_app.Store.LastError ?? "Crest data was reset.");
+            }
+            catch { SetStatus("Some data could not be reset. Please try again."); }
+        });
+        reset.HorizontalAlignment = HorizontalAlignment.Left;
+        reset.SetResourceReference(ForegroundProperty, "Danger");
+        Section("Reset data", "Remove Crest's saved settings and data. Your original files stay in place.", reset);
     }
 }

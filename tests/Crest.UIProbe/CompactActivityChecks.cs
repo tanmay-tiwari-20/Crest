@@ -55,10 +55,10 @@ internal static class CompactActivityChecks
             local.SelectTimer(running);
             settings.EnabledModules.Clear();
             await Reveal();
-            bool neutral = labels["compactTitle"].Text == "crest" && labels["compactDetail"].Text == "Your desktop, in reach"
+            bool neutral = labels["compactTitle"].Text == "crest" && labels["compactDetail"].Text == "Idle"
                 && artwork.Source is null && artwork.Visibility == Visibility.Collapsed && !action.IsVisible;
             details.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            check(neutral && Field<string>(island, "_module") == "Overview" && local.Timers.Count == 2,
+            check(neutral && Field<string>(island, "_module") == "Tools" && IslandProbe.Selected(island) == null && local.Timers.Count == 2,
                 "Disabled modules contribute no compact metadata, artwork, completion notice, or action");
 
             settings.EnabledModules.Add("Music");
@@ -68,10 +68,11 @@ internal static class CompactActivityChecks
             details.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             check(labels["compactTitle"].Text == "Visible song" && labels["compactDetail"].Text == "Visible artist"
                 && musicArtworkVisible
-                && musicName.Contains("Open music details", StringComparison.Ordinal)
+                && musicName.Contains("Expand music", StringComparison.Ordinal)
                 && musicName.Contains("Visible song", StringComparison.Ordinal)
-                && AutomationProperties.GetName(action) == "Pause music"
-                && Field<string>(island, "_module") == "Music" && local.Timers.Any(timer => timer.Phase == TimerPhase.Completed),
+                && AutomationProperties.GetName(action) == "Pause playback"
+                && Field<string>(island, "_module") == "Music" && IslandProbe.Presentation(island) == "Activity"
+                && Field<ActivityDeck>(island, "_expanded").CurrentActivity?.Kind == IslandActivityKind.Music && local.Timers.Any(timer => timer.Phase == TimerPhase.Completed),
                 "A disabled Timer module cannot replace enabled music or redirect its details action");
 
             local.ResetProductivity();
@@ -82,10 +83,10 @@ internal static class CompactActivityChecks
             await Reveal();
             string timerName = new ButtonAutomationPeer(details).GetName();
             details.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            check(labels["compactTitle"].Text == "Visible tea" && labels["compactDetail"].Text.StartsWith("Running", StringComparison.Ordinal)
+            check(labels["compactTitle"].Text == "Visible tea" && IslandProbe.Selected(island)?.Phase == "Running"
                 && artwork.Source is null && AutomationProperties.GetName(action) == "Pause Visible tea"
-                && timerName.Contains("Open timers and stopwatch", StringComparison.Ordinal)
-                && Field<string>(island, "_module") == "Timer",
+                && timerName.Contains("Expand timer", StringComparison.Ordinal)
+                && Field<string>(island, "_module") == "Timer" && Field<ActivityDeck>(island, "_expanded").CurrentActivity?.EntityId == running,
                 "The displayed running timer has matching details, accessible status, and a timer action");
 
             await Reveal();
@@ -107,7 +108,7 @@ internal static class CompactActivityChecks
             await Reveal();
             string completedName = new ButtonAutomationPeer(details).GetName();
             action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            check(labels["compactTitle"].Text == "Timer complete" && AutomationProperties.GetName(action) == "Open completed timers"
+            check(labels["compactTitle"].Text == "Completed tea" && AutomationProperties.GetName(action) == "Open completed timers"
                 && completedName.Contains("Timer complete", StringComparison.Ordinal)
                 && Field<string>(island, "_module") == "Timer"
                 && local.Timers.Single(timer => timer.Id == running).Phase == TimerPhase.Running,
@@ -123,7 +124,7 @@ internal static class CompactActivityChecks
             bool detailsCorrect = Field<string>(island, "_module") == "Controls";
             typeof(IslandWindow).GetMethod("Collapse", BindingFlags.Instance | BindingFlags.NonPublic, null, Type.EmptyTypes, null)!.Invoke(island, null);
             action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            check(labels["compactTitle"].Text == "Battery was low" && batteryName.Contains("Open laptop controls", StringComparison.Ordinal)
+            check(labels["compactTitle"].Text == "Battery was low" && batteryName.Contains("Expand batterywarning", StringComparison.Ordinal)
                 && batteryName.Contains("12%", StringComparison.Ordinal) && AutomationProperties.GetName(action) == "Open laptop controls"
                 && detailsCorrect && Field<string>(island, "_module") == "Controls"
                 && labels["bodyBatteryNotice"].Text.Contains("12%", StringComparison.Ordinal),
@@ -134,8 +135,8 @@ internal static class CompactActivityChecks
             settings.EnabledModules.Remove("Timer");
             island.Refresh();
             check(labels["compactTitle"].Text == "Visible song" && ReferenceEquals(artwork.Source, art)
-                && new ButtonAutomationPeer(details).GetName().Contains("Open music details", StringComparison.Ordinal)
-                && AutomationProperties.GetName(action) == "Pause music",
+                && new ButtonAutomationPeer(details).GetName().Contains("Expand music", StringComparison.Ordinal)
+                && AutomationProperties.GetName(action) == "Pause playback",
                 "Disabling the displayed notice modules immediately restores enabled music and its actions");
         }
         finally

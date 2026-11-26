@@ -40,21 +40,21 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Measure-NativeAccept
 This creates a fresh local acceptance profile, launches the exact verified candidate with independent IPC names, records native hooks/hidden windows, measures ten-minute CPU and warm memory, and quits only that test instance. It leaves the user's existing Crest instance, saved activities and Windows startup entry intact. Raw evidence stays under `artifacts/native-acceptance/`; profile data stays under `tmp/`. A passive window-show hook catches transient reveals between resource samples and retains any observer failure after cleanup. The report and console summary include requested/actual duration, sample count, early exit, and qualification flags. An interrupted run cannot qualify resource budgets. One readiness observation does not qualify an independently cold start. Use the [acceptance runbook](P1_ACCEPTANCE_RUNBOOK.md) for physical interaction, accessibility, display, frame delivery, battery impact and clean-account distribution checks.
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.3.0
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/release.ps1 -Tag v0.4.0
 ```
 
 This runs the Release build/tests and creates a clean distribution containing the executable, runtime, public user/build/release documentation, the two reviewed fixture illustrations referenced by README, MIT license, and dependency notices. Raw local screenshots, diagnostic output, PDBs, and machine-specific test reports are excluded.
 
 | File under `artifacts/release` | Purpose |
 | --- | --- |
-| `Crest-Setup-0.3.0-x64.exe` | Per-user Windows installer |
-| `Crest-Portable-0.3.0-x64.zip` | Complete application in a `Crest` folder |
+| `Crest-Setup-0.4.0-x64.exe` | Per-user Windows installer |
+| `Crest-Portable-0.4.0-x64.zip` | Complete application in a `Crest` folder |
 | `SHA256SUMS.txt` | SHA-256 hashes of both application packages |
 | `release-notes.md` | Release-description text |
 | `release-gate-report.json` | Candidate-bound acceptance status for review |
 | `release-manifest.json` | Tagged version, source/binary identities, test scope and asset hashes |
 
-`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, runtime files, and its source/test-bound build record. `scripts/release.ps1 -SkipBuild -Tag v0.3.0` does not rerun tests; it requires the existing publish to match the current verified source and every file hash. Changed source, changed binaries, skipped tests, or Debug output require a fresh Release build.
+`scripts/build.ps1 -Package` builds an installer without the release ZIP. `scripts/package.ps1` packages an existing publish after checking architecture, versions, manifests, runtime files, and its source/test-bound build record. `scripts/release.ps1 -SkipBuild -Tag v0.4.0` does not rerun tests; it requires the existing publish to match the current verified source and every file hash. Changed source, changed binaries, skipped tests, or Debug output require a fresh Release build.
 
 Default release packaging remains a release-candidate operation while native acceptance is open. Use `scripts/verify-release-gates.ps1` to inspect the candidate-bound report. Add `-RequireP1Gates` to `scripts/release.ps1` when preparing a P1-qualified release; it refuses to package if any applicable gate is incomplete, failed, or stale. The [gate record](release-gates.json) must link hashed observed evidence to the current candidate before a gate can pass. CI compilation cannot certify physical desktop, accessibility, hardware, or presentation behavior.
 
@@ -87,11 +87,11 @@ See [publishing steps](RELEASING.md). CI does not certify physical desktop dragg
 
 ## Optional Windows capability package
 
-The 0.3.0 optional notification adapter may require Windows package identity and the userNotificationListener capability. scripts/package-msix.ps1 packages an existing self-contained x64 distribution using installed Windows SDK MakeAppx tooling. An existing matching publisher certificate can be selected explicitly for signing; the script does not create or trust certificates or install packages. See PRD_COMPLETION.md for supported scopes and current acceptance limits.
+The optional MSIX manifest declares capabilities for notification reading and Windows location. Run `scripts/package-msix.ps1` against an existing self-contained distribution with the Windows SDK MakeAppx tool. To sign it, use an existing certificate with the matching publisher. Windows still controls permissions at runtime. [Supported integration scopes](USER_GUIDE.md#optional-integrations)
 
 ## Candidate verification scope and preserved outputs
 
-Use `-ArtifactRoot artifacts/release-0.3.0` with `scripts/build.ps1`, `scripts/package.ps1`, or `scripts/release.ps1` to keep an older candidate's files intact. The default root remains `artifacts` for GitHub workflows.
+Use `-ArtifactRoot artifacts/release-0.4.0` with `scripts/build.ps1`, `scripts/package.ps1`, or `scripts/release.ps1` to keep an older candidate's files intact. The default root remains `artifacts` for GitHub workflows.
 
 `-SkipNativeClipboardVerification` is available only for an explicit local candidate build when the user's original clipboard cannot be safely preserved. All remaining checks run; the provenance record, release manifest and generated release body identify eleven omitted native clipboard outcomes. GitHub CI runs the complete suite. A scoped local candidate does not satisfy `-RequireP1Gates`.
 

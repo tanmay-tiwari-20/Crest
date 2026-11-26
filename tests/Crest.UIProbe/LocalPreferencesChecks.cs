@@ -49,9 +49,9 @@ internal static class LocalPreferencesChecks
             await Navigate("Appearance");
             Find<ComboBox>("Preference display").SelectedItem = display;
             await Idle();
-            var themes = Find<ComboBox>("Color theme");
-            check(new[] { "Ocean", "Forest", "Rose" }.All(theme => themes.Items.Contains(theme)), "Appearance settings expose all three additional local themes");
-            themes.SelectedItem = "Ocean";
+            check(Descendants<RadioButton>(window).Select(AutomationProperties.GetName).SequenceEqual(ModuleCatalog.Themes),
+                "Appearance settings expose all six saved theme choices in order");
+            Find<RadioButton>("Ocean").IsChecked = true;
             check(settings.Displays[display].Theme == "Ocean" && settings.Theme == "Dark" && store.Load().Displays[display].Theme == "Ocean",
                 "A display-specific theme persists independently of the default theme");
             Find<ComboBox>("Island size preset").SelectedItem = "Large";
@@ -59,7 +59,7 @@ internal static class LocalPreferencesChecks
             check(settings.Displays[display].SizeScale == 1.2 && settings.SizeScale == 1, "A display-specific size preset changes only the selected display");
             Find<ComboBox>("Preference display").SelectedItem = defaults;
             await Idle();
-            Find<ComboBox>("Color theme").SelectedItem = "Rose";
+            Find<RadioButton>("Rose").IsChecked = true;
             check(settings.Theme == "Rose" && settings.Displays[display].Theme == "Ocean", "Editing defaults preserves an existing display appearance override");
 
             await Navigate("Behavior");
@@ -86,11 +86,11 @@ internal static class LocalPreferencesChecks
             await Click("Move Clipboard earlier");
             typeof(IslandWindow).GetMethod("BuildTabs", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(island, null);
             var tabs = (StackPanel)typeof(IslandWindow).GetField("_tabs", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(island)!;
-            var tabNames = tabs.Children.OfType<Button>().Select(AutomationProperties.GetName).ToArray();
+            var tabNames = Descendants<Button>(tabs).Select(AutomationProperties.GetAutomationId).Where(id => id.StartsWith("module-", StringComparison.Ordinal)).ToArray();
             check(settings.ModuleOrder.IndexOf("Clipboard") == previous - 1
-                && Array.IndexOf(tabNames, "Clipboard history") < Array.IndexOf(tabNames, "Workspace presets")
+                && Array.IndexOf(tabNames, "module-Clipboard") < Array.IndexOf(tabNames, "module-Workspaces")
                 && store.Load().ModuleOrder.IndexOf("Clipboard") == previous - 1,
-                "Module ordering controls update the persisted order and the actual island dock");
+                "Module ordering controls update the persisted order and the intentional tools catalog");
 
             await Navigate("Workspaces");
             Find<TextBox>("New workspace name").Text = "Writing";

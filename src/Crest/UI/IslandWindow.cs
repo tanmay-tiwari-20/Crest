@@ -20,45 +20,58 @@ namespace Crest.UI;
 
 public sealed partial class IslandWindow : Window
 {
-    private const double DeckWidth = 820, DeckHeight = 150, TotalHeight = 522, DockWidth = 284;
-    private static readonly Rect CompactRect = new(280, 0, 260, 44);
-    private static readonly Rect OpenRect = new(0, 0, DeckWidth, DeckHeight);
-    private static readonly Rect DetailRect = new(200, 206, 420, 316);
+    private const double DeckWidth = 480, TotalHeight = 560;
+    private static readonly Rect CompactRect = new(104, 0, 272, 48);
+    private static readonly Rect IdleRect = new(147, 0, 186, 48);
+    private static readonly Rect DetailRect = new(20, 0, 440, 336);
+    private Rect _targetRect = IdleRect, _compactRect = IdleRect;
+    private enum IslandPresentation { Compact, Activity, Tools, Detail }
+    private IslandPresentation _presentation = IslandPresentation.Compact;
     private readonly App _app;
     private readonly Grid _surface = new(), _shell = new(), _compact = new();
     private readonly ActivityDeck _expanded;
     private readonly Border _dock = new(), _detail = new();
-    private readonly RectangleGeometry _clip = new(CompactRect, 26, 26);
+    private readonly RectangleGeometry _clip = new(IdleRect, 24, 24);
+    private readonly IslandEnvelope _envelope;
     private readonly TranslateTransform _slide = new(), _detailSlide = new();
-    private readonly StackPanel _body = new(), _tabs = new() { Orientation = Orientation.Horizontal };
+    private readonly TranslateTransform _dockSlide = new(), _deckSlide = new();
+    private readonly TranslateTransform _compactSlide = new();
+    private readonly SpringMotion _motion = new();
+    private readonly StackPanel _body = new(), _tabs = new();
+    private readonly Button[] _secondary = new Button[2];
+    private readonly Rect[] _secondaryRects = { new(386, 2, 44, 44), new(436, 2, 44, 44) };
+    private IslandActivity? _selectedActivity;
+    private string? _selectedActivityId;
+    private System.Collections.Generic.IReadOnlyList<IslandActivity> _activities = Array.Empty<IslandActivity>();
+    private int _viewGeneration;
+    private ScrollViewer _detailScroll = null!;
+    private Button _compactOpen = null!;
     private readonly Dictionary<string, TextBlock> _labels = new();
     private readonly Dictionary<string, Button> _buttons = new();
     private readonly Dictionary<string, Slider> _sliders = new();
     private readonly Dictionary<string, PendingControlEdit> _sliderEdits = new();
     private readonly Dictionary<string, DispatcherTimer> _sliderCommits = new();
     private readonly Image _compactArt = new() { Width = 28, Height = 28, Stretch = Stretch.UniformToFill };
+    private FrameworkElement _compactBrand = null!;
     private Image _art = new() { Width = 54, Height = 54, Stretch = Stretch.UniformToFill };
     private readonly DispatcherTimer _clock = new() { Interval = TimeSpan.FromSeconds(1) };
     private bool _refreshing, _wide, _playerPopupOpen, _updatingPlayers, _suppressing, _rendering, _checkingShelf;
     private string _module = "Overview", _playerSignature = "", _enabledSignature = "", _shelfSignature = "";
     private IntPtr _hwnd, _playerPopupHandle;
     private int _motionGeneration;
-    private int _dockMotionGeneration;
     private long _lastShelfCheck;
     private ComboBox? _playersCombo;
     private TextBlock? _artFallback;
     private TimerToolsPanel? _timerTools;
+    private IntegrationsPanel? _integrationTools;
     private P2SystemPanel? _systemTools;
     private ClipboardHistoryPanel? _clipboardTools;
     private BatteryNoticeSnapshot? _shownBatteryNotice;
     private bool _shelfDropPending;
     private string? _shelfMessage;
     private long _shelfMessageGeneration = -1;
-    private string _compactModule = "Overview";
-    private bool _compactShowsCompletedTimers, _compactActionBusy;
-    private bool _compactShowsFocus, _compactShowsDueReminders;
+    private bool _compactActionBusy;
     public bool HoldsInteraction => IsKeyboardFocusWithin || _playerPopupOpen;
-    private static readonly string[] Modules = ModuleCatalog.All;
     [DllImport("user32.dll")] private static extern int GetWindowLong(IntPtr h, int index);
     [DllImport("user32.dll")] private static extern int SetWindowLong(IntPtr h, int index, int value);
     [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr h, IntPtr after, int x, int y, int w, int height, uint flags);
@@ -75,8 +88,11 @@ public sealed partial class IslandWindow : Window
         ShowInTaskbar = false;
         ShowActivated = false;
         Topmost = true;
-        Width = 836;
-        Height = 530;
+        Width = DeckWidth + 16;
+        Height = TotalHeight + 8;
+        FontFamily = new FontFamily("Segoe UI Variable Text, Segoe UI");
+        UseLayoutRounding = true;
+        SnapsToDevicePixels = true;
         Content = _surface;
         _surface.Width = DeckWidth;
         _surface.Height = TotalHeight;
@@ -85,20 +101,28 @@ public sealed partial class IslandWindow : Window
         _surface.Margin = new Thickness(8, 0, 8, 8);
         _surface.RenderTransform = _slide;
         _shell.Width = DeckWidth;
-        _shell.Height = DeckHeight;
+        _shell.Height = TotalHeight;
         _shell.VerticalAlignment = VerticalAlignment.Top;
         _shell.Clip = _clip;
-        var background = new Border { CornerRadius = new CornerRadius(26), BorderThickness = new Thickness(1) };
-        background.SetResourceReference(Border.BackgroundProperty, "IslandShell");
-        background.SetResourceReference(Border.BorderBrushProperty, "IslandOutline");
-        _shell.Children.Add(background);
+        ApplyIslandResources();
+        _envelope = new IslandEnvelope(_clip);
+        _shell.Children.Add(_envelope);
         BuildCompact();
         _shell.Children.Add(_compact);
         _expanded = new ActivityDeck(app, Expand, app.OpenSettings) { Visibility = Visibility.Collapsed };
+        _expanded.ShowHeader = false;
+        _expanded.RenderTransform = _deckSlide;
+        _expanded.Width = 376;
+        _expanded.HorizontalAlignment = HorizontalAlignment.Left;
+        _expanded.VerticalAlignment = VerticalAlignment.Top;
+        _expanded.Margin = new Thickness(52, 68, 0, 0);
+        _expanded.DesiredHeightChanged += (_, _) => { if (_presentation == IslandPresentation.Activity) UpdateContextSize(); };
+        _expanded.ActivityActionCompleted += (_, _) => Refresh();
         _shell.Children.Add(_expanded);
         _surface.Children.Add(_shell);
         BuildDock();
         BuildDetail();
+        BuildSecondaryActivities();
         SourceInitialized += (_, _) => { _hwnd = new WindowInteropHelper(this).Handle; SetWindowLong(_hwnd, -20, GetWindowLong(_hwnd, -20) | 0x08000000 | 0x80); HwndSource.FromHwnd(_hwnd)?.AddHook(WindowHook); _app.Policy.RegisterSurface(_hwnd, true, () => PixelBounds, ContainsVisiblePoint); PositionOnDisplay(); };
         PreviewMouseDown += (_, e) => { if (e.OriginalSource is DependencyObject d && Ancestor<TextBox>(d) != null) SetForegroundWindow(_hwnd); };
         PreviewMouseDown += (_, e) =>
@@ -131,6 +155,7 @@ public sealed partial class IslandWindow : Window
         };
         PreviewDrop += ImportShelfDrop;
         _clock.Tick += (_, _) => { Refresh(); if (_wide && _module == "Shelf" && !_checkingShelf && Environment.TickCount64 - _lastShelfCheck >= 3000) { _checkingShelf = true; _lastShelfCheck = Environment.TickCount64; _ = Task.Run(_app.Local.RefreshShelf).ContinueWith(_ => Dispatcher.BeginInvoke(() => { _checkingShelf = false; if (IsVisible && _wide && _module == "Shelf") { string current = string.Join("|", _app.Local.Shelf.Select(i => i.Id + ":" + i.Available)); if (current != _shelfSignature) BuildBody(); } })); } };
+        Closed += (_, _) => { _motion.StopAll(); _clock.Stop(); _envelope.Dispose(); };
     }
     private static bool HasPointerControl(DependencyObject source)
     {
@@ -197,13 +222,11 @@ public sealed partial class IslandWindow : Window
     }
     private bool ContainsSurfacePoint(Point point)
     {
-        if (RoundedContains(point, _clip.Rect, 26))
+        if (RoundedContains(point, _clip.Rect, _clip.RadiusX))
             return true;
-        if (_dock.IsVisible && _dock.IsHitTestVisible && _dock.Opacity > 0
-            && RoundedContains(_surface.TranslatePoint(point, _dock), new Rect(0, 0, _dock.ActualWidth, _dock.ActualHeight), 20))
-            return true;
-        return _detail.IsVisible && _detail.IsHitTestVisible && _detail.Opacity > 0
-            && RoundedContains(_surface.TranslatePoint(point, _detail), new Rect(0, 0, _detail.ActualWidth, _detail.ActualHeight), 22);
+        for (int i = 0; i < _secondary.Length; i++)
+            if (_secondary[i].IsVisible && _secondary[i].IsHitTestVisible && _secondary[i].Opacity > 0 && RoundedContains(point, _secondaryRects[i], 22)) return true;
+        return false;
     }
     private DragDropEffects ShelfDropEffect(DragEventArgs e)
     {
@@ -334,11 +357,11 @@ public sealed partial class IslandWindow : Window
         var screen = _app.Policy.DisplayBounds;
         if (screen.Width <= 0 || screen.Height <= 0)
             return;
-        double dpi = _app.Policy.DpiScale, fit = Math.Min(screen.Width / (836 * dpi), (System.Windows.Forms.Screen.FromRectangle(screen).WorkingArea.Bottom - screen.Top) / (530 * dpi));
+        double dpi = _app.Policy.DpiScale, fit = Math.Min(screen.Width / ((DeckWidth + 16) * dpi), (System.Windows.Forms.Screen.FromRectangle(screen).WorkingArea.Bottom - screen.Top) / ((TotalHeight + 8) * dpi));
         double size = Math.Min(_app.EffectivePreferences.SizeScale, fit);
         _surface.LayoutTransform = new ScaleTransform(size, size);
-        Width = 836 * size;
-        Height = 530 * size;
+        Width = (DeckWidth + 16) * size;
+        Height = (TotalHeight + 8) * size;
         int width = (int)Math.Round(Width * dpi), height = (int)Math.Round(Height * dpi);
         SetWindowPos(_hwnd, IntPtr.Zero, screen.Left + (screen.Width - width) / 2, screen.Top, width, height, 0x0010 | 0x0004);
     }
@@ -348,7 +371,7 @@ public sealed partial class IslandWindow : Window
             return;
         SetForegroundWindow(_hwnd);
         Activate();
-        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() => { if (!IsVisible || !_app.Policy.IsEligible) return; var target = FindKeyboardControl(_detail.Visibility == Visibility.Visible ? _body : _wide ? _expanded : _compact); if (target != null) { target.Focus(); Keyboard.Focus(target); } }));
+        Dispatcher.BeginInvoke(DispatcherPriority.Input, new Action(() => { if (!IsVisible || !_app.Policy.IsEligible) return; var target = FindKeyboardControl(_presentation == IslandPresentation.Detail ? _body : _presentation == IslandPresentation.Tools ? _tabs : _presentation == IslandPresentation.Activity ? _expanded : _compact); if (target != null) { target.Focus(); Keyboard.Focus(target); } }));
     }
     private static Control? FindKeyboardControl(DependencyObject root)
     {
@@ -370,193 +393,219 @@ public sealed partial class IslandWindow : Window
     }
     private void BuildCompact()
     {
-        _compact.Width = 260;
-        _compact.Height = 44;
+        _compact.Width = IdleRect.Width;
+        _compact.Height = 48;
         _compact.VerticalAlignment = VerticalAlignment.Top;
-        _compact.HorizontalAlignment = HorizontalAlignment.Center;
-        foreach (double width in new[] { 40d, 156, 32, 32 })
-            _compact.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(width) });
-        var cover = new Grid { Width = 28, Height = 28 };
-        var glyph = Design.Icon("\uE80F", 15);
-        glyph.SetResourceReference(TextBlock.ForegroundProperty, "IslandAccent");
-        _compactGlyph = glyph;
-        cover.Children.Add(glyph);
+        _compact.HorizontalAlignment = HorizontalAlignment.Left;
+        _compact.RenderTransform = _compactSlide;
+        _compactSlide.X = IdleRect.X;
+        _compact.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+        _compact.ColumnDefinitions.Add(new ColumnDefinition());
+        _compact.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0) });
+        _compact.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+        var cover = new Grid { Width = 23, Height = 23, Clip = new RectangleGeometry(new Rect(0, 0, 23, 23), 7, 7) };
+        _compactGlyph = Design.Icon("\uE80F", 17);
+        _compactGlyph.SetResourceReference(TextBlock.ForegroundProperty, "IslandAccent");
+        _compactBrand = CrestBrand.Mark(20, "IslandAccent");
+        _compactArt.Width = _compactArt.Height = 23;
+        cover.Children.Add(_compactGlyph);
+        cover.Children.Add(_compactBrand);
         cover.Children.Add(_compactArt);
-        var coverButton = Design.Button("", ExpandCompactDetails);
+        var coverButton = Design.Button("", OpenContext);
         coverButton.Content = cover;
         coverButton.Background = Brushes.Transparent;
+        coverButton.BorderThickness = new Thickness(0);
         coverButton.Padding = new Thickness(0);
-        AutomationProperties.SetName(coverButton, "Open activity overview");
-        _compactDetails = coverButton;
+        coverButton.SetResourceReference(Control.ForegroundProperty, "IslandText");
+        AutomationProperties.SetName(coverButton, "Expand current activity");
         _compact.Children.Add(coverButton);
         var meta = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-        var title = Label("compactTitle", "crest", 12, "IslandText", true);
+        var title = Label("compactTitle", "crest", 13, "IslandText", true);
         title.TextWrapping = TextWrapping.NoWrap;
         title.TextTrimming = TextTrimming.CharacterEllipsis;
+        var subtitle = Label("compactDetail", "Idle", 11, "IslandMuted");
+        subtitle.TextWrapping = TextWrapping.NoWrap;
+        subtitle.TextTrimming = TextTrimming.CharacterEllipsis;
         meta.Children.Add(title);
-        var artist = Label("compactDetail", "Your desktop, in reach", 9, "IslandMuted");
-        artist.TextWrapping = TextWrapping.NoWrap;
-        artist.TextTrimming = TextTrimming.CharacterEllipsis;
-        meta.Children.Add(artist);
-        Grid.SetColumn(meta, 1);
-        _compact.Children.Add(meta);
-        var play = Design.IconButton("\uE768", "Activity action", RunCompactAction);
-        play.Background = Brushes.Transparent;
-        play.Padding = new Thickness(5);
-        play.MinWidth = 32;
-        play.MinHeight = 32;
-        play.Margin = new Thickness(0, 6, 0, 6);
-        Grid.SetColumn(play, 2);
-        _compact.Children.Add(play);
-        _compactPlay = play;
-        var open = Design.IconButton("\uE70D", "Expand activity deck", () => Expand("Overview"));
-        open.Background = Brushes.Transparent;
-        open.Padding = new Thickness(5);
-        open.Margin = new Thickness(0, 6, 2, 6);
-        Grid.SetColumn(open, 3);
-        _compact.Children.Add(open);
+        meta.Children.Add(subtitle);
+        _compactDetails = Design.Button("", OpenContext);
+        _compactDetails.Content = meta;
+        _compactDetails.Padding = new Thickness(2, 0, 2, 0);
+        _compactDetails.Background = Brushes.Transparent;
+        _compactDetails.BorderThickness = new Thickness(0);
+        _compactDetails.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+        Grid.SetColumn(_compactDetails, 1);
+        _compact.Children.Add(_compactDetails);
+        _compactPlay = Design.IconButton("\uE768", "Activity action", RunCompactAction);
+        _compactPlay.Background = Brushes.Transparent;
+        _compactPlay.BorderThickness = new Thickness(0);
+        _compactPlay.Padding = new Thickness(8);
+        _compactPlay.SetResourceReference(Control.ForegroundProperty, "IslandText");
+        Grid.SetColumn(_compactPlay, 2);
+        _compact.Children.Add(_compactPlay);
+        _compactOpen = Design.IconButton("\uE70D", "Expand current activity", () => { if (_presentation == IslandPresentation.Compact) OpenContext(); else Collapse(); });
+        _compactOpen.Background = Brushes.Transparent;
+        _compactOpen.BorderThickness = new Thickness(0);
+        _compactOpen.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
+        _compactOpen.Padding = new Thickness(8);
+        Grid.SetColumn(_compactOpen, 3);
+        _compact.Children.Add(_compactOpen);
     }
     private Button _compactPlay = null!;
     private Button _compactDetails = null!;
     private TextBlock _compactGlyph = null!;
-    private void ExpandCompactDetails()
-    {
-        Expand(_compactModule);
-        if (_compactModule != "Timer") return;
-        if (_compactShowsDueReminders) _timerTools?.ShowReminders();
-        else if (_compactShowsFocus) _timerTools?.ShowFocusSessions();
-    }
+    private void ExpandCompactDetails() => OpenContext();
     private async void RunCompactAction()
     {
-        if (_compactActionBusy || _compactModule == "Overview"
-            || !_app.Preferences.EnabledModules.Contains(_compactModule))
-            return;
-        if (_compactModule == "Controls" || (_compactModule == "Timer" && (_compactShowsCompletedTimers || _compactShowsDueReminders || _compactShowsFocus && _app.Local.Focus.Phase == TimerPhase.Completed)))
+        if (_compactActionBusy || _selectedActivity == null) return;
+        var activity = _selectedActivity;
+        if (activity.Kind == IslandActivityKind.BatteryWarning || activity.Kind == IslandActivityKind.Reminder
+            || activity.Kind == IslandActivityKind.Timer && activity.Phase.ToString() == "Completed"
+            || activity.Kind == IslandActivityKind.Focus && activity.Phase.ToString() == "Completed")
         {
-            ExpandCompactDetails();
+            OpenActivityDetails(activity);
             return;
         }
-        var timer = _app.Local.Timer;
-        Func<Task>? action = _compactModule == "Music" && _app.Hardware.Music.CanPlayPause
-            ? _app.Hardware.TogglePlaybackAsync
-            : _compactModule == "Timer" && _compactShowsFocus && _app.Local.Focus.Phase == TimerPhase.Running
-                ? () => Task.Run(_app.Local.PauseFocus)
-                : _compactModule == "Timer" && _compactShowsFocus && _app.Local.Focus.Phase == TimerPhase.Paused
-                    ? () => Task.Run(_app.Local.ResumeFocus)
-            : _compactModule == "Timer" && timer.Phase == TimerPhase.Running
-                ? () => Task.Run(() => _app.Local.PauseTimer(timer.Id))
-                : _compactModule == "Timer" && timer.Phase == TimerPhase.Paused
-                    ? () => Task.Run(() => _app.Local.ResumeTimer(timer.Id)) : null;
-        if (action == null)
-            return;
         _compactActionBusy = true;
         _compactPlay.IsEnabled = false;
-        try { await action(); }
+        try { await IslandActivityCatalog.InvokePrimaryAsync(_app, activity, Expand); }
         catch { ShowMessage("This activity is currently unavailable. Try again shortly."); }
         finally { _compactActionBusy = false; Refresh(); }
     }
     private void BuildDock()
     {
-        _dock.Width = DockWidth;
-        _dock.Height = 40;
-        _dock.CornerRadius = new CornerRadius(20);
-        _dock.HorizontalAlignment = HorizontalAlignment.Center;
+        _dock.Width = 440;
+        _dock.HorizontalAlignment = HorizontalAlignment.Left;
         _dock.VerticalAlignment = VerticalAlignment.Top;
-        _dock.Margin = new Thickness(0, 158, 0, 0);
-        _dock.BorderThickness = new Thickness(1);
-        _dock.Padding = new Thickness(5, 3, 5, 3);
-        _dock.SetResourceReference(Border.BackgroundProperty, "IslandShell");
-        _dock.SetResourceReference(Border.BorderBrushProperty, "IslandOutline");
+        _dock.Margin = new Thickness(20, 0, 0, 0);
+        _dock.Padding = new Thickness(20, 18, 20, 18);
+        _dock.RenderTransform = _dockSlide;
+        _dock.Background = Brushes.Transparent;
+        _dock.BorderThickness = new Thickness(0);
         _dock.Child = _tabs;
-        _tabs.HorizontalAlignment = HorizontalAlignment.Center;
-        _tabs.VerticalAlignment = VerticalAlignment.Center;
         _dock.Visibility = Visibility.Collapsed;
-        _surface.Children.Add(_dock);
+        _shell.Children.Add(_dock);
         BuildTabs();
     }
     private void BuildTabs()
     {
         _tabs.Children.Clear();
-        var items = new[] { ("Overview", "\uE80F", "Activity overview"), ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers, focus and reminders"), ("Controls", "\uE9E9", "Laptop controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf"), ("Capture", "\uE722", "Screen capture references"), ("Workspaces", "\uE8A5", "Workspace presets"), ("Clipboard", "\uE77F", "Clipboard history"), ("Integrations", "\uE774", "Optional integrations") };
-        foreach (var (module, glyph, name) in items.Where(i => i.Item1 == "Overview" || _app.Preferences.EnabledModules.Contains(i.Item1)).OrderBy(i => i.Item1 == "Overview" ? -1 : _app.Preferences.ModuleOrder.IndexOf(i.Item1)))
-        {
-            var b = Design.IconButton(glyph, name, () => Expand(module));
-            b.Style = (Style)FindResource("CircleButton");
-            b.Width = 32;
-            b.Height = 32;
-            b.MinHeight = 32;
-            b.Padding = new Thickness(6);
-            b.Margin = new Thickness(1, 0, 1, 0);
-            if (module == _module && _wide)
-            {
-                b.Background = Design.Brush("IslandText");
-                b.Foreground = Design.Brush("IslandShell");
-            }
-            else
-            {
-                b.Background = Brushes.Transparent;
-                b.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
-            }
-            _tabs.Children.Add(b);
-        }
-        var settings = Design.IconButton("\uE713", "Crest settings", _app.OpenSettings);
-        settings.Style = (Style)FindResource("CircleButton");
-        settings.Width = 32;
-        settings.Height = 32;
-        settings.Padding = new Thickness(6);
-        settings.Background = Brushes.Transparent;
-        settings.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
-        _tabs.Children.Add(settings);
+        var heading = new Grid { Margin = new Thickness(0, 0, 0, 16), Height = 40 };
+        heading.ColumnDefinitions.Add(new ColumnDefinition());
+        heading.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var title = Design.Text("Your tools", 20, "IslandText", true);
+        title.VerticalAlignment = VerticalAlignment.Center;
+        heading.Children.Add(title);
         var close = Design.IconButton("\uE70E", "Collapse island", Collapse);
-        close.Style = (Style)FindResource("CircleButton");
-        close.Width = 32;
-        close.Height = 32;
-        close.Padding = new Thickness(6);
         close.Background = Brushes.Transparent;
+        close.BorderThickness = new Thickness(0);
         close.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
-        _tabs.Children.Add(close);
-        _dock.Width = Math.Max(DockWidth, _tabs.Children.Count * 34 + 10);
+        Grid.SetColumn(close, 1);
+        heading.Children.Add(close);
+        _tabs.Children.Add(heading);
+        var items = new[] { ("Music", "\uE8D6", "Music"), ("Timer", "\uE823", "Timers & focus"), ("Controls", "\uE9E9", "System controls"), ("Launch", "\uE8A7", "Launch shortcuts"), ("Shelf", "\uE8B7", "File shelf"), ("Capture", "\uE722", "Capture"), ("Workspaces", "\uE8A5", "Workspaces"), ("Clipboard", "\uE77F", "Clipboard"), ("Integrations", "\uE774", "Integrations") };
+        var enabled = items.Where(i => _app.Preferences.EnabledModules.Contains(i.Item1)).OrderBy(i => _app.Preferences.ModuleOrder.IndexOf(i.Item1)).ToArray();
+        for (int index = 0; index < enabled.Length; index += 2)
+        {
+            var row = new Grid { Margin = new Thickness(0, 0, 0, 8) };
+            row.ColumnDefinitions.Add(new ColumnDefinition());
+            row.ColumnDefinitions.Add(new ColumnDefinition());
+            for (int offset = 0; offset < 2 && index + offset < enabled.Length; offset++)
+            {
+                var item = enabled[index + offset];
+                var button = Design.Button(item.Item3, () => Expand(item.Item1));
+                button.Height = 48;
+                button.HorizontalContentAlignment = HorizontalAlignment.Left;
+                button.Padding = new Thickness(12, 6, 12, 6);
+                button.Margin = offset == 0 ? new Thickness(0, 0, 4, 0) : new Thickness(4, 0, 0, 0);
+                button.BorderThickness = new Thickness(0);
+                button.SetResourceReference(Control.BackgroundProperty, "IslandCard");
+                button.SetResourceReference(Control.ForegroundProperty, "IslandText");
+                var content = new StackPanel { Orientation = Orientation.Horizontal };
+                var icon = Design.Icon(item.Item2, 17);
+                icon.SetResourceReference(TextBlock.ForegroundProperty, "IslandMuted");
+                icon.Margin = new Thickness(0, 0, 10, 0);
+                content.Children.Add(icon);
+                var text = Design.Text(item.Item3, 12, "IslandText");
+                text.VerticalAlignment = VerticalAlignment.Center;
+                content.Children.Add(text);
+                button.Content = content;
+                AutomationProperties.SetAutomationId(button, "module-" + item.Item1);
+                Grid.SetColumn(button, offset);
+                row.Children.Add(button);
+            }
+            _tabs.Children.Add(row);
+        }
+        if (enabled.Length == 0) _tabs.Children.Add(Design.Text("Choose your modules in Settings.", 13, "IslandMuted"));
+        var footer = new Grid { Margin = new Thickness(0, 10, 0, 0) };
+        footer.ColumnDefinitions.Add(new ColumnDefinition());
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var current = Design.Button("Current activity", OpenContext);
+        current.Background = Brushes.Transparent;
+        current.BorderThickness = new Thickness(0);
+        current.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
+        current.HorizontalContentAlignment = HorizontalAlignment.Left;
+        current.Padding = new Thickness(0, 6, 0, 6);
+        current.IsEnabled = _activities.Count > 0;
+        footer.Children.Add(current);
+        var settings = Design.Button("Settings", _app.OpenSettings);
+        settings.Background = Brushes.Transparent;
+        settings.BorderThickness = new Thickness(0);
+        settings.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
+        settings.Padding = new Thickness(10, 6, 0, 6);
+        Grid.SetColumn(settings, 1);
+        footer.Children.Add(settings);
+        _tabs.Children.Add(footer);
     }
     private void BuildDetail()
     {
         _detail.Width = DetailRect.Width;
         _detail.Height = DetailRect.Height;
-        _detail.HorizontalAlignment = HorizontalAlignment.Center;
+        _detail.HorizontalAlignment = HorizontalAlignment.Left;
         _detail.VerticalAlignment = VerticalAlignment.Top;
-        _detail.Margin = new Thickness(0, DetailRect.Top, 0, 0);
-        _detail.CornerRadius = new CornerRadius(22);
-        _detail.BorderThickness = new Thickness(1);
-        _detail.Padding = new Thickness(16, 12, 16, 12);
+        _detail.Margin = new Thickness(20, 0, 0, 0);
+        _detail.Padding = new Thickness(20, 16, 20, 12);
         _detail.RenderTransform = _detailSlide;
-        _detail.SetResourceReference(Border.BackgroundProperty, "IslandShell");
-        _detail.SetResourceReference(Border.BorderBrushProperty, "IslandOutline");
+        _detail.Background = Brushes.Transparent;
+        _detail.BorderThickness = new Thickness(0);
         var grid = new Grid();
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(34) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(44) });
         grid.RowDefinitions.Add(new RowDefinition());
-        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(20) });
+        grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(26) });
         var head = new Grid();
+        head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         head.ColumnDefinitions.Add(new ColumnDefinition());
         head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        head.Children.Add(Label("detailTitle", "Music", 12, "IslandText", true));
-        var close = Design.IconButton("\uE711", "Close module details", () => Expand("Overview"));
-        close.Width = 32;
-        close.Height = 32;
+        var back = Design.IconButton("\uE72B", "Back to tools", () => Expand("Tools"));
+        back.Background = Brushes.Transparent;
+        back.BorderThickness = new Thickness(0);
+        back.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
+        back.Margin = new Thickness(-8, 0, 6, 0);
+        head.Children.Add(back);
+        var title = Label("detailTitle", "Your tools", 16, "IslandText", true);
+        title.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(title, 1);
+        head.Children.Add(title);
+        var close = Design.IconButton("\uE70E", "Collapse island", Collapse);
         close.Background = Brushes.Transparent;
-        close.Padding = new Thickness(7);
-        Grid.SetColumn(close, 1);
+        close.BorderThickness = new Thickness(0);
+        close.SetResourceReference(Control.ForegroundProperty, "IslandMuted");
+        Grid.SetColumn(close, 2);
         head.Children.Add(close);
         grid.Children.Add(head);
-        var scroll = new ScrollViewer { Content = _body };
-        Grid.SetRow(scroll, 1);
-        grid.Children.Add(scroll);
+        _detailScroll = new ScrollViewer { Content = _body, Padding = new Thickness(0, 0, 4, 0) };
+        _body.SizeChanged += (_, _) => QueueDetailSizeUpdate();
+        Grid.SetRow(_detailScroll, 1);
+        grid.Children.Add(_detailScroll);
         var footer = new Grid();
         footer.ColumnDefinitions.Add(new ColumnDefinition());
         footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        var status = Label("footer", _app.Preferences.AllowOverApps ? "LOCAL · OVER OTHER APPS" : "LOCAL · DESKTOP ONLY", 9, "IslandMuted");
+        var status = Label("footer", _app.Preferences.AllowOverApps ? "LOCAL · OVER OTHER APPS" : "LOCAL · DESKTOP ONLY", 10, "IslandMuted");
         status.TextWrapping = TextWrapping.NoWrap;
         status.TextTrimming = TextTrimming.CharacterEllipsis;
         footer.Children.Add(status);
-        var clock = Label("clock", DateTime.Now.ToString("g", CultureInfo.CurrentCulture), 9, "IslandMuted");
+        var clock = Label("clock", DateTime.Now.ToString("g", CultureInfo.CurrentCulture), 10, "IslandMuted");
+        clock.TextWrapping = TextWrapping.NoWrap;
         AutomationProperties.SetName(clock, "Local date and time");
         Grid.SetColumn(clock, 1);
         footer.Children.Add(clock);
@@ -565,7 +614,7 @@ public sealed partial class IslandWindow : Window
         grid.Children.Add(footer);
         _detail.Child = grid;
         _detail.Visibility = Visibility.Collapsed;
-        _surface.Children.Add(_detail);
+        _shell.Children.Add(_detail);
     }
     public void Reveal(long version)
     {
@@ -605,25 +654,27 @@ public sealed partial class IslandWindow : Window
             return;
         bool controlsNoticeVisible = _module == "Controls" && _detail.IsVisible && _detail.Opacity >= 0.99
             && _labels.TryGetValue("bodyBatteryNotice", out var noticeLabel) && noticeLabel.IsVisible;
-        if (_compact.IsVisible || controlsNoticeVisible)
+        if (_presentation == IslandPresentation.Compact || _presentation == IslandPresentation.Activity && _selectedActivity?.Kind == IslandActivityKind.BatteryWarning && _expanded.Opacity >= 0.99 || controlsNoticeVisible)
             _app.Hardware.AcknowledgeBatteryNotice(_shownBatteryNotice.Id);
     }
     public void CloseAnimated(long version) => AnimateVisibility(0, -8, Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 190, () => { if (version != _app.Controller.TransitionVersion) return; Suppress(); _app.Controller.CompleteClose(version); });
     private void AnimateVisibility(double opacity, double y, int ms, Action completed)
     {
         int generation = ++_motionGeneration;
-        var time = TimeSpan.FromMilliseconds(ms / _app.EffectivePreferences.MotionSpeed);
-        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-        var fade = new DoubleAnimation(Opacity, opacity, time) { EasingFunction = ease };
-        fade.Completed += (_, _) => { if (generation == _motionGeneration) completed(); };
-        BeginAnimation(OpacityProperty, fade, HandoffBehavior.SnapshotAndReplace);
         if (Design.ReducedMotion(_app.EffectivePreferences))
         {
-            _slide.BeginAnimation(TranslateTransform.YProperty, null);
+            _motion.Stop(this, OpacityProperty);
+            _motion.Stop(_slide, TranslateTransform.YProperty);
             _slide.Y = 0;
+            var fade = new DoubleAnimation(Opacity, opacity, TimeSpan.FromMilliseconds(60));
+            fade.Completed += (_, _) => { if (generation == _motionGeneration) { Opacity = opacity; BeginAnimation(OpacityProperty, null); completed(); } };
+            BeginAnimation(OpacityProperty, fade, HandoffBehavior.SnapshotAndReplace);
         }
         else
-            _slide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(_slide.Y, y, time) { EasingFunction = ease }, HandoffBehavior.SnapshotAndReplace);
+        {
+            _motion.Double(this, OpacityProperty, opacity, _app.EffectivePreferences.MotionSpeed, .16, completed: () => { if (generation == _motionGeneration) completed(); });
+            _motion.Double(_slide, TranslateTransform.YProperty, y, _app.EffectivePreferences.MotionSpeed, .26, .92);
+        }
     }
     public void Suppress()
     {
@@ -633,18 +684,22 @@ public sealed partial class IslandWindow : Window
         try
         {
             ++_motionGeneration;
+            _motion.StopAll();
             IsHitTestVisible = false;
             ClosePlayerPopup();
             Hide();
             BeginAnimation(OpacityProperty, null);
             _slide.BeginAnimation(TranslateTransform.YProperty, null);
             _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
-            ++_dockMotionGeneration;
+            ++_viewGeneration;
             _dock.BeginAnimation(OpacityProperty, null);
             _detail.BeginAnimation(OpacityProperty, null);
+            _expanded.BeginAnimation(OpacityProperty, null);
+            _compact.BeginAnimation(OpacityProperty, null);
             _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
             _clock.Stop();
             _shownBatteryNotice = null;
+            foreach (var secondary in _secondary) { secondary.Visibility = Visibility.Collapsed; secondary.IsHitTestVisible = false; }
             _app.Hardware.SetVisible(false);
             Keyboard.ClearFocus();
         }
@@ -652,118 +707,47 @@ public sealed partial class IslandWindow : Window
     }
     public void Expand(string module)
     {
-        if (!IsVisible && !_rendering)
-            return;
-        if (module != "Overview" && !_app.Preferences.EnabledModules.Contains(module))
-            module = "Overview";
-        if (_wide && _module == module && (module == "Overview" || _detail.Visibility == Visibility.Visible))
-        {
-            Refresh();
-            return;
-        }
+        if (!IsVisible && !_rendering) return;
+        if (module == "Overview") { OpenContext(); return; }
+        if (module == "Tools") { ShowTools(); return; }
+        if (!_app.Preferences.EnabledModules.Contains(module)) { OpenContext(); return; }
         bool keyboard = IsVisible && GetForegroundWindow() == _hwnd && IsKeyboardFocusWithin;
-        bool detailWasVisible = _detail.Visibility == Visibility.Visible;
-        _module = module;
-        _wide = true;
-        BuildTabs();
+        if (_presentation == IslandPresentation.Detail && _module == module) { SelectActivityDetails(_selectedActivity); Refresh(); UpdateDetailSize(); return; }
         ClosePlayerPopup();
-        _compact.Visibility = Visibility.Collapsed;
-        _expanded.Visibility = Visibility.Visible;
-        AnimateDock(true, true);
-        _detail.Visibility = module == "Overview" ? Visibility.Collapsed : Visibility.Visible;
-        if (module != "Overview")
-        {
-            Set("detailTitle", module switch
-            {
-                "Controls" => "Laptop controls",
-                "Launch" => "Your shortcuts",
-                "Shelf" => "File shelf",
-                "Timer" => "Timers and stopwatch",
-                "Capture" => "Recent captures",
-                "Workspaces" => "Your workspaces",
-                "Clipboard" => "Clipboard history",
-                _ => module
-            });
-            BuildBody();
-            double opacity = detailWasVisible ? _detail.Opacity : 0;
-            double offset = detailWasVisible ? _detailSlide.Y : -6;
-            var duration = TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 220 / _app.EffectivePreferences.MotionSpeed);
-            var detailFade = new DoubleAnimation(opacity, 1, duration);
-            detailFade.Completed += (_, _) => AcknowledgeShownBatteryNotice();
-            _detail.BeginAnimation(OpacityProperty, detailFade, HandoffBehavior.SnapshotAndReplace);
-            if (Design.ReducedMotion(_app.EffectivePreferences))
-            {
-                _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
-                _detailSlide.Y = 0;
-            }
-            else
-                _detailSlide.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(offset, 0, duration) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } }, HandoffBehavior.SnapshotAndReplace);
-        }
-        AnimateShape(OpenRect);
-        Refresh();
-        if (keyboard)
-            FocusForKeyboard();
+        _module = module;
+        Set("detailTitle", module switch { "Controls" => "System controls", "Launch" => "Launch shortcuts", "Timer" => "Timers & focus", "Shelf" => "File shelf", "Capture" => "Capture references", "Workspaces" => "Workspaces", "Clipboard" => "Clipboard", _ => module });
+        BuildBody();
+        SelectActivityDetails(_selectedActivity);
+        _detailScroll.ScrollToTop();
+        TransitionTo(IslandPresentation.Detail, GetDetailRect());
+        if (keyboard) FocusForKeyboard();
     }
     private void Collapse() => Collapse(true);
     private void Collapse(bool animated)
     {
         bool keyboard = IsVisible && GetForegroundWindow() == _hwnd && IsKeyboardFocusWithin;
         ClosePlayerPopup();
-        _wide = false;
+        _selectedActivityId = null;
+        ReadActivities();
         _module = "Overview";
-        _expanded.Visibility = Visibility.Collapsed;
-        AnimateDock(false, animated);
-        _detail.Visibility = Visibility.Collapsed;
-        _compact.Visibility = Visibility.Visible;
-        _detail.BeginAnimation(OpacityProperty, null);
-        _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
-        if (animated)
-            AnimateShape(CompactRect);
-        else
-        {
-            _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
-            _clip.Rect = CompactRect;
-        }
-        if (keyboard)
-            FocusForKeyboard();
+        TransitionTo(IslandPresentation.Compact, _compactRect, animated);
+        if (keyboard) FocusForKeyboard();
     }
     private void AnimateShape(Rect target)
     {
-        if (Design.ReducedMotion(_app.EffectivePreferences))
+        _targetRect = target;
+        if (Design.ReducedMotion(_app.EffectivePreferences) || _rendering)
         {
-            _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
+            _motion.Stop(_clip, RectangleGeometry.RectProperty);
+            _motion.Stop(_clip, RectangleGeometry.RadiusXProperty);
+            _motion.Stop(_clip, RectangleGeometry.RadiusYProperty);
             _clip.Rect = target;
+            _clip.RadiusX = _clip.RadiusY = target.Height <= 48 ? 24 : 30;
             return;
         }
-        var a = new RectAnimation(_clip.Rect, target, TimeSpan.FromMilliseconds(220 / _app.EffectivePreferences.MotionSpeed)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
-        _clip.BeginAnimation(RectangleGeometry.RectProperty, a, HandoffBehavior.SnapshotAndReplace);
-    }
-    private void AnimateDock(bool show, bool animated)
-    {
-        int generation = ++_dockMotionGeneration;
-        double from = _dock.Visibility == Visibility.Visible ? _dock.Opacity : 0;
-        _dock.IsHitTestVisible = show;
-        if (show)
-            _dock.Visibility = Visibility.Visible;
-        if (!animated)
-        {
-            _dock.BeginAnimation(OpacityProperty, null);
-            _dock.Opacity = show ? 1 : 0;
-            _dock.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-            return;
-        }
-        var duration = TimeSpan.FromMilliseconds(Design.ReducedMotion(_app.EffectivePreferences) ? 60 : 220 / _app.EffectivePreferences.MotionSpeed);
-        var fade = new DoubleAnimation(from, show ? 1 : 0, duration) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
-        fade.Completed += (_, _) =>
-        {
-            if (generation != _dockMotionGeneration)
-                return;
-            _dock.Opacity = show ? 1 : 0;
-            _dock.BeginAnimation(OpacityProperty, null);
-            if (!show)
-                _dock.Visibility = Visibility.Collapsed;
-        };
-        _dock.BeginAnimation(OpacityProperty, fade, HandoffBehavior.SnapshotAndReplace);
+        _motion.Rect(_clip, RectangleGeometry.RectProperty, target, _app.EffectivePreferences.MotionSpeed);
+        _motion.Double(_clip, RectangleGeometry.RadiusXProperty, target.Height <= 48 ? 24 : 30, _app.EffectivePreferences.MotionSpeed, .32, .86);
+        _motion.Double(_clip, RectangleGeometry.RadiusYProperty, target.Height <= 48 ? 24 : 30, _app.EffectivePreferences.MotionSpeed, .32, .86);
     }
 
     private void BuildBody()
@@ -777,6 +761,7 @@ public sealed partial class IslandWindow : Window
         _playerSignature = "";
         _body.Children.Clear();
         _timerTools = null;
+        _integrationTools = null;
         _systemTools = null;
         _clipboardTools = null;
         foreach (string k in _labels.Keys.Where(k => k.StartsWith("body")).ToArray())
@@ -808,6 +793,7 @@ public sealed partial class IslandWindow : Window
                 _body.Children.Add(_clipboardTools); break;
         }
         Refresh();
+        if (_presentation == IslandPresentation.Detail) UpdateDetailSize();
     }
     private void BuildMusic()
     {
@@ -845,7 +831,7 @@ public sealed partial class IslandWindow : Window
         play.Height = 42;
         play.Margin = new Thickness(12, 0, 12, 0);
         play.SetResourceReference(Control.BackgroundProperty, "AccentFill");
-        play.Foreground = Brushes.Black;
+        play.SetResourceReference(Control.ForegroundProperty, "AccentText");
         _buttons["play"] = play;
         _buttons["previous"] = previous;
         _buttons["next"] = next;
@@ -1146,46 +1132,45 @@ public sealed partial class IslandWindow : Window
         _rendering = true;
         _surface.LayoutTransform = Transform.Identity;
         _surface.Margin = new Thickness(0);
+        _motion.StopAll();
         foreach (string theme in new[] { "Dark", "Light" })
         {
             _app.Preferences.Theme = theme;
             Design.Apply(_app.EffectivePreferences);
-            foreach (string module in new[] { "Overview", "Music", "Controls", "Timer", "Launch", "Shelf" })
-            {
-                _module = module;
-                _wide = true;
-                _compact.Visibility = Visibility.Collapsed;
-                _expanded.Visibility = Visibility.Visible;
-                AnimateDock(true, false);
-                _detail.Visibility = module == "Overview" ? Visibility.Collapsed : Visibility.Visible;
-                _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
-                _clip.Rect = OpenRect;
-                _detail.BeginAnimation(OpacityProperty, null);
-                _detail.Opacity = 1;
-                _detailSlide.Y = 0;
-                Set("detailTitle", module);
-                BuildTabs();
-                if (module != "Overview")
-                    BuildBody();
-                Refresh();
-                _surface.Measure(new Size(DeckWidth, TotalHeight));
-                _surface.Arrange(new Rect(0, 0, DeckWidth, TotalHeight));
-                _surface.UpdateLayout();
-                SaveVisual(_surface, System.IO.Path.Combine(directory, theme.ToLowerInvariant() + "-" + module.ToLowerInvariant() + ".png"), (int)(DeckWidth * 2), module == "Overview" ? 400 : (int)(TotalHeight * 2));
-            }
+            ApplyIslandResources();
             Collapse(false);
             Refresh();
-            _surface.Measure(new Size(DeckWidth, TotalHeight));
-            _surface.Arrange(new Rect(0, 0, DeckWidth, TotalHeight));
-            _surface.UpdateLayout();
-            var bitmap = new RenderTargetBitmap((int)DeckWidth * 2, 88, 192, 192, PixelFormats.Pbgra32);
-            bitmap.Render(_surface);
-            SaveBitmap(new CroppedBitmap(bitmap, new Int32Rect(560, 0, 520, 88)), System.IO.Path.Combine(directory, theme.ToLowerInvariant() + "-compact.png"));
+            SaveSurfacePreview(System.IO.Path.Combine(directory, theme.ToLowerInvariant() + "-compact.png"));
+            Expand("Overview");
+            SaveSurfacePreview(System.IO.Path.Combine(directory, theme.ToLowerInvariant() + "-overview.png"));
+            Expand("Tools");
+            SaveSurfacePreview(System.IO.Path.Combine(directory, theme.ToLowerInvariant() + "-tools.png"));
+            foreach (string module in ModuleCatalog.All)
+            {
+                if (!_app.Preferences.EnabledModules.Contains(module)) continue;
+                Expand(module);
+                SaveSurfacePreview(System.IO.Path.Combine(directory, theme.ToLowerInvariant() + "-" + module.ToLowerInvariant() + ".png"));
+            }
         }
         _rendering = false;
         _app.Preferences.Theme = previous;
         Design.Apply(_app.EffectivePreferences);
+        ApplyIslandResources();
         Collapse(false);
+    }
+    private void SaveSurfacePreview(string path)
+    {
+        _surface.Measure(new Size(DeckWidth, TotalHeight));
+        _surface.Arrange(new Rect(0, 0, DeckWidth, TotalHeight));
+        _surface.UpdateLayout();
+        var bitmap = new RenderTargetBitmap((int)DeckWidth * 2, (int)TotalHeight * 2, 192, 192, PixelFormats.Pbgra32);
+        bitmap.Render(_surface);
+        var bounds = _targetRect;
+        for (int i = 0; i < _secondary.Length; i++) if (_secondary[i].IsVisible) bounds.Union(_secondaryRects[i]);
+        int x = Math.Max(0, (int)Math.Floor(bounds.X * 2) - 2), y = Math.Max(0, (int)Math.Floor(bounds.Y * 2));
+        int right = Math.Min((int)DeckWidth * 2, (int)Math.Ceiling(bounds.Right * 2) + 2);
+        int bottom = Math.Min((int)TotalHeight * 2, (int)Math.Ceiling(bounds.Bottom * 2) + 2);
+        SaveBitmap(new CroppedBitmap(bitmap, new Int32Rect(x, y, right - x, bottom - y)), path);
     }
     private static void SaveVisual(Visual visual, string path, int width, int height)
     {
@@ -1204,22 +1189,15 @@ public sealed partial class IslandWindow : Window
     {
         if (!IsVisible && !_rendering)
             return;
-        // A live preference change also removes clocks created by normal motion.
+        ApplyIslandResources();
         if (Design.ReducedMotion(_app.EffectivePreferences))
-        {
-            _slide.BeginAnimation(TranslateTransform.YProperty, null);
-            _slide.Y = 0;
-            _detailSlide.BeginAnimation(TranslateTransform.YProperty, null);
-            _detailSlide.Y = 0;
-            _clip.BeginAnimation(RectangleGeometry.RectProperty, null);
-            _clip.Rect = _wide ? OpenRect : CompactRect;
-        }
+            FinishMotionForReducedPreference();
         string enabled = string.Join("|", _app.Preferences.ModuleOrder.Where(m => _app.Preferences.EnabledModules.Contains(m)));
         if (enabled != _enabledSignature)
         {
             _enabledSignature = enabled;
             BuildTabs();
-            if (_wide && _module != "Overview" && !_app.Preferences.EnabledModules.Contains(_module))
+            if (_wide && _module is not "Overview" and not "Tools" && !_app.Preferences.EnabledModules.Contains(_module))
             {
                 Expand("Overview");
                 return;
@@ -1229,60 +1207,9 @@ public sealed partial class IslandWindow : Window
         try
         {
             var music = _app.Hardware.Music;
-            var timer = _app.Local.Timer;
-            bool musicEnabled = _app.Preferences.EnabledModules.Contains("Music");
-            bool timerEnabled = _app.Preferences.EnabledModules.Contains("Timer");
-            var completedTimers = timerEnabled ? _app.Local.Timers.Count(item => item.Phase == TimerPhase.Completed) : 0;
-            var focus = _app.Local.Focus;
-            int dueReminders = timerEnabled ? _app.Local.Reminders.Count(item => item.Phase == ReminderPhase.Due) : 0;
-            bool focusActive = timerEnabled && focus.Phase != TimerPhase.Idle;
             var battery = _app.Hardware.Battery;
             var notice = _app.Preferences.EnabledModules.Contains("Controls") ? _shownBatteryNotice : null;
-            bool activeTimer = timerEnabled && (timer.Phase is TimerPhase.Running or TimerPhase.Paused);
-            _compactShowsCompletedTimers = completedTimers > 0;
-            _compactShowsDueReminders = dueReminders > 0 && completedTimers == 0;
-            _compactShowsFocus = focusActive && dueReminders == 0 && completedTimers == 0;
-            _compactModule = notice != null ? "Controls" : completedTimers > 0 || activeTimer || focusActive || dueReminders > 0 ? "Timer"
-                : musicEnabled && music.HasSession ? "Music" : "Overview";
-            string compactTitle = notice != null ? notice.Severity == BatteryWarningLevel.Critical ? "Battery was critically low" : "Battery was low"
-                : completedTimers > 0 ? completedTimers == 1 ? "Timer complete" : completedTimers + " timers complete"
-                : dueReminders > 0 ? dueReminders == 1 ? "Reminder due" : dueReminders + " reminders due"
-                : focusActive ? focus.Phase == TimerPhase.Completed ? focus.Stage + " complete" : focus.Name
-                : activeTimer ? timer.Name : _compactModule == "Music" ? music.Title : "crest";
-            string compactDetail = notice != null ? "Windows reported " + notice.Percent.ToString(CultureInfo.CurrentCulture) + "% · open controls"
-                : completedTimers > 0 ? "Open timers to acknowledge"
-                : dueReminders > 0 ? "Open reminders to snooze or dismiss"
-                : focusActive ? focus.Phase == TimerPhase.Completed ? "Continue or dismiss in Focus" : focus.Stage + " · " + FormatTime(focus.RemainingSeconds)
-                : activeTimer ? timer.Phase + " · " + FormatTime(timer.RemainingSeconds)
-                : _compactModule == "Music" ? music.Artist : "Your desktop, in reach";
-            Set("compactTitle", compactTitle);
-            Set("compactDetail", compactDetail);
-            AutomationProperties.SetName(_compact, compactTitle + ", " + compactDetail);
-            string detailsName = _compactModule switch { "Controls" => "Open laptop controls", "Timer" => "Open timers and stopwatch", "Music" => "Open music details", _ => "Open activity overview" };
-            AutomationProperties.SetName(_compactDetails, detailsName + ", " + compactTitle + ", " + compactDetail);
-            _compactGlyph.Text = _compactModule switch { "Controls" => "\uE9E9", "Timer" => "\uE823", "Music" => "\uE8D6", _ => "\uE80F" };
-            _compactArt.Source = _compactModule == "Music" ? music.Artwork : null;
-            _compactArt.Visibility = _compactArt.Source == null ? Visibility.Collapsed : Visibility.Visible;
-            string actionName = _compactModule switch
-            {
-                "Controls" => "Open laptop controls",
-                "Timer" when completedTimers > 0 => "Open completed timers",
-                "Timer" when dueReminders > 0 => "Open due reminders",
-                "Timer" when focusActive && focus.Phase == TimerPhase.Completed => "Open completed focus session",
-                "Timer" when focusActive => (focus.Phase == TimerPhase.Running ? "Pause " : "Resume ") + focus.Name,
-                "Timer" => (timer.Phase == TimerPhase.Running ? "Pause " : "Resume ") + timer.Name,
-                "Music" => music.IsPlaying ? "Pause music" : "Play music",
-                _ => "No activity action available"
-            };
-            AutomationProperties.SetName(_compactPlay, actionName);
-            Design.RegisterTooltip(_compactPlay, actionName);
-            _compactPlay.IsEnabled = !_compactActionBusy && (_compactModule is "Controls" or "Timer" || _compactModule == "Music" && music.CanPlayPause);
-            _compactPlay.Visibility = _compactModule == "Overview" ? Visibility.Collapsed : Visibility.Visible;
-            if (_compactPlay.Content is TextBlock compactGlyph)
-                compactGlyph.Text = _compactModule == "Controls" ? "\uE70D" : completedTimers > 0 || dueReminders > 0 || focusActive && focus.Phase == TimerPhase.Completed ? "\uE823"
-                    : _compactModule == "Timer" && focusActive ? focus.Phase == TimerPhase.Running ? "\uE769" : "\uE768"
-                    : _compactModule == "Timer" ? timer.Phase == TimerPhase.Running ? "\uE769" : "\uE768"
-                    : music.IsPlaying ? "\uE769" : "\uE768";
+            ReadActivities();
             var now = DateTime.Now;
             Set("clock", now.ToString("g", CultureInfo.CurrentCulture));
             AutomationProperties.SetHelpText(_labels["clock"], now.ToString("F", CultureInfo.CurrentCulture));
@@ -1294,8 +1221,8 @@ public sealed partial class IslandWindow : Window
             }
             if (!_wide)
                 return;
-            _expanded.Refresh();
-            if (_detail.Visibility != Visibility.Visible)
+            if (_presentation == IslandPresentation.Activity) { _expanded.ShowActivity(_selectedActivity); _expanded.Refresh(); UpdateContextSize(); }
+            if (_presentation != IslandPresentation.Detail || _detail.Visibility != Visibility.Visible)
                 return;
             if (_module == "Music")
             {

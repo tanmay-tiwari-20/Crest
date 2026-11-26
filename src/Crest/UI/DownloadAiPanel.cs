@@ -22,6 +22,7 @@ public sealed class DownloadPanel : StackPanel
     private readonly Button _start;
     private readonly StackPanel _rows = new();
     private readonly Dictionary<string, TextBlock> _labels = new();
+    private readonly Dictionary<string, ProgressBar> _progress = new();
     private string _signature = "";
 
     public DownloadPanel(DownloadService service, DownloadPreferences preferences, Action save, Action<string> message,
@@ -29,6 +30,7 @@ public sealed class DownloadPanel : StackPanel
     {
         _service = service; _preferences = preferences; _save = save; _message = message;
         _chooseDestination = chooseDestination; _openDestination = openDestination;
+        Children.Add(PanelLayout.Heading("Downloads"));
         Children.Add(Design.Text("Downloads started here send the selected URL to its server and save bytes only to the filename you choose. Up to two transfers run at once, with a four GiB limit each. Other apps' downloads are not monitored.", 12, "Muted"));
         var enabled = new CheckBox { Content = "Enable Crest-managed downloads", IsChecked = preferences.Enabled, Margin = new Thickness(0, 8, 0, 8) };
         AutomationProperties.SetName(enabled, "Enable Crest-managed downloads");
@@ -45,6 +47,7 @@ public sealed class DownloadPanel : StackPanel
         Children.Add(Design.Button("Cancel transfers and clear list", _service.Clear));
         Loaded += (_, _) => { _service.Changed += OnChanged; Refresh(); };
         Unloaded += (_, _) => _service.Changed -= OnChanged;
+        PanelLayout.Refine(this);
         Refresh();
     }
 
@@ -73,12 +76,18 @@ public sealed class DownloadPanel : StackPanel
         if (signature != _signature)
         {
             _signature = signature;
-            _rows.Children.Clear(); _labels.Clear();
+            _rows.Children.Clear(); _labels.Clear(); _progress.Clear();
             foreach (var item in items)
             {
                 var row = new StackPanel { Margin = new Thickness(0, 8, 0, 8) };
                 row.Children.Add(Design.Text(Path.GetFileName(item.Destination), 12, "Text", true));
                 var label = Design.Text("", 11, "Muted"); _labels[item.Id] = label; row.Children.Add(label);
+                var bar = new ProgressBar { Minimum = 0, Maximum = 100, Height = 4, Margin = new Thickness(0, 8, 0, 12), Visibility = Visibility.Collapsed };
+                bar.SetResourceReference(Control.ForegroundProperty, "AccentFill");
+                bar.SetResourceReference(Control.BackgroundProperty, "Inset");
+                AutomationProperties.SetName(bar, "Download progress for " + Path.GetFileName(item.Destination));
+                _progress[item.Id] = bar;
+                row.Children.Add(bar);
                 if (item.Phase == DownloadPhase.Downloading) row.Children.Add(Design.Button("Cancel " + Path.GetFileName(item.Destination), () => _service.Cancel(item.Id)));
                 else
                 {
@@ -88,7 +97,10 @@ public sealed class DownloadPanel : StackPanel
                         row.Children.Add(Design.Button("Open downloaded file", () => _openDestination(item.Destination)));
                     row.Children.Add(Design.Button("Remove download from list", () => _service.Remove(item.Id)));
                 }
-                _rows.Children.Add(row);
+                PanelLayout.Refine(row);
+                var card = Design.Card(row, new Thickness(16));
+                card.Margin = new Thickness(0, 12, 0, 0);
+                _rows.Children.Add(card);
             }
         }
         foreach (var item in items)
@@ -98,6 +110,11 @@ public sealed class DownloadPanel : StackPanel
                 : FormatBytes(item.ReceivedBytes) + " received · total size unavailable";
             label.Text = item.Phase + " · " + progress + "\n" + item.Message;
             AutomationProperties.SetName(label, Path.GetFileName(item.Destination) + " " + label.Text);
+            if (_progress.TryGetValue(item.Id, out var bar))
+            {
+                bar.Visibility = item.Percentage.HasValue ? Visibility.Visible : Visibility.Collapsed;
+                bar.Value = item.Percentage ?? 0;
+            }
         }
     }
     private static string FormatBytes(long bytes) => bytes >= 1024 * 1024 ? (bytes / 1048576.0).ToString("F1") + " MiB" : (bytes / 1024.0).ToString("F1") + " KiB";
@@ -121,6 +138,7 @@ public sealed class AiAssistantPanel : StackPanel
     public AiAssistantPanel(AiAssistantService service, AiPreferences preferences, Action save, Action<string> message)
     {
         _service = service; _preferences = preferences; _save = save; _message = message;
+        Children.Add(PanelLayout.Heading("Local assistance"));
         Children.Add(Design.Text("Read-only chat uses an existing Ollama model on this PC. Crest sends only the question and this conversation to the selected loopback service. It has no file, clipboard, system, or action tools. No model is installed or bundled; your local model may use substantial memory and CPU.", 12, "Muted"));
         Children.Add(Design.Text("Local Ollama endpoint", 11, "Muted"));
         _endpoint.Text = preferences.Endpoint;
@@ -147,6 +165,7 @@ public sealed class AiAssistantPanel : StackPanel
         Children.Add(Design.Button("Clear conversation", () => { _prompt.Clear(); _service.Clear(); }));
         Loaded += (_, _) => { _service.Changed += OnChanged; Refresh(); };
         Unloaded += (_, _) => _service.Changed -= OnChanged;
+        PanelLayout.Refine(this);
         Refresh();
     }
 
